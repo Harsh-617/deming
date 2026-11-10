@@ -17,6 +17,23 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
   1 Dec 2026), and `gemini-2.5-flash-lite` as still served, not as "shut down". We avoid 2.5
   either way. No live API call was made (no key yet), so the model ID hasn't been tested against the API.
 
+### 2026-11-11 · Model for the evaluation (supersedes the default above)
+- **Choice:** `gemini-3.5-flash-lite` for the evaluation and the prototype pipeline.
+- **Why:** it's badged *Stable* on Google's models page, while `gemini-3.8-flash` is badged *New*.
+  The live smoke test (`eval/smoke_test.py`, 2026-11-11, google-genai 3.0.0, temperature 0, JSON schema):
+  - `gemini-3.5-flash-lite`: 3/3 OK, outputs byte-identical, latency 4.3 to 7.9 s (avg 6.2 s).
+  - `gemini-3.8-flash`: 0/3. All three returned `503 UNAVAILABLE` "This model is currently experiencing high
+    demand...". The new model wasn't clearly better; it didn't answer at all.
+- **Alternatives:** `gemini-3.8-flash` (retest later; it may be a temporary capacity spike);
+  `gemini-3.6-flash` (Stable, "previous-generation"; not tested).
+- **Source:** https://aistudio.google.com/docs/models
+- **Not verified:**
+  - The 3.8 calls took 3.6 s, 17.8 s and 40.1 s before failing, which looks like the SDK's built-in
+    retry/backoff, but I haven't confirmed it.
+  - One structured-extraction prompt says nothing about accuracy on our task.
+  - `models.list()` still lists `gemini-2.5-flash`/`-pro`/`-flash-lite` for this key. We don't use
+    them (deprecated per the docs).
+
 ### 2026-11-11 · Structured JSON output
 - **Choice:** `client.models.generate_content(..., config=types.GenerateContentConfig(
   response_mime_type="application/json", response_schema=<Pydantic model>))`.
