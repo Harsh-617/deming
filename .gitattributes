@@ -1,1 +1,1 @@
-scripts/githooks/* text eol=lf
+data/feeds/*.json -text
