@@ -1,5 +1,10 @@
 # Decisions
 
+**Branch decision logs** (kept as separate files):
+- [feat/feeds](decisions/feeds.md): KEV fetcher, lifecycle.csv sourcing
+- [feat/eval](decisions/feat-eval.md): baseline, metrics, report, Sheet template
+- [feat/agents](decisions/feat-agents.md): subagent prompts, schemas, runner, Agent Designer port
+
 One short entry per decision: choice, alternatives, source, and what couldn't be verified.
 
 ---
@@ -97,3 +102,14 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 ### 2026-11-11 · jsonschema
 - **Choice:** `jsonschema` unpinned (like the other entries); installed 4.26.0, `Requires-Python >=3.10`, so fine on 3.11.7. `pip check` reports no conflicts with the current requirements. Verified from the installed package metadata.
 - **Source:** https://pypi.org/project/jsonschema/
+
+### 2026-11-11 · openpyxl
+- **Choice:** `openpyxl` unpinned (like the other entries), needed by `scripts/make_sheet_template.py` (feat/eval) to write the .xlsx Sheet template. Installed 3.1.5; `Requires-Python >=3.8`. Verified from the installed package metadata.
+- **Alternatives:** `xlsxwriter` (write-only, can't read back for tests); pandas `to_excel` (still needs an engine).
+- **Source:** https://pypi.org/project/openpyxl/
+
+### 2026-11-11 · Contracts v1.1
+- **Choice:** `model_pattern` globs the device's model (hardware rows) or version/firmware (software rows), most specific matching row wins; booleans read case-insensitively; `critical` counts as urgent; optional trailing `fixed_version` column in `lifecycle.csv` (blank for now); `data/ground_truth_meta.json` with `as_of_date` 2026-11-12, used by the eval and Checker instead of the wall clock.
+- **Why:** feat/feeds found the v1 `model_pattern` rule could never match KEV family names (see [decisions/feeds.md](decisions/feeds.md)); Sheets exports `TRUE`/`FALSE`; `LC-030` flips to retire on 2026-12-09, so a wall-clock date would change the ground truth.
+- **Alternatives:** a separate `version_pattern` column (cleaner, more churn two days before the deadline).
+- **Not verified:** the Sheets `TRUE`/`FALSE` export behaviour is taken from the user's instruction, not tested here.

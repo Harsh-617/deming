@@ -6,3 +6,4 @@ rapidfuzz
 pytest
 python-dotenv
 jsonschema
+openpyxl
