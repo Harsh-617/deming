@@ -1,0 +1,68 @@
+{
+  "title": "CheckerOutput",
+  "description": "Lane and evidence for one device.",
+  "type": "object",
+  "properties": {
+    "device_id": {
+      "type": "string",
+      "description": "Copied from the input."
+    },
+    "lane": {
+      "type": "string",
+      "description": "Exactly one lane.",
+      "enum": [
+        "patch",
+        "retire",
+        "fine",
+        "unknown"
+      ]
+    },
+    "evidence_cve": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "KEV cveIDs taken from kev_candidates only."
+    },
+    "evidence_lifecycle_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "lifecycle_id taken from lifecycle_candidates only, or null."
+    },
+    "due_date": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "YYYY-MM-DD or null.",
+      "format": "date"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "0.00 to 1.00"
+    },
+    "injection_detected": {
+      "type": "boolean",
+      "description": "True if any input field contained instruction-like text; that text was ignored."
+    },
+    "reason": {
+      "type": "string",
+      "description": "Two or three short sentences for the owner."
+    }
+  },
+  "required": [
+    "device_id",
+    "lane",
+    "evidence_cve",
+    "evidence_lifecycle_id",
+    "due_date",
+    "confidence",
+    "injection_detected",
+    "reason"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,78 @@
+{
+  "title": "NormalizerOutput",
+  "description": "Canonical identity of one inventory device.",
+  "type": "object",
+  "properties": {
+    "device_id": {
+      "type": "string",
+      "description": "Copied from the input."
+    },
+    "vendor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Canonical vendor, or null."
+    },
+    "product": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Canonical product (KEV spelling if in KEV), or null."
+    },
+    "model": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Model number or family, e.g. RV320, or null."
+    },
+    "version": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Version as the vendor writes it, no 'v' prefix, or null."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "0.00 to 1.00"
+    },
+    "lane": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "pending_check"
+      ],
+      "description": "'unknown' when confidence < 0.80, else 'pending_check' (the Checker decides the lane)."
+    },
+    "needs_human": {
+      "type": "boolean",
+      "description": "True when a human must identify the device."
+    },
+    "injection_detected": {
+      "type": "boolean",
+      "description": "True if any input field contained instruction-like text; that text was ignored."
+    },
+    "reason": {
+      "type": "string",
+      "description": "One or two short sentences."
+    }
+  },
+  "required": [
+    "device_id",
+    "vendor",
+    "product",
+    "model",
+    "version",
+    "confidence",
+    "lane",
+    "needs_human",
+    "injection_detected",
+    "reason"
+  ],
+  "additionalProperties": false
+}
