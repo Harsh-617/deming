@@ -30,6 +30,14 @@ pip install -r requirements.txt
 Copy-Item .env.example .env   # then put your Gemini API key in .env yourself
 ```
 
+## Git hook (blocks committing `.env` or Google API keys)
+
+Run once per clone, from the repo root (works in PowerShell and Git Bash; covers all worktrees):
+
+```powershell
+git config core.hooksPath "$(git rev-parse --show-toplevel)/scripts/githooks"
+```
+
 ## Layout
 
 `data/` inventory and feeds · `agents/` subagents · `schemas/` JSON schemas ·

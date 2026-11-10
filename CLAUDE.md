@@ -39,9 +39,10 @@ Deadlines: prototype due Fri 13 Nov 2026 12:00 MYT (target 10:00). Final pitch
    CURRENT model name from Google's official docs; never assume one. Gemini 2.5
    models are shut down / deprecated. Keep the model name in one config place.
 6. **Never commit secrets.** The API key lives in `.env` (gitignored). `.env.example`
-   holds `GEMINI_API_KEY=` only; the user fills `.env` themselves. A PreToolUse hook
-   (`.claude/hooks/block_secrets.py`) blocks commits containing `.env` or Google key
-   patterns; don't bypass it.
+   holds `GEMINI_API_KEY=` only; the user fills `.env` themselves. `scripts/block_secrets.py`
+   blocks commits containing `.env` or Google key patterns, both as a Claude Code PreToolUse
+   hook and as a git pre-commit / pre-merge-commit hook (`scripts/githooks`). Don't bypass
+   it (no `--no-verify`).
 7. **Keep the AI-usage log** in `docs/ai-usage-log.md` (tool, what for, date).
 
 ## Research rule (standing)

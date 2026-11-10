@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"${CLAUDE_PROJECT_DIR}/.claude/hooks/block_secrets.py\""
+            "command": "python \"${CLAUDE_PROJECT_DIR}/scripts/block_secrets.py\" --claude-hook"
           }
         ]
       }

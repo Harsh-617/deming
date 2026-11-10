@@ -1,0 +1,12 @@
+#!/bin/sh
+# Git pre-commit hook: block .env files and Google API keys. Logic: scripts/block_secrets.py
+# Install once (from repo root): see README "Git hook".
+HOOK_DIR=$(cd "$(dirname "$0")" && pwd)
+SCRIPT="$HOOK_DIR/../block_secrets.py"
+for PY in python python3 py; do
+  if command -v "$PY" >/dev/null 2>&1; then
+    exec "$PY" "$SCRIPT" --git-hook
+  fi
+done
+echo "BLOCKED: no Python found to run scripts/block_secrets.py (fail closed). Use --no-verify only if you are sure." >&2
+exit 1

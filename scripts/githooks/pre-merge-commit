@@ -1,0 +1,3 @@
+#!/bin/sh
+# Merge commits skip pre-commit; run the same check for them.
+exec "$(dirname "$0")/pre-commit"

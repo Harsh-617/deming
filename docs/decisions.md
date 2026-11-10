@@ -42,6 +42,27 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Limits:** it only guards commits made *through Claude Code*, and it fails open if `python` isn't on
   PATH for Git Bash.
 
+### 2026-11-11 · Git hook for manual commits
+- **Choice:** the scanner moved to `scripts/block_secrets.py` (tracked), with `--claude-hook` and
+  `--git-hook` modes. Git runs it through `scripts/githooks/pre-commit` and `pre-merge-commit`.
+  Install with `git config core.hooksPath <absolute path>/scripts/githooks`.
+- **Why `pre-merge-commit` too:** a merge commit doesn't run `pre-commit`.
+- **Why an absolute hooksPath:** `core.hooksPath` lives in the shared `.git/config`, so every
+  worktree sees it. A *relative* path would resolve inside each worktree's own checkout, so a
+  worktree on a branch without `scripts/` would silently have no hook. The absolute path makes all
+  worktrees use the main checkout's script. Tested in a real worktree: it blocked a staged `.env`
+  and a fake key, and `git -C <worktree> config core.hooksPath` showed the shared value.
+  *Not verified from docs:* how a relative hooksPath resolves (that statement is from memory).
+  The shared-config point is tested, and the docs only imply it.
+- **Alternatives:** copy into `.git/hooks` (shared by worktrees, but not versioned and must be
+  re-copied after edits); the `pre-commit` framework + gitleaks (stronger, but adds a dependency).
+- **Source:** https://git-scm.com/docs/githooks · https://git-scm.com/docs/git-config#Documentation/git-config.txt-corehooksPath
+- **Limits:** this is a client-side hook, so `--no-verify` skips it and each clone must run the
+  install line. A fast-forward merge or a push creates no commit, so neither runs it (commits
+  pushed from elsewhere aren't scanned; a `pre-push` hook or GitHub secret scanning would cover
+  that). The commit *message* isn't scanned in git mode (that would need a `commit-msg` hook).
+  It fails closed if no Python is on PATH.
+
 ### 2026-11-11 · Python environment
 - **Choice:** plain `python -m venv .venv` on conda base 3.11.7, activated with `.venv\Scripts\Activate.ps1`.
 - **Alternatives:** a conda env, or uv. Not used, per the user's instruction (and `conda deactivate` switches to 3.14).
