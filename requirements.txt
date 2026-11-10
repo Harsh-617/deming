@@ -1,0 +1,6 @@
+pandas
+requests
+google-genai
+pydantic
+rapidfuzz
+pytest
