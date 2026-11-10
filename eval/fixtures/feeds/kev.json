@@ -1,0 +1,14 @@
+{
+  "title": "FIXTURE: hand-made 6-entry subset in the CISA KEV format. Not the real catalog.",
+  "catalogVersion": "fixture",
+  "dateReleased": "2026-11-11T00:00:00.000Z",
+  "count": 6,
+  "vulnerabilities": [
+    {"cveID": "CVE-2024-21762", "vendorProject": "Fortinet", "product": "FortiOS", "vulnerabilityName": "Fortinet FortiOS Out-of-Bound Write Vulnerability", "dateAdded": "2024-02-09", "shortDescription": "fixture", "requiredAction": "Apply mitigations per vendor instructions or discontinue use of the product if mitigations are unavailable.", "dueDate": "2024-02-16", "knownRansomwareCampaignUse": "Unknown", "notes": "", "cwes": ["CWE-787"]},
+    {"cveID": "CVE-2024-21887", "vendorProject": "Ivanti", "product": "Connect Secure and Policy Secure", "vulnerabilityName": "Ivanti Connect Secure and Policy Secure Command Injection Vulnerability", "dateAdded": "2024-01-10", "shortDescription": "fixture", "requiredAction": "Apply mitigations per vendor instructions.", "dueDate": "2024-01-22", "knownRansomwareCampaignUse": "Known", "notes": "", "cwes": ["CWE-77"]},
+    {"cveID": "CVE-2019-1653", "vendorProject": "Cisco", "product": "Small Business RV320 and RV325 Routers", "vulnerabilityName": "Cisco Small Business RV320 and RV325 Router Information Disclosure Vulnerability", "dateAdded": "2021-11-03", "shortDescription": "fixture", "requiredAction": "Apply updates per vendor instructions.", "dueDate": "2022-05-03", "knownRansomwareCampaignUse": "Unknown", "notes": "", "cwes": ["CWE-200"]},
+    {"cveID": "CVE-2023-20198", "vendorProject": "Cisco", "product": "IOS XE Web UI", "vulnerabilityName": "Cisco IOS XE Web UI Privilege Escalation Vulnerability", "dateAdded": "2023-10-16", "shortDescription": "fixture", "requiredAction": "Apply mitigations per vendor instructions.", "dueDate": "2023-10-20", "knownRansomwareCampaignUse": "Unknown", "notes": "", "cwes": ["CWE-269"]},
+    {"cveID": "CVE-2024-0769", "vendorProject": "D-Link", "product": "DIR-859 Router", "vulnerabilityName": "D-Link DIR-859 Router Path Traversal Vulnerability", "dateAdded": "2024-06-27", "shortDescription": "fixture", "requiredAction": "This vulnerability affects legacy D-Link products. The impacted products are end-of-life and should be disconnected if still in use.", "dueDate": "2024-07-18", "knownRansomwareCampaignUse": "Unknown", "notes": "", "cwes": ["CWE-22"]},
+    {"cveID": "CVE-2020-0001", "vendorProject": "Microsoft", "product": "Windows", "vulnerabilityName": "fixture distractor", "dateAdded": "2022-01-01", "shortDescription": "fixture", "requiredAction": "Apply updates per vendor instructions.", "dueDate": "2022-01-15", "knownRansomwareCampaignUse": "Unknown", "notes": "", "cwes": []}
+  ]
+}

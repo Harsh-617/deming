@@ -1,0 +1,9 @@
+device_id,group,vendor,product,version,lane,evidence_cve,evidence_lifecycle_id,source_row_note,verified_by_a,verified_by_b
+DEV-001,clear_patch,Fortinet,FortiOS,7.0.1,patch,CVE-2024-21762,,FIXTURE. FortiOS 7.0.1 is in the affected range; fixed release exists.,HK,QA
+DEV-002,clear_patch,Ivanti,Connect Secure and Policy Secure,22.3R1,patch,CVE-2024-21887,,FIXTURE. Affected Connect Secure release; patch published.,HK,QA
+DEV-003,clear_retire,Cisco,Small Business RV320 and RV325 Routers,1.4.2.15,retire,CVE-2019-1653,LC-001,FIXTURE. In KEV but product is past end of support: retire wins tie-break.,HK,QA
+DEV-004,critical_dnt,D-Link,DIR-859 Router,1.06B01,retire,CVE-2024-0769,LC-002,FIXTURE. EOL and in KEV; do_not_touch so escalate to a human rather than disconnect.,HK,QA
+DEV-005,supported_fine,HP,LaserJet Pro M404,002.2310A,fine,,LC-003,FIXTURE. Supported printer with no KEV entry.,HK,QA
+DEV-006,supported_fine,Ubiquiti,UniFi AP AC Pro,6.5.62,fine,,LC-004,FIXTURE. Supported access point with no KEV entry.,HK,
+DEV-007,messy_name,Fortinet,FortiOS,6.2.0,patch,CVE-2024-21762,,"FIXTURE. Abbreviated name (fgt = FortiGate, runs FortiOS) and a v-prefixed version.",HK,QA
+DEV-008,name_collision,Cisco,,,unknown,,,FIXTURE. 'Cisco router' with no model or version could be dozens of products; a human can't decide.,HK,QA

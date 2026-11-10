@@ -1,0 +1,9 @@
+device_id,device_name_raw,location,owner_email,firmware_version_raw,internet_facing,criticality,do_not_touch,last_updated
+DEV-001,Fortinet FortiOS firewall,HQ edge,netops@example.org,7.0.1,true,high,false,2026-10-01
+DEV-002,Ivanti Connect Secure VPN gateway,HQ DMZ,netops@example.org,22.3R1,true,critical,false,2026-10-01
+DEV-003,Cisco RV320 router,Branch A,branch-a@example.org,1.4.2.15,true,medium,false,2026-09-15
+DEV-004,D-Link DIR-859 wifi router,Lab 3,lab@example.org,1.06B01,false,critical,true,2026-09-20
+DEV-005,HP LaserJet Pro M404 printer,Floor 2,facilities@example.org,002.2310A,false,low,false,2026-10-05
+DEV-006,Ubiquiti UniFi AP AC Pro,Floor 1,netops@example.org,6.5.62,false,low,false,2026-10-05
+DEV-007,fgt 60e fortigate,Branch B,branch-b@example.org,v6.2.0,true,high,false,2026-08-30
+DEV-008,Cisco router 2nd floor,Floor 2,facilities@example.org,,false,medium,false,2026-07-11
