@@ -34,6 +34,16 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
   - `models.list()` still lists `gemini-2.5-flash`/`-pro`/`-flash-lite` for this key. We don't use
     them (deprecated per the docs).
 
+### 2026-11-11 · Shared file contracts
+- **Choice:** `docs/contracts.md` v1. Raw KEV is stored byte-for-byte, with sha256 in `kev_meta.json`.
+  The lifecycle `model_pattern` is a case-insensitive glob. Predictions `evidence` is `;`-separated
+  CVE/lifecycle ids, so it can be scored automatically. The lane tie-break is unknown > retire > patch > fine.
+- **Alternatives:** regex for `model_pattern` (more powerful, but harder for humans to label); free-text
+  evidence (not scorable); a normalized KEV copy (loses reproducibility).
+- **Source:** https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+  (fetched 2026-11-11: catalogVersion 2026.11.09, count 1773; entry fields include the new `forensicTriage`).
+- **Not verified:** the tie-break order is my proposal and still needs the team's sign-off.
+
 ### 2026-11-11 · Structured JSON output
 - **Choice:** `client.models.generate_content(..., config=types.GenerateContentConfig(
   response_mime_type="application/json", response_schema=<Pydantic model>))`.
