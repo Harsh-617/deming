@@ -84,7 +84,7 @@ These entries will be merged into `docs/decisions.md` on `main`.
   haven't checked the docs).
 
 ### 2026-11-11 · Response cache and repeated runs
-- **Choice:** an on-disk JSON cache in `.cache/gemini/` (to be gitignored on main) keyed by the sha256 of
+- **Choice:** an on-disk JSON cache in `.cache/gemini/` (gitignored) keyed by the sha256 of
   model, agent name, prompt text, schema, temperature, canonical input JSON and `repeat_index`. Only
   responses that pass validation are cached. `run_repeated(agent, payload, n)` makes calls
   `repeat_index = 0..n-1`, so the 3-run stability metric measures real model calls rather than
