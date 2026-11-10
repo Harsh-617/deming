@@ -37,7 +37,7 @@ GUIDE = ROOT / "docs" / "agent-designer-port.md"
 PROMPTS = ("main_agent", "normalizer", "checker", "planner", "verifier")
 LIFECYCLE_HEADER = ["lifecycle_id", "vendor", "product", "model_pattern", "eol_date",
                     "last_security_support_date", "patch_available", "replacement_hint",
-                    "source_url", "verified_on", "notes"]
+                    "source_url", "verified_on", "notes", "fixed_version"]
 KNOWLEDGE_TOKEN_LIMIT = 800_000  # combined limit for uploaded Knowledge files (Google docs)
 BLOCK_RE = re.compile(
     r"(<!-- BEGIN paste: agents/(?P<name>\w+)\.md -->\n````text\n)(?P<body>.*?)\n?(````\n"

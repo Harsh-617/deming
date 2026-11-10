@@ -3,7 +3,11 @@
 These are the exact file formats every component and branch reads and writes. If code and this
 file disagree, this file wins. Change it only on `main` (see Parallel work).
 
-Version: 1 (2026-11-11)
+Version: 1.1 (2026-11-11)
+
+Changes in 1.1: `model_pattern` matches model or version string, most specific row wins;
+booleans read case-insensitively; `critical` counts as urgent; new trailing `fixed_version`
+column in `lifecycle.csv`; new `data/ground_truth_meta.json` with the evaluation `as_of_date`.
 
 ## General rules (all CSVs)
 
@@ -11,7 +15,8 @@ Version: 1 (2026-11-11)
   order. Quote fields per RFC 4180 (fields with commas, quotes or newlines go in `"..."`, with
   `"` doubled). Readers accept LF or CRLF line endings.
 - **Blank means unknown.** Never write `N/A`, `none`, `null` or `-`.
-- Booleans are `true` / `false`, lowercase. Blank is allowed only where a column says so.
+- Booleans are written `true` / `false`, lowercase. **Readers accept them case-insensitively**
+  (Sheets exports `TRUE` / `FALSE`). Blank is allowed only where a column says so.
 - Dates are ISO `YYYY-MM-DD`. Timestamps are ISO 8601 UTC with `Z`, e.g. `2026-11-12T03:15:00Z`.
 - Multi-value cells use `;` with no spaces, e.g. `CVE-2023-20118;CVE-2023-20025`.
 - All data is **synthetic**. Owner emails use reserved example domains (`example.org`).
@@ -75,7 +80,7 @@ Written in the same step as `kev.json`.
 Human-curated end-of-life and support data, one row per vendor/product(/model family).
 
 ```
-lifecycle_id,vendor,product,model_pattern,eol_date,last_security_support_date,patch_available,replacement_hint,source_url,verified_on,notes
+lifecycle_id,vendor,product,model_pattern,eol_date,last_security_support_date,patch_available,replacement_hint,source_url,verified_on,notes,fixed_version
 ```
 
 | Column | Rule |
@@ -83,7 +88,7 @@ lifecycle_id,vendor,product,model_pattern,eol_date,last_security_support_date,pa
 | `lifecycle_id` | `LC-` + 3 digits, unique, e.g. `LC-007` |
 | `vendor` | Canonical vendor (see Canonical names) |
 | `product` | Canonical product |
-| `model_pattern` | Case-insensitive glob (`*`, `?`) matched against the canonical product, e.g. `RV32*`. Blank = whole product |
+| `model_pattern` | Case-insensitive glob (`*`, `?`) matched against the device's **model** string (hardware rows, e.g. `RV32*`) or, for software rows, its **version/firmware** string (e.g. `7.0.*`; software rows say so at the start of `notes`). Blank = whole product. When several rows match, the Checker uses the **most specific** one (a non-blank pattern beats blank; otherwise the longest pattern without wildcards) |
 | `eol_date` | ISO date or blank |
 | `last_security_support_date` | ISO date or blank |
 | `patch_available` | `true` / `false` / blank (unknown) |
@@ -91,6 +96,7 @@ lifecycle_id,vendor,product,model_pattern,eol_date,last_security_support_date,pa
 | `source_url` | Required. Primary source (vendor EOL notice) |
 | `verified_on` | ISO date a human last checked `source_url` |
 | `notes` | Free text or blank |
+| `fixed_version` | Optional, last column. The first fixed version, text exactly as in the vendor advisory (e.g. `1.5.1.5`). Blank if unknown |
 
 ## data/inventory.csv
 
@@ -108,7 +114,7 @@ device_id,device_name_raw,location,owner_email,firmware_version_raw,internet_fac
 | `owner_email` | Synthetic address at `example.org` |
 | `firmware_version_raw` | Free text as typed, or blank |
 | `internet_facing` | `true` / `false` |
-| `criticality` | `low` / `medium` / `high` / `critical` |
+| `criticality` | `low` / `medium` / `high` / `critical`. `critical` always counts as urgent |
 | `do_not_touch` | `true` / `false`. If `true`, never propose disconnection; escalate to a human |
 | `last_updated` | ISO date the row last changed |
 
@@ -136,6 +142,22 @@ device_id,group,vendor,product,version,lane,evidence_cve,evidence_lifecycle_id,s
 | `verified_by_a`, `verified_by_b` | Initials of two different human reviewers. Blank = not yet verified |
 
 Rows without both reviewers are **unverified** and are reported separately in results.
+
+## data/ground_truth_meta.json
+
+The date the ground truth is labelled against. Some lifecycle rows change lane later (e.g.
+`LC-030` becomes `retire` after 2026-12-09), so the eval and the Checker evaluate every date
+**as of `as_of_date`**, not the wall-clock date (the Checker's `today` input is set to it in eval runs).
+
+```json
+{
+  "as_of_date": "2026-11-12"
+}
+```
+
+| Field | Type | Rule |
+|---|---|---|
+| `as_of_date` | string | ISO date. Lane decisions compare support dates against this date |
 
 ## Predictions CSV (one per system per run)
 

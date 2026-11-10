@@ -1,5 +1,5 @@
-lifecycle_id,vendor,product,model_pattern,eol_date,last_security_support_date,patch_available,replacement_hint,source_url,verified_on,notes
-LC-001,Cisco,Small Business RV320 and RV325 Routers,,2020-12-31,2021-12-31,false,Replace with a supported router,https://example.org/fixture-not-a-real-source,2026-11-11,FIXTURE ONLY: dates not verified
-LC-002,D-Link,DIR-859 Router,,2020-12-10,2020-12-10,false,Replace with a supported router,https://example.org/fixture-not-a-real-source,2026-11-11,FIXTURE ONLY: dates not verified
-LC-003,HP,LaserJet Pro M404,,,,true,,https://example.org/fixture-not-a-real-source,2026-11-11,FIXTURE ONLY
-LC-004,Ubiquiti,UniFi AP AC Pro,,,,true,,https://example.org/fixture-not-a-real-source,2026-11-11,FIXTURE ONLY
+lifecycle_id,vendor,product,model_pattern,eol_date,last_security_support_date,patch_available,replacement_hint,source_url,verified_on,notes,fixed_version
+LC-001,Cisco,Small Business RV320 and RV325 Routers,,2020-12-31,2021-12-31,false,Replace with a supported router,https://example.org/fixture-not-a-real-source,2026-11-11,FIXTURE ONLY: dates not verified,
+LC-002,D-Link,DIR-859 Router,,2020-12-10,2020-12-10,false,Replace with a supported router,https://example.org/fixture-not-a-real-source,2026-11-11,FIXTURE ONLY: dates not verified,
+LC-003,HP,LaserJet Pro M404,,,,true,,https://example.org/fixture-not-a-real-source,2026-11-11,FIXTURE ONLY,
+LC-004,Ubiquiti,UniFi AP AC Pro,,,,true,,https://example.org/fixture-not-a-real-source,2026-11-11,FIXTURE ONLY,

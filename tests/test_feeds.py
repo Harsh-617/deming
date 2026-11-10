@@ -20,11 +20,12 @@ ROOT = Path(__file__).resolve().parent.parent
 KEV_PATH = ROOT / "data" / "feeds" / "kev.json"
 META_PATH = ROOT / "data" / "feeds" / "kev_meta.json"
 LIFECYCLE_PATH = ROOT / "data" / "lifecycle.csv"
+GT_META_PATH = ROOT / "data" / "ground_truth_meta.json"
 
 LIFECYCLE_HEADER = [
     "lifecycle_id", "vendor", "product", "model_pattern", "eol_date",
     "last_security_support_date", "patch_available", "replacement_hint",
-    "source_url", "verified_on", "notes",
+    "source_url", "verified_on", "notes", "fixed_version",
 ]
 FORBIDDEN_BLANKS = {"n/a", "na", "none", "null", "-"}
 
@@ -148,7 +149,7 @@ def test_lifecycle_rows_valid(lifecycle_rows):
         for col in ("eol_date", "last_security_support_date"):
             if r[col]:
                 _iso_date(r[col])
-        assert r["patch_available"] in ("true", "false", ""), f"{rid}: patch_available {r['patch_available']!r}"
+        assert r["patch_available"].lower() in ("true", "false", ""), f"{rid}: patch_available {r['patch_available']!r}"
         assert r["source_url"].startswith("https://"), f"{rid}: source_url must be a non-empty https URL"
         assert r["verified_on"], f"{rid}: verified_on required"
         assert _iso_date(r["verified_on"]) <= today, f"{rid}: verified_on in the future"
@@ -157,14 +158,25 @@ def test_lifecycle_rows_valid(lifecycle_rows):
             assert val.lower() not in FORBIDDEN_BLANKS, f"{rid}.{col}: use blank, not {val!r}"
 
 
-def _is_retire(r: dict, today: date) -> bool:
+def _as_of_date() -> date:
+    """Lane checks use the ground-truth as_of_date, not the wall clock (contracts v1.1)."""
+    return _iso_date(json.loads(GT_META_PATH.read_text(encoding="utf-8"))["as_of_date"])
+
+
+def test_ground_truth_meta():
+    meta = json.loads(GT_META_PATH.read_text(encoding="utf-8"))
+    assert set(meta) >= {"as_of_date"}
+    _iso_date(meta["as_of_date"])
+
+
+def _is_retire(r: dict, as_of: date) -> bool:
     cutoff = r["last_security_support_date"] or r["eol_date"]
-    return (bool(cutoff) and date.fromisoformat(cutoff) <= today) or r["patch_available"] == "false"
+    return (bool(cutoff) and date.fromisoformat(cutoff) <= as_of) or r["patch_available"].lower() == "false"
 
 
 def test_lifecycle_lane_mix(lifecycle_rows):
-    today = date.today()
-    retire = [r for r in lifecycle_rows if _is_retire(r, today)]
-    supported = [r for r in lifecycle_rows if not _is_retire(r, today) and r["patch_available"] == "true"]
+    as_of = _as_of_date()
+    retire = [r for r in lifecycle_rows if _is_retire(r, as_of)]
+    supported = [r for r in lifecycle_rows if not _is_retire(r, as_of) and r["patch_available"].lower() == "true"]
     assert len(retire) >= 12, f"only {len(retire)} end-of-life / no-patch rows"
     assert len(supported) >= 10, f"only {len(supported)} supported rows with a patch"

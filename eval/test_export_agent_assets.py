@@ -32,7 +32,7 @@ KEV = {"title": "t", "catalogVersion": "2026.11.09", "dateReleased": "x", "count
 LIFECYCLE = (",".join(exp.LIFECYCLE_HEADER) + "\r\n"
              "LC-001,Cisco,\"Small Business RV320 and RV325 Routers\",RV32*,2019-01-01,"
              "2021-01-01,false,\"Replace with RV340, or newer\",https://example.org/eol,"
-             "2026-11-11,\r\n")
+             "2026-11-11,,\r\n")
 
 
 @pytest.fixture
