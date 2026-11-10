@@ -8,6 +8,9 @@ and on the next run verifies that the inventory record changed.
 
 Subagents: **Normalizer → Checker → Planner → Verifier**.
 
+**At the start of every session, read docs/PRD.md. It is the condensed spec. Full report:
+docs/reference/full-report.md (read only when needed).**
+
 Deadlines: prototype due Fri 13 Nov 2026 12:00 MYT (target 10:00). Final pitch
 17 Nov 2026 must run on Gemini Enterprise; the prototype does not need it.
 
