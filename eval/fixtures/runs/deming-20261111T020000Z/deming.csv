@@ -1,0 +1,9 @@
+device_id,vendor,product,version,confidence,lane,evidence,run_id
+DEV-001,Fortinet,FortiOS,7.0.1,0.95,patch,CVE-2024-21762,deming-20261111T020000Z
+DEV-002,Ivanti,Connect Secure and Policy Secure,22.3R1,0.90,patch,CVE-2024-21887,deming-20261111T020000Z
+DEV-003,Cisco,Small Business RV320 and RV325 Routers,1.4.2.15,0.92,retire,CVE-2019-1653;LC-001,deming-20261111T020000Z
+DEV-004,D-Link,DIR-859 Router,1.06B01,0.93,retire,CVE-2024-0769;LC-002,deming-20261111T020000Z
+DEV-005,HP,LaserJet Pro M404,002.2310A,0.88,fine,,deming-20261111T020000Z
+DEV-006,Ubiquiti,UniFi AP AC Pro,v6.5.62,0.86,fine,,deming-20261111T020000Z
+DEV-007,Fortinet,FortiOS,6.2.0,0.81,patch,CVE-2024-21762,deming-20261111T020000Z
+DEV-008,Cisco,,,0.30,unknown,,deming-20261111T020000Z

@@ -1,0 +1,9 @@
+device_id,vendor,product,version,confidence,lane,evidence,run_id
+DEV-001,Fortinet,FortiOS,7.0.1,1.00,patch,CVE-2024-21762,baseline-20261111T000000Z
+DEV-002,,,22.3R1,0.75,fine,,baseline-20261111T000000Z
+DEV-003,Cisco,Small Business RV320 and RV325 Routers,1.4.2.15,0.85,retire,CVE-2019-1653;LC-001,baseline-20261111T000000Z
+DEV-004,D-Link,DIR-859 Router,1.06B01,0.95,retire,CVE-2024-0769;LC-002,baseline-20261111T000000Z
+DEV-005,,,002.2310A,0.46,fine,,baseline-20261111T000000Z
+DEV-006,,,6.5.62,0.38,fine,,baseline-20261111T000000Z
+DEV-007,,,6.2.0,0.55,fine,,baseline-20261111T000000Z
+DEV-008,Cisco,Small Business RV320 and RV325 Routers,,0.85,retire,CVE-2019-1653;LC-001,baseline-20261111T000000Z
