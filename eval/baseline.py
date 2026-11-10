@@ -31,7 +31,7 @@ from rapidfuzz import fuzz, utils
 from io_utils import INVENTORY_COLUMNS, PREDICTION_COLUMNS, norm, read_csv, utc_stamp, write_csv
 
 REPO = Path(__file__).resolve().parent.parent
-DEFAULT_THRESHOLD = 85.0  # rapidfuzz 0-100 scale; see docs/decisions/eval.md
+DEFAULT_THRESHOLD = 85.0  # rapidfuzz 0-100 scale; see docs/decisions/feat-eval.md
 
 
 def load_kev(path: str | Path) -> list[dict]:

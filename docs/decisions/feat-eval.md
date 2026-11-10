@@ -1,4 +1,4 @@
-# Decisions: feat/eval (evaluation harness + naive baseline)
+# Decisions: feat/eval (evaluation harness, naive baseline, Sheet template)
 
 One short entry per choice. Research budget: 5 minutes per task.
 
@@ -56,3 +56,43 @@ One short entry per choice. Research budget: 5 minutes per task.
   beats" is checked on 8 metrics per slice and stated in a sentence starting "Plainly:".
 - **Alternatives:** HTML/Jinja (adds a dependency, nothing to gain for a repo artifact); pandas
   `to_markdown` (needs `tabulate`).
+
+### 2026-11-11 · Sheet template format (.xlsx via openpyxl)
+- **Choice:** generate `sheet/deming_template.xlsx` with openpyxl and import it into Google Sheets
+  (File > Import, or open from Drive and Save as Google Sheets). Only features with a direct Sheets
+  equivalent are used:
+  - list data validation with inline items;
+  - `cellIs equal` conditional formatting;
+  - a frozen first row;
+  - COUNTIF / COUNTIFS / INDEX / COUNTA / IF / SUM / MAX / TODAY formulas with plain A1 and
+    whole-column references.
+  It does NOT use Excel tables, named ranges, structured references, dynamic-array functions,
+  macros or linked workbooks.
+- **Alternatives:**
+  - Build the Sheet directly with the Sheets API (gspread or google-api-python-client). This gives
+    exact fidelity, but needs OAuth credentials and a target Drive. Better for the final version.
+  - Apps Script that builds the tabs. Native, but it lives outside the repo's Python tooling.
+  - One CSV per tab. Imports cleanly, but loses all validation, formatting and freezing.
+- **What Google documents:** macros aren't supported (rewrite them in Apps Script), and some Office
+  features "may be lost or altered" when converted. Neither help page lists data validation,
+  conditional formatting, frozen rows or these formulas as unsupported, but neither confirms they
+  are kept either. Blog sources say conditional formatting and data validation *may* change on
+  conversion. **Import fidelity has not been verified in a real Google Sheet.** Do that test before
+  relying on it.
+- **Sources:** https://support.google.com/docs/answer/6055139 ·
+  https://support.google.com/drive/answer/9276408 ·
+  https://gptforwork.com/blog/how-to-convert-excel-to-google-sheets-without-losing-formatting (secondary)
+- **Deviations from the request:**
+  - `criticality` validation is `low/medium/high/critical`, because contracts.md v1 allows `critical`.
+  - The urgent rule counts `critical` as well as `high`.
+  - Booleans are real TRUE/FALSE cells, not the contract's lowercase strings. Sheets' CSV export
+    writes `TRUE`/`FALSE`, so whatever reads the Sheet back must accept either case.
+- **Bug found and fixed:** per-cell number formats on 2,000 empty rows moved openpyxl's `max_row`, so
+  `append()` wrote data at row 2001. Formats are now column-level (`<col style>`). Whether Sheets
+  keeps column-level number formats on import is **not verified**.
+- **Formulas, checked offline:** the Summary formulas were computed with the `formulas` package
+  (installed in the scratchpad only, not in the venv) on sample rows. The ticket, urgent and
+  device counts were correct. The whole-column `INDEX` used for `latest_run_id` returns #VALUE! in
+  that package. A bounded-range copy gave the correct latest run, lane counts and unknown rate, so
+  the logic is right. Whole-column references were kept on purpose, because the Decision Log grows
+  by ~60 rows per hourly run. **Not verified in Google Sheets itself.**
