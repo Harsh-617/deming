@@ -81,6 +81,7 @@ Reporting: results by lane, EVERY wrong case listed and explained; say plainly t
 - That the Verifier proves a device is secure.
 - That the prototype runs inside Gemini Enterprise before it actually does.
 - Vendor figures from big-tech products are self-reported and untested by us.
+- That owner emails are sent automatically by a scheduled run, or that Deming uses a Google Sheets connector, until each is verified on a live license.
 
 ## Priorities when time runs short
 1. The full loop end to end, with one patch, one retire and one unknown case in the demo, evidence on every decision, approval before any send, next-run verification.
@@ -88,3 +89,9 @@ Reporting: results by lane, EVERY wrong case listed and explained; say plainly t
 3. Light: approval gate, Decision Log, one prompt-injection test, duplicate-ticket check, a Summary tab as dashboard.
 4. Light: README with limits, honest competitor comparison, submission checklist.
 5. Skip: extra integrations, advanced analytics, cosmetic polish, failure injection.
+
+## Platform findings (read from Google docs 11 Nov, NOT yet confirmed on a live license)
+- Scheduled chat agents can't act on other people's behalf, so owner emails go out only after approval in the run's chat (no unattended send).
+- Google Sheets is not a listed connector. Fallback: a CSV copy of the inventory in Drive.
+- Schedules run hourly at most often, and credentials need a manual refresh every 14 days.
+- Two build paths, per docs/agent-designer-port.md: Path A, a chat agent (main agent + four subagents); Path B, a workflow (trigger → steps → actions) as the upgrade if Path A's approval or structured-output limits hurt.
