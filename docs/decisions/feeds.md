@@ -17,3 +17,16 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Source:** https://www.cisa.gov/known-exploited-vulnerabilities-catalog (links the JSON/CSV feeds);
   https://github.com/cisagov/kev-data. Both URLs returned HTTP 200 on 2026-11-11.
 - **Not verified:** how quickly the GitHub mirror trails the cisa.gov file.
+
+### 2026-11-11 · endoflife.date for edge devices: not used
+- **Finding:** queried `https://endoflife.date/api/v1/products` (489 products). Categories: server-app 176,
+  framework 74, os 68, app 62, lang 34, database 27, service 25, device 21. The network-relevant entries
+  are software release lines only: `fortios`, `panos`, `cisco-ios-xe`, `routeros`, `big-ip`, `netapp-ontap`,
+  `openwrt`, `truenas`, Stormshield `sns-*`. The `device` category is phones, tablets, watches, Raspberry Pi,
+  Kindle and similar consumer hardware.
+  No D-Link, TP-Link, Zyxel, Netgear, ASUS, DrayTek, SonicWall, Ivanti, Citrix/NetScaler, Cisco ASA or RV,
+  QNAP, Synology, Hikvision, Dahua, Reolink or other camera/NAS/consumer-router hardware.
+- **Choice:** don't depend on it. `data/lifecycle.csv` is hand-curated from vendor pages instead.
+  endoflife.date could be an optional cross-check for FortiOS/PAN-OS branch dates later.
+- **Source:** https://endoflife.date/api/v1/products (fetched 2026-11-11); https://endoflife.date/docs/api/v1/
+- **Not verified:** how endoflife.date sources its network-OS dates; we cite the vendor pages directly.
