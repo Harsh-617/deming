@@ -129,16 +129,44 @@ def lifecycle_candidates(device: dict, rows: list[dict], k: int = TOP_K_LIFECYCL
     return [{**r, "match_score": round(s, 1)} for s, r in scored[:k]]
 
 
+KEV_PRODUCTS_COLUMNS = ("vendorProject", "product", "cve_count", "cveIDs", "earliest_dueDate",
+                        "latest_dateAdded", "known_ransomware_use", "requiredActions")
+KEV_ENTRIES_COLUMNS = ("cveID", "vendorProject", "product", "vulnerabilityName",
+                       "shortDescription", "requiredAction", "dueDate", "dateAdded",
+                       "knownRansomwareCampaignUse")
+
+
+def _one_line(s: str) -> str:
+    return re.sub(r"\s+", " ", s or "").strip()
+
+
 def kev_products_rows(index: KevIndex) -> list[dict]:
     """One row per KEV product: the kev_products.csv Knowledge file for Agent Designer."""
     rows = []
     for (vendor, product), entries in sorted(index.by_product.items()):
+        entries = sorted(entries, key=lambda e: e["cveID"])
         rows.append({
             "vendorProject": vendor,
             "product": product,
+            "cve_count": len(entries),
             "cveIDs": ";".join(e["cveID"] for e in entries),
             "earliest_dueDate": min((e.get("dueDate", "") for e in entries), default=""),
-            "requiredActions": ";".join(sorted({re.sub(r"\s+", " ", e.get("requiredAction", ""))
-                                                for e in entries})),
+            "latest_dateAdded": max((e.get("dateAdded", "") for e in entries), default=""),
+            "known_ransomware_use": str(any(e.get("knownRansomwareCampaignUse") == "Known"
+                                            for e in entries)).lower(),
+            "requiredActions": " | ".join(sorted({_one_line(e.get("requiredAction", ""))
+                                                  for e in entries})),
         })
+    return rows
+
+
+def kev_entries_rows(vulnerabilities: list[dict],
+                     description_chars: int = DESCRIPTION_CHARS) -> list[dict]:
+    """One slim row per CVE: the kev_entries.csv Knowledge file (details behind kev_products)."""
+    rows = []
+    for v in sorted(vulnerabilities, key=lambda e: e["cveID"]):
+        row = {k: _one_line(str(v.get(k, ""))) for k in KEV_ENTRIES_COLUMNS}
+        if len(row["shortDescription"]) > description_chars:
+            row["shortDescription"] = row["shortDescription"][:description_chars] + "..."
+        rows.append(row)
     return rows

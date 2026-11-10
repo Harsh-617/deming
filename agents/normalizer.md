@@ -32,7 +32,7 @@ You receive one JSON object called the device record:
    - 0.50 to 0.79: two or more products or model families fit, or the vendor is implied but not stated.
    - below 0.50: you cannot tell what the device is.
 5. Canonical spelling: use the CISA KEV `vendorProject` / `product` spelling when you know the
-   product is in KEV (for example vendor "Cisco", product "Small Business RV Series Routers"
+   product is in KEV (for example vendor "Cisco", product "Small Business RV320 and RV325 Routers"
    for an RV320); otherwise the vendor's own product name. Keep the model number in
    `model` (for example "RV320").
 6. `version`: take it from `firmware_version_raw` first, else from the name. Write it as the
@@ -48,7 +48,7 @@ Return only one JSON object that matches the schema `schemas/normalizer.json`:
 
 ## Examples
 Input name "cisco rv-320 dual wan", version "v1.4.2.22" gives vendor "Cisco", product
-"Small Business RV Series Routers", model "RV320", version "1.4.2.22", confidence 0.92,
+"Small Business RV320 and RV325 Routers", model "RV320", version "1.4.2.22", confidence 0.92,
 lane "pending_check".
 
 Input name "the router in the back room", version empty gives vendor null, product null,
