@@ -30,3 +30,25 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
   endoflife.date could be an optional cross-check for FortiOS/PAN-OS branch dates later.
 - **Source:** https://endoflife.date/api/v1/products (fetched 2026-11-11); https://endoflife.date/docs/api/v1/
 - **Not verified:** how endoflife.date sources its network-OS dates; we cite the vendor pages directly.
+
+### 2026-11-11 · lifecycle.csv sourcing
+- **Choice:** hand-curated from vendor-owned EOL notices and security advisories. Each row cites the
+  page that states the date or fix. Research subagents gathered verbatim quotes; the main session
+  re-checked the riskiest rows directly (Cisco bulletins, D-Link NAS table, DrayTek and Zyxel lifecycle
+  tables, Cisco ASA fixed releases) and confirmed every cited CVE is in the KEV snapshot. Pages that block
+  scripts were read with WebFetch or a headless browser.
+- **Alternatives:** endoflife.date (doesn't cover these devices; see above); NVD CPE "deprecated" flags
+  (not an EOL signal); third-party EOL aggregators (not primary sources; rejected).
+- **Source:** per-row `source_url`; summary in `docs/feeds.md`.
+- **Not verified:**
+  - Support end dates for Ivanti Connect Secure 22.x, NetScaler 14.1, SonicOS 7, RouterOS 7 and WatchGuard Fireware 12.
+  - Check Point R81.20 has a month only ("May 2027"), so it is left blank.
+  - Fortinet dates come from Fortinet staff technical tips, because the official portal needs a login.
+  - TP-Link was omitted: its pages give no exact date.
+
+### 2026-11-11 · model_pattern interpretation
+- **Choice:** `model_pattern` globs the device's normalized model (hardware rows) or version
+  (software-train rows, flagged in `notes`), not the canonical product string as contracts v1 says.
+- **Why:** canonical KEV product names are family names ("Small Business RV Series Routers"), so the
+  contract's own example (`RV32*`) can never match them. Proposed contract change is in the branch summary.
+- **Alternatives:** add a separate `version_pattern` column (cleaner, but needs a contract change on main).
