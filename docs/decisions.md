@@ -93,3 +93,7 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 ### 2026-11-11 · Python environment
 - **Choice:** plain `python -m venv .venv` on conda base 3.11.7, activated with `.venv\Scripts\Activate.ps1`.
 - **Alternatives:** a conda env, or uv. Not used, per the user's instruction (and `conda deactivate` switches to 3.14).
+
+### 2026-11-11 · jsonschema
+- **Choice:** `jsonschema` unpinned (like the other entries); installed 4.26.0, `Requires-Python >=3.10`, so fine on 3.11.7. `pip check` reports no conflicts with the current requirements. Verified from the installed package metadata.
+- **Source:** https://pypi.org/project/jsonschema/
