@@ -7,11 +7,30 @@ from io_utils import EXPOSED_LANES, LANES, norm, write_csv
 from metrics import (COMPARABLE, FIELDS, MISSING, Scores, baseline_ties_or_beats, field_matches,
                      groups_of, is_verified, score_slices, stability_slices)
 
-SYNTHETIC_STATEMENT = (
-    "**The inventory is synthetic.** Every device, owner and version in this evaluation was made up "
-    "for the hackathon and labelled by people. These numbers describe performance on this test set "
-    "only. **No claim is made about real-world accuracy or time saved.**"
-)
+# How the ground-truth labels were made, keyed by `label_status` in data/ground_truth_meta.json.
+# The report's caveat sentence is built from this, so it can't claim more than the data says
+# (eval/test_report_wording.py checks it). Keep the wording in line with docs/limits.md section 2.
+LABEL_STATUS_TEXT = {
+    "ai_drafted_unverified": (
+        "The ground-truth labels were drafted by an AI (Claude Code) from cited sources; some were "
+        "cross-checked blind by a separate AI session. **No person has verified them yet.**"
+    ),
+    "human_verified": "The ground-truth labels were verified by two different people per row.",
+}
+DEFAULT_LABEL_STATUS = "ai_drafted_unverified"
+
+
+def synthetic_statement(label_status: str = DEFAULT_LABEL_STATUS) -> str:
+    if label_status not in LABEL_STATUS_TEXT:
+        raise ValueError(f"unknown label_status {label_status!r}; expected one of {sorted(LABEL_STATUS_TEXT)}")
+    return (
+        "**The inventory is synthetic.** Every device, owner and version in this evaluation was made up "
+        f"for the hackathon. {LABEL_STATUS_TEXT[label_status]} These numbers describe performance on "
+        "this test set only. **No claim is made about real-world accuracy or time saved.**"
+    )
+
+
+SYNTHETIC_STATEMENT = synthetic_statement()
 
 FAILURE_COLUMNS = [
     "system", "run_id", "device_id", "group", "verified", "device_name_raw", "error_type",
@@ -42,10 +61,10 @@ def explain_lane(t_lane: str, p_lane: str) -> str:
     if p_lane == MISSING:
         return "No prediction row for this device."
     if t_lane == "unknown":
-        return (f"Guessed '{p_lane}' on a device a human could not identify; the right call was "
-                f"unknown (ask a human).")
+        return (f"Guessed '{p_lane}' on a device the label marks as not identifiable; the right "
+                f"call was unknown (ask a human).")
     if p_lane == "unknown":
-        return f"Abstained (unknown) on a device a human labelled '{t_lane}'; a missed {t_lane}."
+        return f"Abstained (unknown) on a device labelled '{t_lane}'; a missed {t_lane}."
     if t_lane in EXPOSED_LANES and p_lane == "fine":
         return f"Missed exposure: truth is '{t_lane}' but predicted 'fine'."
     if t_lane == "fine" and p_lane in EXPOSED_LANES:
@@ -131,7 +150,8 @@ def _confusion_md(s: Scores) -> list[str]:
 
 
 def build_report(*, truth_rows: list[dict], systems: dict[str, list[tuple[str, dict[str, dict]]]],
-                 inventory: dict[str, dict], out_dir: Path, sources: dict[str, str]) -> dict:
+                 inventory: dict[str, dict], out_dir: Path, sources: dict[str, str],
+                 label_status: str = DEFAULT_LABEL_STATUS) -> dict:
     """systems: name -> [(run_id, preds_by_device_id), ...] sorted by run_id.
 
     Primary metrics use each system's FIRST run; stability uses all runs."""
@@ -152,7 +172,8 @@ def build_report(*, truth_rows: list[dict], systems: dict[str, list[tuple[str, d
     slice_names = list(primary[names[0]]) if names else []
     n_verified = sum(is_verified(t) for t in truth_rows)
 
-    L: list[str] = ["# Deming evaluation report", "", SYNTHETIC_STATEMENT, ""]
+    statement = synthetic_statement(label_status)
+    L: list[str] = ["# Deming evaluation report", "", statement, ""]
     L += ["## Inputs", ""]
     for k, v in sources.items():
         L.append(f"- {k}: `{v}`")
@@ -268,7 +289,7 @@ def build_report(*, truth_rows: list[dict], systems: dict[str, list[tuple[str, d
           "(zero denominator or one run).",
           "- Owner routing, duplicate tickets, approval compliance and verification correctness are **not** "
           "measured here (they need the Planner/Verifier run logs).", "",
-          SYNTHETIC_STATEMENT, ""]
+          statement, ""]
 
     (out_dir / "report.md").write_text("\n".join(L), encoding="utf-8")
     return {"primary": primary, "stability": stab, "failures": failures}

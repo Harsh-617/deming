@@ -146,7 +146,10 @@ the next snapshot.
 
 ## data/ground_truth.csv
 
-Human-labelled answers for the evaluation set. **Labelled by people, not by an LLM** (PRD).
+Answers for the evaluation set. The PRD asks for labels made by people, not by an LLM. **Current
+status: all rows are AI drafts (Claude Code, from cited sources), partly cross-checked blind by a
+separate AI session, and not yet verified by people** (`docs/limits.md` section 2; `label_status`
+in `data/ground_truth_meta.json`).
 
 ```
 device_id,group,vendor,product,version,lane,evidence_cve,evidence_lifecycle_id,source_row_note,verified_by_a,verified_by_b
@@ -173,13 +176,15 @@ The date the ground truth is labelled against. Some lifecycle rows change lane l
 
 ```json
 {
-  "as_of_date": "2026-11-12"
+  "as_of_date": "2026-11-12",
+  "label_status": "ai_drafted_unverified"
 }
 ```
 
 | Field | Type | Rule |
 |---|---|---|
 | `as_of_date` | string | ISO date. Lane decisions compare support dates against this date |
+| `label_status` | string | `ai_drafted_unverified` or `human_verified`. Optional; missing means `ai_drafted_unverified`. `eval/report.py` builds its caveat sentence from it, and `eval/run_eval.py` refuses `human_verified` unless every row has two different reviewers. Added after `prompts-v1`; it changes no number |
 
 ## Predictions CSV (one per system per run)
 
