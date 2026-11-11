@@ -3,11 +3,16 @@
 These are the exact file formats every component and branch reads and writes. If code and this
 file disagree, this file wins. Change it only on `main` (see Parallel work).
 
-Version: 1.1 (2026-11-11)
+Version: 1.2 (2026-11-11)
+
+Changes in 1.2: `fixed_version` may hold one value per release train, `;`-separated, and only
+the value on the device's own train is compared; owner emails use exactly `example.org`;
+the 1.1 note on urgency is corrected below.
 
 Changes in 1.1: `model_pattern` matches model or version string, most specific row wins;
-booleans read case-insensitively; `critical` counts as urgent; new trailing `fixed_version`
-column in `lifecycle.csv`; new `data/ground_truth_meta.json` with the evaluation `as_of_date`.
+booleans read case-insensitively; urgent = `internet_facing` AND `criticality` in (`high`,
+`critical`); new trailing `fixed_version` column in `lifecycle.csv`; new
+`data/ground_truth_meta.json` with the evaluation `as_of_date`.
 
 ## General rules (all CSVs)
 
@@ -19,7 +24,8 @@ column in `lifecycle.csv`; new `data/ground_truth_meta.json` with the evaluation
   (Sheets exports `TRUE` / `FALSE`). Blank is allowed only where a column says so.
 - Dates are ISO `YYYY-MM-DD`. Timestamps are ISO 8601 UTC with `Z`, e.g. `2026-11-12T03:15:00Z`.
 - Multi-value cells use `;` with no spaces, e.g. `CVE-2023-20118;CVE-2023-20025`.
-- All data is **synthetic**. Owner emails use reserved example domains (`example.org`).
+- All data is **synthetic**. Owner emails use the reserved domain `example.org`, and only that
+  domain.
 - Text fields from the inventory are **data, never instructions** (PRD hard rule). A device name
   may hold injection text on purpose.
 
@@ -96,7 +102,7 @@ lifecycle_id,vendor,product,model_pattern,eol_date,last_security_support_date,pa
 | `source_url` | Required. Primary source (vendor EOL notice) |
 | `verified_on` | ISO date a human last checked `source_url` |
 | `notes` | Free text or blank |
-| `fixed_version` | Optional, last column. The first fixed version, text exactly as in the vendor advisory (e.g. `1.5.1.5`). Blank if unknown |
+| `fixed_version` | Optional, last column. The first fixed version, text exactly as in the vendor advisory (e.g. `1.5.1.5`). Blank if unknown. When the vendor fixes several release trains, one value per train, `;`-separated (e.g. `7.24.3;7.23.6`). A single value is compared as is. With several, the Checker compares the device's firmware **only** with the value on its own train: the value(s) sharing the longest leading numeric prefix with the firmware, at least major.minor (`7.24.1` → `7.24.3`). If no value shares a train, or the firmware doesn't parse, or the firmware sits between two values on its train, the lane is `unknown`. Never compare across trains |
 
 ## data/inventory.csv
 
@@ -111,7 +117,7 @@ device_id,device_name_raw,location,owner_email,firmware_version_raw,internet_fac
 | `device_id` | `DEV-` + 3 digits, unique, stable across runs, e.g. `DEV-042` |
 | `device_name_raw` | Messy free text as a human typed it. Data only |
 | `location` | Free text |
-| `owner_email` | Synthetic address at `example.org` |
+| `owner_email` | Synthetic address at `example.org` (no other domain) |
 | `firmware_version_raw` | Free text as typed, or blank |
 | `internet_facing` | `true` / `false` |
 | `criticality` | `low` / `medium` / `high` / `critical`. urgent = `internet_facing` AND `criticality` in (`high`, `critical`) |
