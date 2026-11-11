@@ -1,0 +1,1701 @@
+{
+ "scores": {
+  "baseline": {
+   "all": {
+    "n": 60,
+    "norm_vendor": 0.4166666666666667,
+    "norm_product": 0.18333333333333332,
+    "norm_version": 0.9666666666666667,
+    "norm_all_three": 0.18333333333333332,
+    "exposure_precision": 0.7037037037037037,
+    "exposure_recall": 0.95,
+    "lane_accuracy": 0.31666666666666665,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": 0.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 4
+   },
+   "verified": {
+    "n": 0,
+    "norm_vendor": null,
+    "norm_product": null,
+    "norm_version": null,
+    "norm_all_three": null,
+    "exposure_precision": null,
+    "exposure_recall": null,
+    "lane_accuracy": null,
+    "unknown_rate": null,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "unverified": {
+    "n": 60,
+    "norm_vendor": 0.4166666666666667,
+    "norm_product": 0.18333333333333332,
+    "norm_version": 0.9666666666666667,
+    "norm_all_three": 0.18333333333333332,
+    "exposure_precision": 0.7037037037037037,
+    "exposure_recall": 0.95,
+    "lane_accuracy": 0.31666666666666665,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": 0.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 4
+   },
+   "group:clear_patch": {
+    "n": 15,
+    "norm_vendor": 0.26666666666666666,
+    "norm_product": 0.06666666666666667,
+    "norm_version": 1.0,
+    "norm_all_three": 0.06666666666666667,
+    "exposure_precision": 1.0,
+    "exposure_recall": 0.9333333333333333,
+    "lane_accuracy": 0.9333333333333333,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "group:clear_retire": {
+    "n": 12,
+    "norm_vendor": 0.5,
+    "norm_product": 0.16666666666666666,
+    "norm_version": 1.0,
+    "norm_all_three": 0.16666666666666666,
+    "exposure_precision": 1.0,
+    "exposure_recall": 1.0,
+    "lane_accuracy": 0.0,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "group:critical_dnt": {
+    "n": 4,
+    "norm_vendor": 0.75,
+    "norm_product": 0.5,
+    "norm_version": 1.0,
+    "norm_all_three": 0.5,
+    "exposure_precision": 1.0,
+    "exposure_recall": 1.0,
+    "lane_accuracy": 0.5,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "group:messy_name": {
+    "n": 10,
+    "norm_vendor": 0.7,
+    "norm_product": 0.2,
+    "norm_version": 0.8,
+    "norm_all_three": 0.2,
+    "exposure_precision": 1.0,
+    "exposure_recall": 0.875,
+    "lane_accuracy": 0.3,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": 0.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 2
+   },
+   "group:name_collision": {
+    "n": 4,
+    "norm_vendor": 0.25,
+    "norm_product": 0.0,
+    "norm_version": 1.0,
+    "norm_all_three": 0.0,
+    "exposure_precision": 0.5,
+    "exposure_recall": 1.0,
+    "lane_accuracy": 0.0,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": 0.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 2
+   },
+   "group:supported_fine": {
+    "n": 15,
+    "norm_vendor": 0.26666666666666666,
+    "norm_product": 0.26666666666666666,
+    "norm_version": 1.0,
+    "norm_all_three": 0.26666666666666666,
+    "exposure_precision": 0.0,
+    "exposure_recall": null,
+    "lane_accuracy": 0.0,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   }
+  },
+  "deming_rep0": {
+   "all": {
+    "n": 60,
+    "norm_vendor": 1.0,
+    "norm_product": 0.4666666666666667,
+    "norm_version": 0.9833333333333333,
+    "norm_all_three": 0.4666666666666667,
+    "exposure_precision": 1.0,
+    "exposure_recall": 0.875,
+    "lane_accuracy": 0.8833333333333333,
+    "unknown_rate": 0.16666666666666666,
+    "unknown_precision": 0.4,
+    "unknown_recall": 1.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 4
+   },
+   "verified": {
+    "n": 0,
+    "norm_vendor": null,
+    "norm_product": null,
+    "norm_version": null,
+    "norm_all_three": null,
+    "exposure_precision": null,
+    "exposure_recall": null,
+    "lane_accuracy": null,
+    "unknown_rate": null,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "unverified": {
+    "n": 60,
+    "norm_vendor": 1.0,
+    "norm_product": 0.4666666666666667,
+    "norm_version": 0.9833333333333333,
+    "norm_all_three": 0.4666666666666667,
+    "exposure_precision": 1.0,
+    "exposure_recall": 0.875,
+    "lane_accuracy": 0.8833333333333333,
+    "unknown_rate": 0.16666666666666666,
+    "unknown_precision": 0.4,
+    "unknown_recall": 1.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 4
+   },
+   "group:clear_patch": {
+    "n": 15,
+    "norm_vendor": 1.0,
+    "norm_product": 0.5333333333333333,
+    "norm_version": 1.0,
+    "norm_all_three": 0.5333333333333333,
+    "exposure_precision": 1.0,
+    "exposure_recall": 1.0,
+    "lane_accuracy": 1.0,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "group:clear_retire": {
+    "n": 12,
+    "norm_vendor": 1.0,
+    "norm_product": 0.25,
+    "norm_version": 1.0,
+    "norm_all_three": 0.25,
+    "exposure_precision": 1.0,
+    "exposure_recall": 0.8333333333333334,
+    "lane_accuracy": 0.8333333333333334,
+    "unknown_rate": 0.08333333333333333,
+    "unknown_precision": 0.0,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "group:critical_dnt": {
+    "n": 4,
+    "norm_vendor": 1.0,
+    "norm_product": 0.25,
+    "norm_version": 1.0,
+    "norm_all_three": 0.25,
+    "exposure_precision": 1.0,
+    "exposure_recall": 1.0,
+    "lane_accuracy": 1.0,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "group:messy_name": {
+    "n": 10,
+    "norm_vendor": 1.0,
+    "norm_product": 0.3,
+    "norm_version": 0.9,
+    "norm_all_three": 0.3,
+    "exposure_precision": 1.0,
+    "exposure_recall": 0.625,
+    "lane_accuracy": 0.7,
+    "unknown_rate": 0.5,
+    "unknown_precision": 0.4,
+    "unknown_recall": 1.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 2
+   },
+   "group:name_collision": {
+    "n": 4,
+    "norm_vendor": 1.0,
+    "norm_product": 0.25,
+    "norm_version": 1.0,
+    "norm_all_three": 0.25,
+    "exposure_precision": 1.0,
+    "exposure_recall": 1.0,
+    "lane_accuracy": 0.75,
+    "unknown_rate": 0.75,
+    "unknown_precision": 0.6666666666666666,
+    "unknown_recall": 1.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 2
+   },
+   "group:supported_fine": {
+    "n": 15,
+    "norm_vendor": 1.0,
+    "norm_product": 0.8,
+    "norm_version": 1.0,
+    "norm_all_three": 0.8,
+    "exposure_precision": null,
+    "exposure_recall": null,
+    "lane_accuracy": 0.9333333333333333,
+    "unknown_rate": 0.06666666666666667,
+    "unknown_precision": 0.0,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   }
+  },
+  "deming_rep1": {
+   "all": {
+    "n": 60,
+    "norm_vendor": 1.0,
+    "norm_product": 0.5166666666666667,
+    "norm_version": 0.9833333333333333,
+    "norm_all_three": 0.5166666666666667,
+    "exposure_precision": 0.9722222222222222,
+    "exposure_recall": 0.875,
+    "lane_accuracy": 0.8833333333333333,
+    "unknown_rate": 0.16666666666666666,
+    "unknown_precision": 0.4,
+    "unknown_recall": 1.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 4
+   },
+   "verified": {
+    "n": 0,
+    "norm_vendor": null,
+    "norm_product": null,
+    "norm_version": null,
+    "norm_all_three": null,
+    "exposure_precision": null,
+    "exposure_recall": null,
+    "lane_accuracy": null,
+    "unknown_rate": null,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "unverified": {
+    "n": 60,
+    "norm_vendor": 1.0,
+    "norm_product": 0.5166666666666667,
+    "norm_version": 0.9833333333333333,
+    "norm_all_three": 0.5166666666666667,
+    "exposure_precision": 0.9722222222222222,
+    "exposure_recall": 0.875,
+    "lane_accuracy": 0.8833333333333333,
+    "unknown_rate": 0.16666666666666666,
+    "unknown_precision": 0.4,
+    "unknown_recall": 1.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 4
+   },
+   "group:clear_patch": {
+    "n": 15,
+    "norm_vendor": 1.0,
+    "norm_product": 0.4666666666666667,
+    "norm_version": 1.0,
+    "norm_all_three": 0.4666666666666667,
+    "exposure_precision": 1.0,
+    "exposure_recall": 1.0,
+    "lane_accuracy": 1.0,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "group:clear_retire": {
+    "n": 12,
+    "norm_vendor": 1.0,
+    "norm_product": 0.3333333333333333,
+    "norm_version": 1.0,
+    "norm_all_three": 0.3333333333333333,
+    "exposure_precision": 1.0,
+    "exposure_recall": 0.9166666666666666,
+    "lane_accuracy": 0.9166666666666666,
+    "unknown_rate": 0.08333333333333333,
+    "unknown_precision": 0.0,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "group:critical_dnt": {
+    "n": 4,
+    "norm_vendor": 1.0,
+    "norm_product": 0.25,
+    "norm_version": 1.0,
+    "norm_all_three": 0.25,
+    "exposure_precision": 1.0,
+    "exposure_recall": 1.0,
+    "lane_accuracy": 1.0,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   },
+   "group:messy_name": {
+    "n": 10,
+    "norm_vendor": 1.0,
+    "norm_product": 0.4,
+    "norm_version": 0.9,
+    "norm_all_three": 0.4,
+    "exposure_precision": 1.0,
+    "exposure_recall": 0.5,
+    "lane_accuracy": 0.6,
+    "unknown_rate": 0.6,
+    "unknown_precision": 0.3333333333333333,
+    "unknown_recall": 1.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 2
+   },
+   "group:name_collision": {
+    "n": 4,
+    "norm_vendor": 1.0,
+    "norm_product": 0.5,
+    "norm_version": 1.0,
+    "norm_all_three": 0.5,
+    "exposure_precision": 1.0,
+    "exposure_recall": 1.0,
+    "lane_accuracy": 0.75,
+    "unknown_rate": 0.75,
+    "unknown_precision": 0.6666666666666666,
+    "unknown_recall": 1.0,
+    "missing_predictions": 0,
+    "exposure_excluded": 2
+   },
+   "group:supported_fine": {
+    "n": 15,
+    "norm_vendor": 1.0,
+    "norm_product": 0.8666666666666667,
+    "norm_version": 1.0,
+    "norm_all_three": 0.8666666666666667,
+    "exposure_precision": 0.0,
+    "exposure_recall": null,
+    "lane_accuracy": 0.9333333333333333,
+    "unknown_rate": 0.0,
+    "unknown_precision": null,
+    "unknown_recall": null,
+    "missing_predictions": 0,
+    "exposure_excluded": 0
+   }
+  }
+ },
+ "confusion_all": {
+  "deming_rep0": {
+   "patch": {
+    "patch": 18,
+    "unknown": 2
+   },
+   "retire": {
+    "retire": 17,
+    "fine": 1,
+    "unknown": 2
+   },
+   "fine": {
+    "fine": 14,
+    "unknown": 2
+   },
+   "unknown": {
+    "unknown": 4
+   }
+  },
+  "deming_rep1": {
+   "patch": {
+    "patch": 18,
+    "unknown": 2
+   },
+   "retire": {
+    "retire": 17,
+    "unknown": 3
+   },
+   "fine": {
+    "fine": 14,
+    "unknown": 1,
+    "patch": 1
+   },
+   "unknown": {
+    "unknown": 4
+   }
+  },
+  "baseline": {
+   "patch": {
+    "patch": 18,
+    "fine": 2
+   },
+   "retire": {
+    "patch": 19,
+    "retire": 1
+   },
+   "fine": {
+    "patch": 16
+   },
+   "unknown": {
+    "patch": 4
+   }
+  }
+ },
+ "stability_complete_repeats": {
+  "runs": 2,
+  "lane_agreement": 0.95,
+  "identity_agreement": 0.8,
+  "field_agreement": {
+   "lane": 0.95,
+   "vendor": 1.0,
+   "product": 0.8,
+   "version": 1.0,
+   "evidence": 0.8666666666666667
+  },
+  "structured_agreement": 0.7333333333333333,
+  "free_text_agreement": null,
+  "unstable_devices": [
+   {
+    "device_id": "DEV-011",
+    "lanes": [
+     "fine",
+     "retire"
+    ],
+    "identities": [
+     "citrix/application delivery controller and gateway/13.0-92.31",
+     "citrix/netscaler adc and netscaler gateway/13.0-92.31"
+    ],
+    "evidence": [
+     "lc-018",
+     "cve-2023-4966;lc-018"
+    ],
+    "fields": [
+     "lane",
+     "product",
+     "evidence"
+    ]
+   },
+   {
+    "device_id": "DEV-014",
+    "lanes": [
+     "patch",
+     "patch"
+    ],
+    "identities": [
+     "fortinet/fortios/7.4.1",
+     "fortinet/fortios/7.4.1"
+    ],
+    "evidence": [
+     "cve-2024-21762;cve-2025-68686;lc-020",
+     "cve-2024-21762;lc-020"
+    ],
+    "fields": [
+     "evidence"
+    ]
+   },
+   {
+    "device_id": "DEV-019",
+    "lanes": [
+     "retire",
+     "retire"
+    ],
+    "identities": [
+     "cisco/small business rv320 and rv325 routers/1.4.2.22",
+     "cisco/small business rv320 and rv325 routers/1.4.2.22"
+    ],
+    "evidence": [
+     "cve-2019-1653;lc-001",
+     "cve-2019-1652;cve-2019-1653;lc-001"
+    ],
+    "fields": [
+     "evidence"
+    ]
+   },
+   {
+    "device_id": "DEV-023",
+    "lanes": [
+     "unknown",
+     "unknown"
+    ],
+    "identities": [
+     "sophos/firewall/",
+     "sophos/xgs 2100/"
+    ],
+    "evidence": [
+     "",
+     ""
+    ],
+    "fields": [
+     "product"
+    ]
+   },
+   {
+    "device_id": "DEV-024",
+    "lanes": [
+     "patch",
+     "patch"
+    ],
+    "identities": [
+     "watchguard/firebox/12.10.3",
+     "watchguard/fireware/12.10.3"
+    ],
+    "evidence": [
+     "cve-2025-14733;cve-2025-9242;lc-029",
+     "cve-2025-14733;cve-2025-9242;lc-029"
+    ],
+    "fields": [
+     "product"
+    ]
+   },
+   {
+    "device_id": "DEV-031",
+    "lanes": [
+     "retire",
+     "retire"
+    ],
+    "identities": [
+     "sonicwall/secure mobile access (sma) 100 series/10.2.1.13",
+     "sonicwall/sma 210/10.2.1.13"
+    ],
+    "evidence": [
+     "lc-012",
+     "lc-012"
+    ],
+    "fields": [
+     "product"
+    ]
+   },
+   {
+    "device_id": "DEV-034",
+    "lanes": [
+     "patch",
+     "patch"
+    ],
+    "identities": [
+     "ivanti/connect secure/22.7r2.5",
+     "ivanti/connect secure/22.7r2.5"
+    ],
+    "evidence": [
+     "cve-2025-0282;cve-2025-22457;cve-2026-104935;cve-2026-111357;cve-2026-118527;lc-022",
+     "cve-2026-104935;cve-2026-111357;cve-2026-118527;lc-022"
+    ],
+    "fields": [
+     "evidence"
+    ]
+   },
+   {
+    "device_id": "DEV-036",
+    "lanes": [
+     "retire",
+     "unknown"
+    ],
+    "identities": [
+     "sonicwall/sma 400 series/",
+     "sonicwall/secure mobile access/"
+    ],
+    "evidence": [
+     "lc-012",
+     ""
+    ],
+    "fields": [
+     "lane",
+     "product",
+     "evidence"
+    ]
+   },
+   {
+    "device_id": "DEV-040",
+    "lanes": [
+     "unknown",
+     "unknown"
+    ],
+    "identities": [
+     "cisco/adaptive security appliance software/",
+     "cisco/adaptive security appliance/"
+    ],
+    "evidence": [
+     "",
+     ""
+    ],
+    "fields": [
+     "product"
+    ]
+   },
+   {
+    "device_id": "DEV-041",
+    "lanes": [
+     "retire",
+     "retire"
+    ],
+    "identities": [
+     "nuuo/nvrmini 2/3.11.0",
+     "nuuo/nvrmini2/3.11.0"
+    ],
+    "evidence": [
+     "cve-2018-14933;cve-2022-23227;lc-015",
+     "cve-2022-23227;lc-015"
+    ],
+    "fields": [
+     "product",
+     "evidence"
+    ]
+   },
+   {
+    "device_id": "DEV-044",
+    "lanes": [
+     "retire",
+     "retire"
+    ],
+    "identities": [
+     "cisco/small business rv340, rv340w, rv345, and rv345p routers/1.0.03.29",
+     "cisco/rv345 and rv345p dual wan gigabit vpn routers/1.0.03.29"
+    ],
+    "evidence": [
+     "lc-003",
+     "lc-003"
+    ],
+    "fields": [
+     "product"
+    ]
+   },
+   {
+    "device_id": "DEV-045",
+    "lanes": [
+     "unknown",
+     "unknown"
+    ],
+    "identities": [
+     "citrix/netscaler adc and netscaler gateway/ns14.1 38.53",
+     "citrix/netscaler gateway/ns14.1 38.53"
+    ],
+    "evidence": [
+     "",
+     ""
+    ],
+    "fields": [
+     "product"
+    ]
+   },
+   {
+    "device_id": "DEV-051",
+    "lanes": [
+     "fine",
+     "fine"
+    ],
+    "identities": [
+     "watchguard/fireware/12.11.6",
+     "watchguard/firebox/12.11.6"
+    ],
+    "evidence": [
+     "lc-029",
+     "lc-029"
+    ],
+    "fields": [
+     "product"
+    ]
+   },
+   {
+    "device_id": "DEV-052",
+    "lanes": [
+     "unknown",
+     "patch"
+    ],
+    "identities": [
+     "watchguard/firebox/12.5.15",
+     "watchguard/firebox/12.5.15"
+    ],
+    "evidence": [
+     "",
+     "cve-2025-14733;cve-2025-9242;lc-029"
+    ],
+    "fields": [
+     "lane",
+     "evidence"
+    ]
+   },
+   {
+    "device_id": "DEV-053",
+    "lanes": [
+     "unknown",
+     "unknown"
+    ],
+    "identities": [
+     "d-link/router/",
+     "d-link//"
+    ],
+    "evidence": [
+     "",
+     ""
+    ],
+    "fields": [
+     "product"
+    ]
+   },
+   {
+    "device_id": "DEV-057",
+    "lanes": [
+     "retire",
+     "retire"
+    ],
+    "identities": [
+     "sophos/sophos firewall/18.5.4",
+     "sophos/xg firewall/18.5.4"
+    ],
+    "evidence": [
+     "lc-013",
+     "cve-2020-15069;lc-013"
+    ],
+    "fields": [
+     "product",
+     "evidence"
+    ]
+   }
+  ]
+ },
+ "footnote_three_repeats": {
+  "device_ids": "DEV-001..DEV-040",
+  "n": 40,
+  "stability_3_repeats": {
+   "runs": 3,
+   "lane_agreement": 0.95,
+   "identity_agreement": 0.8,
+   "field_agreement": {
+    "lane": 0.95,
+    "vendor": 1.0,
+    "product": 0.8,
+    "version": 1.0,
+    "evidence": 0.825
+   },
+   "structured_agreement": 0.675,
+   "free_text_agreement": null,
+   "unstable_devices": [
+    {
+     "device_id": "DEV-004",
+     "lanes": [
+      "patch",
+      "patch",
+      "patch"
+     ],
+     "identities": [
+      "ivanti/connect secure/22.7r2.3",
+      "ivanti/connect secure/22.7r2.3",
+      "ivanti/connect secure/22.7r2.3"
+     ],
+     "evidence": [
+      "cve-2026-104935;cve-2026-111357;cve-2026-118527;lc-022",
+      "cve-2026-104935;cve-2026-111357;cve-2026-118527;lc-022",
+      "cve-2026-118527;lc-022"
+     ],
+     "fields": [
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-011",
+     "lanes": [
+      "fine",
+      "retire",
+      "fine"
+     ],
+     "identities": [
+      "citrix/application delivery controller and gateway/13.0-92.31",
+      "citrix/netscaler adc and netscaler gateway/13.0-92.31",
+      "citrix/application delivery controller and gateway/13.0-92.31"
+     ],
+     "evidence": [
+      "lc-018",
+      "cve-2023-4966;lc-018",
+      "lc-018"
+     ],
+     "fields": [
+      "lane",
+      "product",
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-013",
+     "lanes": [
+      "fine",
+      "fine",
+      "fine"
+     ],
+     "identities": [
+      "watchguard/fireware/12.11.6",
+      "watchguard/fireware/12.11.6",
+      "watchguard/firebox/12.11.6"
+     ],
+     "evidence": [
+      "lc-029",
+      "lc-029",
+      "lc-029"
+     ],
+     "fields": [
+      "product"
+     ]
+    },
+    {
+     "device_id": "DEV-014",
+     "lanes": [
+      "patch",
+      "patch",
+      "patch"
+     ],
+     "identities": [
+      "fortinet/fortios/7.4.1",
+      "fortinet/fortios/7.4.1",
+      "fortinet/fortios/7.4.1"
+     ],
+     "evidence": [
+      "cve-2024-21762;cve-2025-68686;lc-020",
+      "cve-2024-21762;lc-020",
+      "cve-2024-21762;lc-020"
+     ],
+     "fields": [
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-019",
+     "lanes": [
+      "retire",
+      "retire",
+      "retire"
+     ],
+     "identities": [
+      "cisco/small business rv320 and rv325 routers/1.4.2.22",
+      "cisco/small business rv320 and rv325 routers/1.4.2.22",
+      "cisco/small business rv320 and rv325 routers/1.4.2.22"
+     ],
+     "evidence": [
+      "cve-2019-1653;lc-001",
+      "cve-2019-1652;cve-2019-1653;lc-001",
+      "cve-2019-1652;cve-2019-1653;lc-001"
+     ],
+     "fields": [
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-023",
+     "lanes": [
+      "unknown",
+      "unknown",
+      "unknown"
+     ],
+     "identities": [
+      "sophos/firewall/",
+      "sophos/xgs 2100/",
+      "sophos/firewall/"
+     ],
+     "evidence": [
+      "",
+      "",
+      ""
+     ],
+     "fields": [
+      "product"
+     ]
+    },
+    {
+     "device_id": "DEV-024",
+     "lanes": [
+      "patch",
+      "patch",
+      "patch"
+     ],
+     "identities": [
+      "watchguard/firebox/12.10.3",
+      "watchguard/fireware/12.10.3",
+      "watchguard/firebox/12.10.3"
+     ],
+     "evidence": [
+      "cve-2025-14733;cve-2025-9242;lc-029",
+      "cve-2025-14733;cve-2025-9242;lc-029",
+      "cve-2025-14733;cve-2025-9242;lc-029"
+     ],
+     "fields": [
+      "product"
+     ]
+    },
+    {
+     "device_id": "DEV-025",
+     "lanes": [
+      "patch",
+      "patch",
+      "patch"
+     ],
+     "identities": [
+      "watchguard/firebox/12.5.9",
+      "watchguard/firebox/12.5.9",
+      "watchguard/firebox/12.5.9"
+     ],
+     "evidence": [
+      "cve-2025-14733;cve-2025-9242;lc-029",
+      "cve-2025-14733;cve-2025-9242;lc-029",
+      "cve-2022-23176;cve-2022-26318;cve-2025-14733;cve-2025-9242;lc-029"
+     ],
+     "fields": [
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-030",
+     "lanes": [
+      "unknown",
+      "unknown",
+      "unknown"
+     ],
+     "identities": [
+      "sonicwall/sma 1000 series/",
+      "sonicwall/sma 1000 series/",
+      "sonicwall/sma 1000/"
+     ],
+     "evidence": [
+      "",
+      "",
+      ""
+     ],
+     "fields": [
+      "product"
+     ]
+    },
+    {
+     "device_id": "DEV-031",
+     "lanes": [
+      "retire",
+      "retire",
+      "retire"
+     ],
+     "identities": [
+      "sonicwall/secure mobile access (sma) 100 series/10.2.1.13",
+      "sonicwall/sma 210/10.2.1.13",
+      "sonicwall/secure mobile access (sma) 100 series/10.2.1.13"
+     ],
+     "evidence": [
+      "lc-012",
+      "lc-012",
+      "lc-012"
+     ],
+     "fields": [
+      "product"
+     ]
+    },
+    {
+     "device_id": "DEV-034",
+     "lanes": [
+      "patch",
+      "patch",
+      "patch"
+     ],
+     "identities": [
+      "ivanti/connect secure/22.7r2.5",
+      "ivanti/connect secure/22.7r2.5",
+      "ivanti/connect secure/22.7r2.5"
+     ],
+     "evidence": [
+      "cve-2025-0282;cve-2025-22457;cve-2026-104935;cve-2026-111357;cve-2026-118527;lc-022",
+      "cve-2026-104935;cve-2026-111357;cve-2026-118527;lc-022",
+      "cve-2026-104935;cve-2026-111357;cve-2026-118527;lc-022"
+     ],
+     "fields": [
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-036",
+     "lanes": [
+      "retire",
+      "unknown",
+      "retire"
+     ],
+     "identities": [
+      "sonicwall/sma 400 series/",
+      "sonicwall/secure mobile access/",
+      "sonicwall/secure mobile access (sma)/"
+     ],
+     "evidence": [
+      "lc-012",
+      "",
+      "lc-012"
+     ],
+     "fields": [
+      "lane",
+      "product",
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-040",
+     "lanes": [
+      "unknown",
+      "unknown",
+      "unknown"
+     ],
+     "identities": [
+      "cisco/adaptive security appliance software/",
+      "cisco/adaptive security appliance/",
+      "cisco/adaptive security appliance software/"
+     ],
+     "evidence": [
+      "",
+      "",
+      ""
+     ],
+     "fields": [
+      "product"
+     ]
+    }
+   ]
+  },
+  "stability_2_repeats_same_devices": {
+   "runs": 2,
+   "lane_agreement": 0.95,
+   "identity_agreement": 0.85,
+   "field_agreement": {
+    "lane": 0.95,
+    "vendor": 1.0,
+    "product": 0.85,
+    "version": 1.0,
+    "evidence": 0.875
+   },
+   "structured_agreement": 0.775,
+   "free_text_agreement": null,
+   "unstable_devices": [
+    {
+     "device_id": "DEV-011",
+     "lanes": [
+      "fine",
+      "retire"
+     ],
+     "identities": [
+      "citrix/application delivery controller and gateway/13.0-92.31",
+      "citrix/netscaler adc and netscaler gateway/13.0-92.31"
+     ],
+     "evidence": [
+      "lc-018",
+      "cve-2023-4966;lc-018"
+     ],
+     "fields": [
+      "lane",
+      "product",
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-014",
+     "lanes": [
+      "patch",
+      "patch"
+     ],
+     "identities": [
+      "fortinet/fortios/7.4.1",
+      "fortinet/fortios/7.4.1"
+     ],
+     "evidence": [
+      "cve-2024-21762;cve-2025-68686;lc-020",
+      "cve-2024-21762;lc-020"
+     ],
+     "fields": [
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-019",
+     "lanes": [
+      "retire",
+      "retire"
+     ],
+     "identities": [
+      "cisco/small business rv320 and rv325 routers/1.4.2.22",
+      "cisco/small business rv320 and rv325 routers/1.4.2.22"
+     ],
+     "evidence": [
+      "cve-2019-1653;lc-001",
+      "cve-2019-1652;cve-2019-1653;lc-001"
+     ],
+     "fields": [
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-023",
+     "lanes": [
+      "unknown",
+      "unknown"
+     ],
+     "identities": [
+      "sophos/firewall/",
+      "sophos/xgs 2100/"
+     ],
+     "evidence": [
+      "",
+      ""
+     ],
+     "fields": [
+      "product"
+     ]
+    },
+    {
+     "device_id": "DEV-024",
+     "lanes": [
+      "patch",
+      "patch"
+     ],
+     "identities": [
+      "watchguard/firebox/12.10.3",
+      "watchguard/fireware/12.10.3"
+     ],
+     "evidence": [
+      "cve-2025-14733;cve-2025-9242;lc-029",
+      "cve-2025-14733;cve-2025-9242;lc-029"
+     ],
+     "fields": [
+      "product"
+     ]
+    },
+    {
+     "device_id": "DEV-031",
+     "lanes": [
+      "retire",
+      "retire"
+     ],
+     "identities": [
+      "sonicwall/secure mobile access (sma) 100 series/10.2.1.13",
+      "sonicwall/sma 210/10.2.1.13"
+     ],
+     "evidence": [
+      "lc-012",
+      "lc-012"
+     ],
+     "fields": [
+      "product"
+     ]
+    },
+    {
+     "device_id": "DEV-034",
+     "lanes": [
+      "patch",
+      "patch"
+     ],
+     "identities": [
+      "ivanti/connect secure/22.7r2.5",
+      "ivanti/connect secure/22.7r2.5"
+     ],
+     "evidence": [
+      "cve-2025-0282;cve-2025-22457;cve-2026-104935;cve-2026-111357;cve-2026-118527;lc-022",
+      "cve-2026-104935;cve-2026-111357;cve-2026-118527;lc-022"
+     ],
+     "fields": [
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-036",
+     "lanes": [
+      "retire",
+      "unknown"
+     ],
+     "identities": [
+      "sonicwall/sma 400 series/",
+      "sonicwall/secure mobile access/"
+     ],
+     "evidence": [
+      "lc-012",
+      ""
+     ],
+     "fields": [
+      "lane",
+      "product",
+      "evidence"
+     ]
+    },
+    {
+     "device_id": "DEV-040",
+     "lanes": [
+      "unknown",
+      "unknown"
+     ],
+     "identities": [
+      "cisco/adaptive security appliance software/",
+      "cisco/adaptive security appliance/"
+     ],
+     "evidence": [
+      "",
+      ""
+     ],
+     "fields": [
+      "product"
+     ]
+    }
+   ]
+  },
+  "replay_vs_published_mismatches": [],
+  "lanes": {
+   "DEV-001": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-002": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "DEV-003": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "DEV-004": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-005": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "DEV-006": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "DEV-007": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-008": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "DEV-009": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-010": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "DEV-011": [
+    "fine",
+    "retire",
+    "fine"
+   ],
+   "DEV-012": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "DEV-013": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "DEV-014": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-015": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "DEV-016": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "DEV-017": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "DEV-018": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-019": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "DEV-020": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "DEV-021": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-022": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "DEV-023": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "DEV-024": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-025": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-026": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "DEV-027": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "DEV-028": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "DEV-029": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "DEV-030": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "DEV-031": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "DEV-032": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "DEV-033": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-034": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-035": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "DEV-036": [
+    "retire",
+    "unknown",
+    "retire"
+   ],
+   "DEV-037": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "DEV-038": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "DEV-039": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "DEV-040": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ]
+  }
+ },
+ "posthoc_alias_view": {
+  "baseline": {
+   "all": {
+    "n": 60,
+    "strict_product": 0.18333333333333332,
+    "alias_vendor": 0.4166666666666667,
+    "alias_product": 0.3,
+    "alias_vendor_product": 0.3
+   },
+   "verified": null,
+   "unverified": {
+    "n": 60,
+    "strict_product": 0.18333333333333332,
+    "alias_vendor": 0.4166666666666667,
+    "alias_product": 0.3,
+    "alias_vendor_product": 0.3
+   },
+   "group:clear_patch": {
+    "n": 15,
+    "strict_product": 0.06666666666666667,
+    "alias_vendor": 0.26666666666666666,
+    "alias_product": 0.26666666666666666,
+    "alias_vendor_product": 0.26666666666666666
+   },
+   "group:clear_retire": {
+    "n": 12,
+    "strict_product": 0.16666666666666666,
+    "alias_vendor": 0.5,
+    "alias_product": 0.25,
+    "alias_vendor_product": 0.25
+   },
+   "group:critical_dnt": {
+    "n": 4,
+    "strict_product": 0.5,
+    "alias_vendor": 0.75,
+    "alias_product": 0.75,
+    "alias_vendor_product": 0.75
+   },
+   "group:messy_name": {
+    "n": 10,
+    "strict_product": 0.2,
+    "alias_vendor": 0.7,
+    "alias_product": 0.4,
+    "alias_vendor_product": 0.4
+   },
+   "group:name_collision": {
+    "n": 4,
+    "strict_product": 0.0,
+    "alias_vendor": 0.25,
+    "alias_product": 0.0,
+    "alias_vendor_product": 0.0
+   },
+   "group:supported_fine": {
+    "n": 15,
+    "strict_product": 0.26666666666666666,
+    "alias_vendor": 0.26666666666666666,
+    "alias_product": 0.26666666666666666,
+    "alias_vendor_product": 0.26666666666666666
+   }
+  },
+  "deming_rep0": {
+   "all": {
+    "n": 60,
+    "strict_product": 0.4666666666666667,
+    "alias_vendor": 1.0,
+    "alias_product": 0.9,
+    "alias_vendor_product": 0.9
+   },
+   "verified": null,
+   "unverified": {
+    "n": 60,
+    "strict_product": 0.4666666666666667,
+    "alias_vendor": 1.0,
+    "alias_product": 0.9,
+    "alias_vendor_product": 0.9
+   },
+   "group:clear_patch": {
+    "n": 15,
+    "strict_product": 0.5333333333333333,
+    "alias_vendor": 1.0,
+    "alias_product": 1.0,
+    "alias_vendor_product": 1.0
+   },
+   "group:clear_retire": {
+    "n": 12,
+    "strict_product": 0.25,
+    "alias_vendor": 1.0,
+    "alias_product": 0.9166666666666666,
+    "alias_vendor_product": 0.9166666666666666
+   },
+   "group:critical_dnt": {
+    "n": 4,
+    "strict_product": 0.25,
+    "alias_vendor": 1.0,
+    "alias_product": 1.0,
+    "alias_vendor_product": 1.0
+   },
+   "group:messy_name": {
+    "n": 10,
+    "strict_product": 0.3,
+    "alias_vendor": 1.0,
+    "alias_product": 0.7,
+    "alias_vendor_product": 0.7
+   },
+   "group:name_collision": {
+    "n": 4,
+    "strict_product": 0.25,
+    "alias_vendor": 1.0,
+    "alias_product": 0.5,
+    "alias_vendor_product": 0.5
+   },
+   "group:supported_fine": {
+    "n": 15,
+    "strict_product": 0.8,
+    "alias_vendor": 1.0,
+    "alias_product": 1.0,
+    "alias_vendor_product": 1.0
+   }
+  },
+  "deming_rep1": {
+   "all": {
+    "n": 60,
+    "strict_product": 0.5166666666666667,
+    "alias_vendor": 1.0,
+    "alias_product": 0.95,
+    "alias_vendor_product": 0.95
+   },
+   "verified": null,
+   "unverified": {
+    "n": 60,
+    "strict_product": 0.5166666666666667,
+    "alias_vendor": 1.0,
+    "alias_product": 0.95,
+    "alias_vendor_product": 0.95
+   },
+   "group:clear_patch": {
+    "n": 15,
+    "strict_product": 0.4666666666666667,
+    "alias_vendor": 1.0,
+    "alias_product": 1.0,
+    "alias_vendor_product": 1.0
+   },
+   "group:clear_retire": {
+    "n": 12,
+    "strict_product": 0.3333333333333333,
+    "alias_vendor": 1.0,
+    "alias_product": 1.0,
+    "alias_vendor_product": 1.0
+   },
+   "group:critical_dnt": {
+    "n": 4,
+    "strict_product": 0.25,
+    "alias_vendor": 1.0,
+    "alias_product": 1.0,
+    "alias_vendor_product": 1.0
+   },
+   "group:messy_name": {
+    "n": 10,
+    "strict_product": 0.4,
+    "alias_vendor": 1.0,
+    "alias_product": 0.8,
+    "alias_vendor_product": 0.8
+   },
+   "group:name_collision": {
+    "n": 4,
+    "strict_product": 0.5,
+    "alias_vendor": 1.0,
+    "alias_product": 0.75,
+    "alias_vendor_product": 0.75
+   },
+   "group:supported_fine": {
+    "n": 15,
+    "strict_product": 0.8666666666666667,
+    "alias_vendor": 1.0,
+    "alias_product": 1.0,
+    "alias_vendor_product": 1.0
+   }
+  }
+ },
+ "aliases": {
+  "connect secure, policy secure, and zta gateways": [
+   "connect secure",
+   "ivanti connect secure"
+  ],
+  "dir-600 router": [
+   "dir-600"
+  ],
+  "dir-859 router": [
+   "dir-859"
+  ],
+  "firebox": [
+   "fireware",
+   "fireware os"
+  ],
+  "multiple firewalls": [
+   "usg60"
+  ],
+  "multiple nas devices": [
+   "dns-320l",
+   "dns-325",
+   "dns-325 sharecenter"
+  ],
+  "nvrmini2 devices": [
+   "nvrmini 2",
+   "nvrmini2"
+  ],
+  "netscaler adc and gateway": [
+   "application delivery controller and gateway",
+   "netscaler",
+   "netscaler adc",
+   "netscaler adc and netscaler gateway",
+   "netscaler gateway"
+  ],
+  "sma100 appliances": [
+   "secure mobile access (sma) 100 series",
+   "sma 210",
+   "sma100"
+  ],
+  "sma1000 appliances": [
+   "sma 1000 series"
+  ],
+  "secure firewall adaptive security appliance and secure firewall threat defense": [
+   "adaptive security appliance software"
+  ],
+  "adaptive security appliance (asa)": [
+   "adaptive security appliance software"
+  ],
+  "small business rv series routers": [
+   "rv042 and rv042g dual wan vpn routers",
+   "small business rv320 and rv325 routers"
+  ],
+  "small business rv160, rv260, rv340, and rv345 series routers": [
+   "rv345 and rv345p dual wan gigabit vpn routers",
+   "small business rv340, rv340w, rv345, and rv345p routers"
+  ],
+  "vigor routers": [
+   "vigor300b"
+  ]
+ }
+}

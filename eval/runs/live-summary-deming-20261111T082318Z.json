@@ -1,0 +1,766 @@
+{
+ "model": "gemini-3.5-flash-lite",
+ "as_of_date": "2026-11-12",
+ "devices": 60,
+ "repeats": 3,
+ "settings_source": "sim.loop.SETTINGS_DEFAULTS",
+ "settings": {
+  "approver_email": "approver@example.org",
+  "days_until_reminder": 3,
+  "days_until_escalation": 7,
+  "urgent": "internet_facing is true and criticality is high or critical",
+  "tier2_mode": "approval",
+  "tier3_mode": "draft_only",
+  "maintenance_lead_days": 2,
+  "kev_overdue_grace_days": 14,
+  "retire_days": 30,
+  "retire_isolation_days": 7,
+  "digest_channel": ""
+ },
+ "wall_time_s": 3137.2,
+ "api_calls": 495,
+ "cache_hits": 0,
+ "retries_429_503": 132,
+ "latency_per_agent": {
+  "normalizer": {
+   "calls": 159,
+   "mean_s": 2.9,
+   "max_s": 21.78
+  },
+  "checker": {
+   "calls": 156,
+   "mean_s": 4.03,
+   "max_s": 25.59
+  },
+  "planner": {
+   "calls": 158,
+   "mean_s": 4.53,
+   "max_s": 61.5
+  }
+ },
+ "cached_per_agent": {},
+ "schema_failures": [],
+ "errors": [
+  {
+   "repeat": 2,
+   "device_id": "DEV-039",
+   "type": "RemoteProtocolError",
+   "status": null,
+   "message": "Server disconnected without sending a response.",
+   "cause": "Server disconnected without sending a response.",
+   "trace_tail": "httpx2.RemoteProtocolError: Server disconnected without sending a response."
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-040",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-041",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-042",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-043",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-044",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-045",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-046",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-047",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-048",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-049",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-050",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-051",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-052",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-053",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-054",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-055",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-056",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-057",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-058",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-059",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  },
+  {
+   "repeat": 2,
+   "device_id": "DEV-060",
+   "type": "ConnectError",
+   "status": null,
+   "message": "[Errno 11001] getaddrinfo failed",
+   "cause": "[Errno 11001] getaddrinfo failed",
+   "trace_tail": "httpx2.ConnectError: [Errno 11001] getaddrinfo failed"
+  }
+ ],
+ "lanes": {
+  "DEV-001": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-002": {
+   "pred": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "truth": "retire"
+  },
+  "DEV-003": {
+   "pred": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "truth": "retire"
+  },
+  "DEV-004": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-005": {
+   "pred": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "truth": "fine"
+  },
+  "DEV-006": {
+   "pred": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "truth": "fine"
+  },
+  "DEV-007": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-008": {
+   "pred": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "truth": "fine"
+  },
+  "DEV-009": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-010": {
+   "pred": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "truth": "retire"
+  },
+  "DEV-011": {
+   "pred": [
+    "fine",
+    "retire",
+    "fine"
+   ],
+   "truth": "retire"
+  },
+  "DEV-012": {
+   "pred": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "truth": "retire"
+  },
+  "DEV-013": {
+   "pred": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "truth": "fine"
+  },
+  "DEV-014": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-015": {
+   "pred": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "truth": "retire"
+  },
+  "DEV-016": {
+   "pred": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "truth": "retire"
+  },
+  "DEV-017": {
+   "pred": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "truth": "fine"
+  },
+  "DEV-018": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-019": {
+   "pred": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "truth": "retire"
+  },
+  "DEV-020": {
+   "pred": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "truth": "retire"
+  },
+  "DEV-021": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-022": {
+   "pred": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "truth": "fine"
+  },
+  "DEV-023": {
+   "pred": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "truth": "unknown"
+  },
+  "DEV-024": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-025": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-026": {
+   "pred": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "truth": "fine"
+  },
+  "DEV-027": {
+   "pred": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "truth": "patch"
+  },
+  "DEV-028": {
+   "pred": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "truth": "fine"
+  },
+  "DEV-029": {
+   "pred": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "truth": "fine"
+  },
+  "DEV-030": {
+   "pred": [
+    "unknown",
+    "unknown",
+    "unknown"
+   ],
+   "truth": "unknown"
+  },
+  "DEV-031": {
+   "pred": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "truth": "retire"
+  },
+  "DEV-032": {
+   "pred": [
+    "retire",
+    "retire",
+    "retire"
+   ],
+   "truth": "retire"
+  },
+  "DEV-033": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-034": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-035": {
+   "pred": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "truth": "fine"
+  },
+  "DEV-036": {
+   "pred": [
+    "retire",
+    "unknown",
+    "retire"
+   ],
+   "truth": "retire"
+  },
+  "DEV-037": {
+   "pred": [
+    "patch",
+    "patch",
+    "patch"
+   ],
+   "truth": "patch"
+  },
+  "DEV-038": {
+   "pred": [
+    "fine",
+    "fine",
+    "fine"
+   ],
+   "truth": "fine"
+  },
+  "DEV-039": {
+   "pred": [
+    "retire",
+    "retire",
+    "ERROR"
+   ],
+   "truth": "retire"
+  },
+  "DEV-040": {
+   "pred": [
+    "unknown",
+    "unknown",
+    "ERROR"
+   ],
+   "truth": "unknown"
+  },
+  "DEV-041": {
+   "pred": [
+    "retire",
+    "retire",
+    "ERROR"
+   ],
+   "truth": "retire"
+  },
+  "DEV-042": {
+   "pred": [
+    "retire",
+    "retire",
+    "ERROR"
+   ],
+   "truth": "retire"
+  },
+  "DEV-043": {
+   "pred": [
+    "patch",
+    "patch",
+    "ERROR"
+   ],
+   "truth": "patch"
+  },
+  "DEV-044": {
+   "pred": [
+    "retire",
+    "retire",
+    "ERROR"
+   ],
+   "truth": "retire"
+  },
+  "DEV-045": {
+   "pred": [
+    "unknown",
+    "unknown",
+    "ERROR"
+   ],
+   "truth": "patch"
+  },
+  "DEV-046": {
+   "pred": [
+    "fine",
+    "fine",
+    "ERROR"
+   ],
+   "truth": "fine"
+  },
+  "DEV-047": {
+   "pred": [
+    "patch",
+    "patch",
+    "ERROR"
+   ],
+   "truth": "patch"
+  },
+  "DEV-048": {
+   "pred": [
+    "patch",
+    "patch",
+    "ERROR"
+   ],
+   "truth": "patch"
+  },
+  "DEV-049": {
+   "pred": [
+    "patch",
+    "patch",
+    "ERROR"
+   ],
+   "truth": "patch"
+  },
+  "DEV-050": {
+   "pred": [
+    "patch",
+    "patch",
+    "ERROR"
+   ],
+   "truth": "patch"
+  },
+  "DEV-051": {
+   "pred": [
+    "fine",
+    "fine",
+    "ERROR"
+   ],
+   "truth": "fine"
+  },
+  "DEV-052": {
+   "pred": [
+    "unknown",
+    "patch",
+    "ERROR"
+   ],
+   "truth": "fine"
+  },
+  "DEV-053": {
+   "pred": [
+    "unknown",
+    "unknown",
+    "ERROR"
+   ],
+   "truth": "unknown"
+  },
+  "DEV-054": {
+   "pred": [
+    "retire",
+    "retire",
+    "ERROR"
+   ],
+   "truth": "retire"
+  },
+  "DEV-055": {
+   "pred": [
+    "fine",
+    "fine",
+    "ERROR"
+   ],
+   "truth": "fine"
+  },
+  "DEV-056": {
+   "pred": [
+    "patch",
+    "patch",
+    "ERROR"
+   ],
+   "truth": "patch"
+  },
+  "DEV-057": {
+   "pred": [
+    "retire",
+    "retire",
+    "ERROR"
+   ],
+   "truth": "retire"
+  },
+  "DEV-058": {
+   "pred": [
+    "retire",
+    "retire",
+    "ERROR"
+   ],
+   "truth": "retire"
+  },
+  "DEV-059": {
+   "pred": [
+    "retire",
+    "retire",
+    "ERROR"
+   ],
+   "truth": "retire"
+  },
+  "DEV-060": {
+   "pred": [
+    "fine",
+    "fine",
+    "ERROR"
+   ],
+   "truth": "fine"
+  }
+ },
+ "lane_correct_per_repeat": [
+  53,
+  53,
+  33
+ ],
+ "stability": {
+  "structured": {
+   "devices": 38,
+   "lane": "36/38",
+   "vendor": "38/38",
+   "product": "31/38",
+   "version": "38/38",
+   "evidence": "31/38",
+   "all": "26/38"
+  },
+  "planner_structured": {
+   "devices": 38,
+   "action": "36/38",
+   "priority": "33/38",
+   "deadline": "35/38",
+   "escalate_to_human": "38/38",
+   "ticket_issue": "36/38",
+   "ticket_create": "37/38",
+   "recipient": "36/38",
+   "all": "32/38"
+  },
+  "free_text": {
+   "devices": 38,
+   "normalizer_reason": "0/38",
+   "checker_reason": "0/38",
+   "planner_subject": "12/38",
+   "planner_body": "11/38",
+   "planner_reason": "0/38",
+   "all": "0/38"
+  }
+ },
+ "prediction_files": [
+  "eval/runs/deming-20261111T075938Z/deming.csv",
+  "eval/runs/deming-20261111T081026Z/deming.csv",
+  "eval/runs/deming-20261111T082318Z/deming.csv"
+ ]
+}

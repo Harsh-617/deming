@@ -314,3 +314,19 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
   Mean latency: Normalizer 1.9 s, Checker 4.3 s, Planner 5.0 s.
 - **Not verified:** the full 60-device inventory with these changes (not run, and no prompt
   tuning on data/inventory.csv); the free-tier RPM/RPD for this model.
+
+### 2026-11-11 · Full evaluation run driver and offline analysis (prompts-v1)
+- **Choice:** `eval/full_run.py`, a thin wrapper around `eval/live_fixture_run.py` on the `data/`
+  files (3 repeats, one call at a time, cache on). It adds one rule: a 429 whose message names a
+  per-day quota stops the whole run (no workaround). Any other 429 that outlasts the runner's
+  backoff gets up to 3 waits of 65 s. `eval/offline_analysis.py` scores every complete repeat
+  per group, plus stability and a POST-HOC alias view. It rebuilds partial repeats from the
+  response cache with a client that raises on any call, so analysis never spends quota.
+- **Alternatives:** editing `live_fixture_run.py` itself (rejected: keep the fixture tool
+  unchanged after the freeze); scoring the error-row repeat-2 CSV (rejected: network-drop rows
+  are not model output).
+- **Outcome:** repeats 0 and 1 complete (60/60). Repeat 2 stopped at 40/60 after a network drop,
+  then the per-day quota. Headline numbers use repeats 0 and 1 only; see `docs/results-analysis.md`.
+- **Source:** rate limits are per model and per day (https://ai.google.dev/gemini-api/docs/rate-limits).
+  The exact RPD for `gemini-3.5-flash-lite` on this key was not verified; about 500 calls in a
+  day were reached before the quota 429.
