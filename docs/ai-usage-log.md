@@ -8,6 +8,7 @@
 - [feat/loop](ai-usage/feat-loop.md)
 - [feat/review](ai-usage/feat-review.md)
 - [feat/docs](ai-usage/feat-docs.md)
+- [feat/cross-check](ai-usage/feat-cross-check.md)
 
 | Date | Tool | What for |
 |---|---|---|

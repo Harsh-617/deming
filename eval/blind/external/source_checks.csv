@@ -1,0 +1,29 @@
+blind_id,url,http_status,page_status,claim,claim_found,checked_at
+B01,https://help.ivanti.com/ps/help/en_US/ICS/9.1RX/rn-9.1R18.9/introduction.htm,200,opened,the ICS 9.X is already End-of-Life (EOL),true,2026-11-11T15:29:33Z
+B02,https://www.edimax.com/edimax/post/post/data/edimax/global/press_releases/4801,200,opened,CVE-2025-1316,true,2026-11-11T15:29:34Z
+B03,https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html,200,opened,2025-01-31,true,2026-11-11T15:29:37Z
+B03,https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html,200,opened,2021-01-29,true,2026-11-11T15:29:37Z
+B04,https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10264,200,opened,11/01/2017,true,2026-11-11T15:29:40Z
+B05,https://security.paloaltonetworks.com/CVE-2026-0322,200,opened,2027-05-03,false,2026-11-11T15:29:45Z
+B05,https://security.paloaltonetworks.com/CVE-2026-0322,200,opened,CVE-2026-0322,true,2026-11-11T15:29:45Z
+B05,https://security.paloaltonetworks.com/CVE-2026-0322,200,opened,11.1,true,2026-11-11T15:29:45Z
+B06,https://mikrotik.com/supportsec/september-2026-vulnerability/,200,opened,CVE-2026-86060,true,2026-11-11T15:29:49Z
+B06,https://mikrotik.com/supportsec/september-2026-vulnerability/,200,opened,"If your router is on 7.24.3, 7.23.6, 6.49.21 or any later release, all of the above are fixed.",true,2026-11-11T15:29:49Z
+B07,https://www.watchguard.com/wgrd-trust-center/end-of-life-policy,200,opened,31 Dec 2025,true,2026-11-11T15:29:54Z
+B08,https://www.watchguard.com/wgrd-trust-center/end-of-life-policy,200,opened,31 Dec 2025,true,2026-11-11T15:29:58Z
+B09,https://cveawg.mitre.org/api/cve/CVE-2025-0282,200,opened,CVE-2025-0282,true,2026-11-11T15:29:58Z
+B09,https://cveawg.mitre.org/api/cve/CVE-2025-0282,200,opened,22.7R2,true,2026-11-11T15:29:58Z
+B09,https://cveawg.mitre.org/api/cve/CVE-2025-0282,200,opened,22.7R2.5,true,2026-11-11T15:29:58Z
+B10,https://mikrotik.com/supportsec/september-2026-vulnerability/,200,opened,7.23.6,true,2026-11-11T15:30:03Z
+B11,https://www.watchguard.com/wgrd-psirt/advisory/wgsa-2025-00015,200,opened,CVE-2025-9242,true,2026-11-11T15:30:03Z
+B11,https://www.watchguard.com/wgrd-psirt/advisory/wgsa-2025-00015,200,opened,12.0,true,2026-11-11T15:30:03Z
+B11,https://www.watchguard.com/wgrd-psirt/advisory/wgsa-2025-00015,200,opened,12.11.3,true,2026-11-11T15:30:03Z
+B11,https://www.watchguard.com/wgrd-psirt/advisory/wgsa-2025-00015,200,opened,12.11.4,true,2026-11-11T15:30:03Z
+B12,https://www.dlink.com/hr/hr/products/dir-600-wireless-n-150-home-router,200,opened,11/05/2020,true,2026-11-11T15:30:07Z
+B12,https://www.dlink.com/hr/hr/products/dir-600-wireless-n-150-home-router,200,opened,CVE-2014-100005,false,2026-11-11T15:30:07Z
+B13,https://community.zyxel.com/en/discussion/15729/when-zyxel-will-stop-publishing-updates-to-usg-60w,200,opened,2022-12-31,true,2026-11-11T15:30:13Z
+B13,https://community.zyxel.com/en/discussion/15729/when-zyxel-will-stop-publishing-updates-to-usg-60w,200,opened,2024-05-16,false,2026-11-11T15:30:13Z
+B14,https://mikrotik.com/supportsec/september-2026-vulnerability/,200,opened,CVE-2026-86060,true,2026-11-11T15:30:18Z
+B14,https://mikrotik.com/supportsec/september-2026-vulnerability/,200,opened,7.24.2,true,2026-11-11T15:30:18Z
+B14,https://mikrotik.com/supportsec/september-2026-vulnerability/,200,opened,7.24.3,true,2026-11-11T15:30:18Z
+B15,https://www.cisco.com/c/en/us/products/collateral/security/asa-5500-series-next-generation-firewalls/eos-eol-notice-c51-744797.html,200,opened,"August 31, 2026",true,2026-11-11T15:30:18Z

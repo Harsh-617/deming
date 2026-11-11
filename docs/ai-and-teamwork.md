@@ -46,6 +46,8 @@ From the logs and the PRD:
 - **Ground-truth verification.** Labels count as verified only with two human reviewers'
   initials in `verified_by_a` / `verified_by_b`. Both columns are blank on all 60 rows on this
   branch, so verification has not happened yet (`data/ground_truth.csv`).
+  Fifteen labels were cross-checked blind by a separate AI session (Claude, same model family),
+  which is not human verification and changed no label (`docs/ai-cross-check.md`).
 - **Approvals.** Every outward action needs a recorded approval by a named human; tier-3 actions
   (isolate, disconnect, replace) are only drafted (`docs/PRD.md`, `sim/loop.py`). In the demo the
   approver is scripted.
