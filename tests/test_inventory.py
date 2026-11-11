@@ -23,7 +23,7 @@ if str(ROOT) not in sys.path:
 
 # The ground-truth checks use the Checker's own version parser and train selection, so labels
 # and the version guard can never disagree on what "below the fix" means.
-from sim.guards import parse_version, select_train_fixes  # noqa: E402
+from sim.guards import compare_versions, parse_version, select_train_fixes  # noqa: E402
 INV = ROOT / "data" / "inventory.csv"
 GT = ROOT / "data" / "ground_truth.csv"
 LC = ROOT / "data" / "lifecycle.csv"
@@ -161,19 +161,6 @@ def test_lanes_follow_lifecycle_dates(gt, lifecycle):
             assert not past, f"{r['device_id']}: patch but {lc['lifecycle_id']} is past support"
 
 
-# clear_patch rows whose version the guard's strict grammar can't read (Ivanti 22.7R2.x,
-# NetScaler 14.1-NN.NN build numbers). The labels say patch (from the vendor advisories), but the
-# version guard sends these devices to unknown, so they are expected misses in the eval. Listed
-# here so a new unparseable label fails the test instead of being skipped quietly.
-UNPARSEABLE_PATCH_LABELS = {"DEV-009", "DEV-021", "DEV-034", "DEV-050"}
-
-
-def _vkey(v: str) -> tuple:
-    key = parse_version(v)
-    assert key is not None, f"version {v!r} does not parse with sim.guards.parse_version"
-    return key
-
-
 def _train_fixes(fixed: str, version: str) -> list[str]:
     """Fixed versions on the version's release train (contracts v1.2), via the guard itself."""
     fixes, _why = select_train_fixes(fixed, version)
@@ -181,22 +168,19 @@ def _train_fixes(fixed: str, version: str) -> list[str]:
 
 
 def test_clear_patch_below_fixed_version(gt, lifecycle):
-    seen_unparseable: set[str] = set()
+    """Every clear_patch label must be comparable by the guard's own parser (sim.guards), including
+    Ivanti 22.7R2.x and NetScaler 14.1-NN.NN since contracts v1.4, and below its train's fix."""
     for r in gt:
         if r["group"] != "clear_patch":
             continue
         lc = lifecycle[r["evidence_lifecycle_id"]]
         assert lc["fixed_version"], f"{r['device_id']}: clear_patch needs a documented fixed_version"
         assert fnmatch.fnmatch(r["version"].lower(), lc["model_pattern"].lower()), r["device_id"]
-        if parse_version(r["version"]) is None:
-            assert r["device_id"] in UNPARSEABLE_PATCH_LABELS, (
-                f"{r['device_id']}: version {r['version']!r} does not parse; the guard would say unknown")
-            seen_unparseable.add(r["device_id"])
-            continue
+        assert parse_version(r["version"]) is not None, (
+            f"{r['device_id']}: version {r['version']!r} does not parse; the guard would say unknown")
         fixes = _train_fixes(lc["fixed_version"], r["version"])
         assert fixes, f"{r['device_id']}: no fixed version on the train of {r['version']}"
-        assert _vkey(r["version"]) < min(_vkey(f) for f in fixes), f"{r['device_id']}: not below {fixes}"
-    assert seen_unparseable == UNPARSEABLE_PATCH_LABELS
+        assert all(compare_versions(r["version"], f) == -1 for f in fixes), f"{r['device_id']}: not below {fixes}"
 
 
 def test_supported_fine_at_or_above_fixed_version(gt, lifecycle):
@@ -212,7 +196,7 @@ def test_supported_fine_at_or_above_fixed_version(gt, lifecycle):
                   and fnmatch.fnmatch(r["version"].lower(), l["model_pattern"].lower()))
         fixes = _train_fixes(lc["fixed_version"], r["version"])
         assert fixes, f"{r['device_id']}: no fixed version on the train of {r['version']}"
-        assert _vkey(r["version"]) >= max(_vkey(f) for f in fixes), r["device_id"]
+        assert all(compare_versions(r["version"], f) in (0, 1) for f in fixes), r["device_id"]
 
 
 def test_critical_dnt(inv, gt, kev_ids):

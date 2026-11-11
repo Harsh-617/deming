@@ -3,7 +3,16 @@
 These are the exact file formats every component and branch reads and writes. If code and this
 file disagree, this file wins. Change it only on `main` (see Parallel work).
 
-Version: 1.3 (2026-11-11)
+Version: 1.4 (2026-11-11)
+
+Changes in 1.4: the version grammar adds two exact vendor forms, Ivanti Connect Secure
+`22.7R2.6` and Citrix NetScaler `14.1-47.46`; each form is its own family and is never compared
+with another. New Settings keys `retire_days` (30) and `retire_isolation_days` (7): the retire
+deadline is `as_of_date` + `retire_days`, and the support end date stays in the message as
+evidence. The Planner no longer chooses a message recipient (code sets it by rule), and its
+`ticket.issue` is the enum `patch | retire | identify`. Evidence ids for `patch`/`retire`/`fine`
+are filled by code from the candidate rows; `fine` carries the governing `lifecycle_id` (no CVEs).
+A KEV match with no lifecycle row at all is `unknown`, like a blank `fixed_version`.
 
 Changes in 1.3: the loop's state files are now contracts: Decision Log (adds `proposal_id`,
 `ticket_id`, `notes`), Tickets (adds `lane`, `dedupe_key`, `fixed_version`, `firmware_at_open`,
@@ -186,7 +195,7 @@ device_id,vendor,product,version,confidence,lane,evidence,run_id
 | `vendor`, `product`, `version` | Normalized output; blank where nothing was extracted |
 | `confidence` | Decimal 0.00 to 1.00, two places. The baseline writes its fuzzy score / 100 |
 | `lane` | Lane enum. The baseline never writes `unknown` (PRD) |
-| `evidence` | `;`-separated KEV `cveID`s and/or `lifecycle_id`s, e.g. `CVE-2023-20118;LC-007`; blank for `fine`/`unknown` |
+| `evidence` | `;`-separated KEV `cveID`s and/or `lifecycle_id`s, e.g. `CVE-2023-20118;LC-007`. Set by code from the candidate rows (`sim/guards.fill_evidence`): `patch`/`retire` carry the CVEs and the governing `lifecycle_id`; `fine` carries only the governing `lifecycle_id` (blank if none); `unknown` is blank |
 | `run_id` | `<system>-<YYYYMMDDTHHMMSSZ>` (UTC start time), e.g. `deming-20261112T031500Z`; same on every row |
 
 ## Canonical names and comparison
@@ -198,17 +207,25 @@ device_id,vendor,product,version,confidence,lane,evidence,run_id
 
 ### Version grammar (firmware vs `fixed_version`)
 
-One parser, `sim/guards.parse_version`, used by the Checker's version guard, the loop's Verifier
-rule and `tests/test_inventory.py`. A version parses only if it is, after trimming:
+One parser, `sim/guards.parse_version` (with `compare_versions` and `version_family`), used by
+the Checker's version guard, the loop's Verifier rule and `tests/test_inventory.py`. A version
+parses only if it is, after trimming, exactly one of these forms (ASCII digits only):
 
-- optional `v`/`V`, then dot-separated ASCII integers (`1.5.1.5`, `v1.4.2.22`, `7.24.3`), or
-- the PAN-OS hotfix form `major.minor.patch-h<digits>` exactly (`11.1.4-h7`, `11.1.16-h3`),
-  compared as `(major, minor, patch, hotfix)` with hotfix 0 when absent.
+| Family | Form | Example | Compared as |
+|---|---|---|---|
+| dotted | optional `v`/`V`, then dot-separated integers | `1.5.1.5`, `v1.4.2.22` | the integers |
+| dotted | PAN-OS hotfix `major.minor.patch-h<digits>` | `11.1.4-h7` | `(major, minor, patch, hotfix)`, hotfix 0 when absent |
+| ivanti | `major.minor` `R` `release` `.` `build`, no `v`, capital `R` | `22.7R2.6` | `(major, minor, release, build)` |
+| netscaler | `major.minor` `-` `build` `.` `sub`, no `v` | `14.1-47.46` | `(major, minor, build, sub)` |
 
+The Ivanti and NetScaler orders are the ones the vendor advisories use (LC-022 / LC-023
+`source_url`: "22.7R2.5 and earlier" affected, fixed in 22.7R2.6; "14.1 BEFORE 14.1-47.46",
+"14.1-47.46 and later releases"). Versions from **different families are never compared**
+(`compare_versions` returns None → `unknown`), so `22.7.2.6` is not equal to `22.7R2.6`.
 Trailing zero parts are dropped (`1.5.1` == `1.5.1.0`; `11.1.4` == `11.1.4-h0`). Anything else
-does not parse, e.g. build numbers `7.0.1-5161` (SonicWall), `7.0.12 build 523`, `22.7R2.6`
-(Ivanti), `14.1-43.50` (NetScaler), `11.1.4-H7`, `11.1-h3`. A device whose firmware or
-`fixed_version` doesn't parse goes to `unknown`.
+does not parse, e.g. build numbers `7.0.1-5161` (SonicWall), `7.0.12 build 523`, `22.7r2.6`,
+`22.3R1` (no build), `13.1-37.236-FIPS`, `14.1-47`, `11.1.4-H7`, `11.1-h3`. A device whose
+firmware or `fixed_version` doesn't parse goes to `unknown`.
 
 ## Loop state files (`sim/loop.py`, default folder `sim/state/`)
 
@@ -231,6 +248,8 @@ key,value
 | `tier3_mode` | `draft_only` | Isolate / disconnect / replace are never executed |
 | `maintenance_lead_days` | `2` | Calendar window = run date + this, capped at the deadline |
 | `kev_overdue_grace_days` | `14` | **New in 1.3.** If the KEV `dueDate` is before `as_of_date`, the deadline is `as_of_date` + this many days and the message says the CISA date has passed |
+| `retire_days` | `30` | **New in 1.4.** Retire deadline = `as_of_date` + this many days. The support end date is evidence ("Vendor support ended on X"), never the deadline |
+| `retire_isolation_days` | `7` | **New in 1.4.** Retire messages advise isolating the device within this many days until it is replaced (not for `do_not_touch` devices, which are escalated) |
 | `digest_channel` | blank | Where the run digest goes; blank = none |
 
 Missing keys take the default.
@@ -307,9 +326,9 @@ proposal_id,run_id,created_on,kind,device_id,issue,dedupe_key,lane,priority,dead
 | `priority` | Planner priority 1-4; blank for reminders |
 | `deadline` | ISO date or blank |
 | `actions` | `;`-separated tier 2 actions only: `email`, `ticket`, `calendar` |
-| `to`, `cc` | Recipients set by rule (owner, or approver for `unknown`; approver cc'd on escalation) |
+| `to`, `cc` | Recipients set by rule, `sim/guards.recipient` (owner, or approver for `unknown`; approver cc'd on escalation). The Planner has no recipient field (1.4) |
 | `subject`, `body` | Message text after the guards |
-| `drafted_to` | The model's recipient (routing metric only) |
+| `drafted_to` | Blank since 1.4 (the model no longer drafts a recipient). Older state may hold the model's recipient; `owner_routing_accuracy` is measured only over those rows |
 | `expected_to` | The rule's recipient |
 | `escalate_to_human` | `true` / `false` |
 | `ticket_id` | Ticket it opened or reminds about, else blank |

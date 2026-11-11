@@ -42,7 +42,7 @@ class CheckerOutput(_Strict):
 
 
 class Message(_Strict):
-    to: str
+    # No recipient: code sets it by rule (sim/guards.recipient), never the model.
     subject: str
     body: str
 
@@ -50,7 +50,7 @@ class Message(_Strict):
 class Ticket(_Strict):
     create: bool
     existing_ticket_id: Optional[str]
-    issue: str
+    issue: Literal["patch", "retire", "identify"]
 
 
 class PlannerOutput(_Strict):

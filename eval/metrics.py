@@ -12,7 +12,9 @@ Definitions (also printed in every report):
   was the right call (truth unknown). Unknown recall = share of truly-unknown devices the
   system abstained on.
 - Stability (needs >= 2 runs of one system): share of devices where every run gave the same
-  lane (and, separately, the same vendor/product/version).
+  value, per structured field (lane, vendor, product, version, evidence ids as a set) and for all
+  of them together (`structured_agreement`). Free text is not in the predictions CSV, so it is
+  not measured here; eval/live_fixture_run.py reports free-text agreement separately.
 """
 from __future__ import annotations
 
@@ -155,25 +157,50 @@ def score(truth_rows: list[dict], preds: dict[str, dict]) -> Scores:
     return s
 
 
+STRUCTURED_FIELDS = ("lane", "vendor", "product", "version", "evidence")
+
+
+def evidence_ids(v: str | None) -> str:
+    """Evidence ids as a sorted set, so 'LC-1;CVE-2' == 'CVE-2;LC-1'."""
+    return ";".join(sorted({x.strip().casefold() for x in (v or "").split(";") if x.strip()}))
+
+
+def _field(row: dict | None, f: str) -> str:
+    if row is None:
+        return MISSING
+    return evidence_ids(row.get(f)) if f == "evidence" else norm(row.get(f))
+
+
 def stability(truth_rows: list[dict], runs: list[dict[str, dict]]) -> dict:
-    """Agreement across repeated runs of ONE system. None when fewer than 2 runs."""
-    out = {"runs": len(runs), "lane_agreement": None, "identity_agreement": None, "unstable_devices": []}
+    """Agreement across repeated runs of ONE system, on structured fields only. None when fewer
+    than 2 runs. `field_agreement` is per field; `structured_agreement` needs every field equal.
+    Free text is not in the predictions CSV, so `free_text_agreement` stays None here."""
+    out = {"runs": len(runs), "lane_agreement": None, "identity_agreement": None,
+           "field_agreement": {f: None for f in STRUCTURED_FIELDS}, "structured_agreement": None,
+           "free_text_agreement": None, "unstable_devices": []}
     if len(runs) < 2 or not truth_rows:
         return out
-    lane_ok = ident_ok = 0
+    ok = {f: 0 for f in STRUCTURED_FIELDS}
+    ident_ok = all_ok = 0
     for t in truth_rows:
         did = t["device_id"]
-        lanes = [r[did]["lane"] if did in r else MISSING for r in runs]
+        vals = {f: [_field(r.get(did), f) for r in runs] for f in STRUCTURED_FIELDS}
+        same = {f: len(set(v)) == 1 for f, v in vals.items()}
+        for f in STRUCTURED_FIELDS:
+            ok[f] += same[f]
         idents = [tuple(norm(r[did].get(f)) for f in FIELDS) if did in r else (MISSING,) for r in runs]
-        same_lane, same_ident = len(set(lanes)) == 1, len(set(idents)) == 1
-        lane_ok += same_lane
-        ident_ok += same_ident
-        if not (same_lane and same_ident):
-            out["unstable_devices"].append({"device_id": did, "lanes": lanes,
-                                            "identities": ["/".join(i) for i in idents]})
+        ident_ok += len(set(idents)) == 1
+        all_ok += all(same.values())
+        if not all(same.values()):
+            out["unstable_devices"].append({
+                "device_id": did, "lanes": vals["lane"],
+                "identities": ["/".join(i) for i in idents], "evidence": vals["evidence"],
+                "fields": [f for f in STRUCTURED_FIELDS if not same[f]]})
     n = len(truth_rows)
-    out["lane_agreement"] = lane_ok / n
+    out["field_agreement"] = {f: ok[f] / n for f in STRUCTURED_FIELDS}
+    out["lane_agreement"] = ok["lane"] / n
     out["identity_agreement"] = ident_ok / n
+    out["structured_agreement"] = all_ok / n
     return out
 
 

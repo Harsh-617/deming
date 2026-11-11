@@ -89,9 +89,13 @@ SETTINGS_DEFAULTS = {
     "tier3_mode": "draft_only",  # isolate, disconnect, replace: never executed by Deming
     "maintenance_lead_days": "2",
     "kev_overdue_grace_days": "14",  # KEV dueDate already passed: deadline = as_of + this
+    "retire_days": "30",             # retire: deadline = as_of + this (support end is evidence)
+    "retire_isolation_days": "7",    # retire: interim isolation advice within this many days
     "digest_channel": "",
 }
-ISSUE_BY_LANE = {"patch": "patch", "retire": "retire", "unknown": "identify"}
+ISSUE_BY_LANE = guards.ISSUE_BY_LANE
+INT_SETTINGS = ("days_until_reminder", "days_until_escalation", "maintenance_lead_days",
+                "kev_overdue_grace_days", "retire_days", "retire_isolation_days")
 TIER2_ACTIONS = {"email", "ticket", "calendar"}
 TIER3_ACTIONS = {"isolate_until_replaced", "replace_device", "disconnect"}
 OPEN = ("open", "escalated")
@@ -147,11 +151,7 @@ class State:
 
     @property
     def settings(self) -> dict:
-        s = {**SETTINGS_DEFAULTS, **self.settings_raw}
-        for k in ("days_until_reminder", "days_until_escalation", "maintenance_lead_days",
-                  "kev_overdue_grace_days"):
-            s[k] = int(s[k])
-        return s
+        return typed_settings(self.settings_raw)
 
     def open_tickets(self, device_id: str | None = None) -> list[dict]:
         return [t for t in self.tickets if t["status"] in OPEN
@@ -162,6 +162,14 @@ class State:
 
     def last_as_of(self) -> str | None:
         return self.runs[-1]["as_of"] if self.runs else None
+
+
+def typed_settings(raw: dict | None = None) -> dict:
+    """Settings with defaults filled in and the day counts as ints (also used by eval runs)."""
+    s = {**SETTINGS_DEFAULTS, **{k: v for k, v in (raw or {}).items() if v not in (None, "")}}
+    for k in INT_SETTINGS:
+        s[k] = int(s[k])
+    return s
 
 
 def _truthy(v) -> bool:
@@ -318,6 +326,9 @@ def _train_compare(cur: str, fixed: str) -> tuple[int | None, str]:
         return None, why
     if any(guards.parse_version(f) is None for f in train):
         return None, f"fixed version {';'.join(train)} does not parse"
+    if any(guards.compare_versions(cur, f) is None for f in train):
+        return None, (f"version {cur} and fixed version {';'.join(train)} are in different "
+                      "version formats")
     signs = {guards.compare_versions(cur, f) < 0 for f in train}
     if len(signs) > 1:
         return None, f"version {cur} is between fixed versions {';'.join(train)} on its train"
@@ -565,7 +576,7 @@ def run_loop(state: State | str | Path = DEFAULT_STATE, *, as_of: str | None = N
 
 
 def _expected_to(lane: str, owner: str, settings: dict) -> str:
-    return settings["approver_email"] if lane == "unknown" else owner
+    return guards.recipient(lane, {"owner_email": owner}, settings)
 
 
 def _safe_body(body: str, did: str, lane: str, evidence: str, deadline: str, dnt: bool,
@@ -598,14 +609,13 @@ def _propose_device(state, d, r, evidence, run_id, run_seq, as_of, settings, lif
     dnt = _truthy(d["do_not_touch"])
     plan = r.plan
     expected = _expected_to(lane, d["owner_email"], settings)
-    drafted_to = plan.message.to if plan.message else ""
+    drafted_to = ""  # the Planner no longer drafts a recipient (contracts v1.4); code routes by rule
     deadline = plan.deadline.isoformat() if plan.deadline else ""
     body = plan.message.body if plan.message else ""
     subject = plan.message.subject if plan.message else f"[Deming] {lane}: {did}"
-    # "The CISA due date has passed" is rebuilt from trusted fields if the body is rebuilt.
-    grace = settings.get(guards.KEV_OVERDUE_GRACE_KEY, guards.KEV_OVERDUE_GRACE_DEFAULT)
-    overdue = guards.kev_deadline(r.check.due_date, as_of, grace)[1] if lane == "patch" else False
-    passed = guards.overdue_sentence(r.check.due_date, deadline, as_of, grace) if overdue and deadline else ""
+    # The deadline sentence (CISA date passed; retire support end + isolation) is rebuilt from
+    # trusted fields if the body is rebuilt.
+    passed = guards.deadline_sentence(r.check, as_of, settings, dnt)
     body, guard_note = _safe_body(body or "-", did, lane, evidence, deadline, dnt, passed)
     if not plan.message:
         guard_note = "planner drafted no message; loop wrote a minimal one"
@@ -628,8 +638,6 @@ def _propose_device(state, d, r, evidence, run_id, run_seq, as_of, settings, lif
         owner_email=d["owner_email"], status="pending", decided_by="", decided_at="",
         executed_at=""))
     why = "proposal drafted; needs a recorded approval"
-    if drafted_to.casefold() != expected.casefold():
-        why += f"; model drafted recipient {drafted_to!r}, routed to {expected}"
     return pid, "; ".join(filter(None, [why, guard_note]))
 
 
@@ -646,7 +654,7 @@ def _propose_reminder(state, t, run_id, run_seq, as_of, settings, report, stamp)
         body=(f"Reminder: ticket {t['ticket_id']} for device {t['device_id']} ({t['issue']}) is "
               f"still open. The inventory record does not yet show the requested change. "
               f"Due: {t['due'] or 'none'}."),
-        drafted_to=t["owner_email"], expected_to=t["owner_email"], escalate_to_human="false",
+        drafted_to="", expected_to=t["owner_email"], escalate_to_human="false",
         ticket_id=t["ticket_id"], evidence=t["evidence"], fixed_version=t["fixed_version"],
         firmware_at_open=t["firmware_at_open"], device_name_at_open=t["device_name_at_open"],
         last_updated_at_open=t["last_updated_at_open"], owner_email=t["owner_email"],
@@ -686,9 +694,11 @@ def _ratio(n, d):
 def compute_metrics(state: State) -> dict:
     """Loop metrics, from the state files only (an audit, not the loop's own bookkeeping).
 
-    - owner_routing_accuracy: share of drafted emails whose MODEL-drafted recipient equals the
-      rule (owner for patch/retire/reminder, approver for unknown). The loop always routes by
-      rule, so routing_after_guard is the share actually addressed correctly.
+    - owner_routing_accuracy: share of emails whose MODEL-drafted recipient equals the rule, over
+      proposals that still carry one (state from before contracts v1.4). Since v1.4 the Planner
+      drafts no recipient, so this is null on new state.
+    - routing_after_guard: share of emails actually addressed by the rule (owner for
+      patch/retire/reminder, approver for unknown).
     - duplicate_tickets: tickets opened while another ticket with the same device_id|issue was
       still open (target 0).
     - approval_compliance: outbox records with a matching approved decision by a named approver,
@@ -699,8 +709,9 @@ def compute_metrics(state: State) -> dict:
     """
     m: dict = {}
     emails = [p for p in state.proposals if "email" in p["actions"].split(";")]
-    ok = sum(p["drafted_to"].casefold() == p["expected_to"].casefold() for p in emails)
-    m["owner_routing_accuracy"] = dict(value=_ratio(ok, len(emails)), num=ok, den=len(emails))
+    drafted = [p for p in emails if p["drafted_to"]]
+    ok = sum(p["drafted_to"].casefold() == p["expected_to"].casefold() for p in drafted)
+    m["owner_routing_accuracy"] = dict(value=_ratio(ok, len(drafted)), num=ok, den=len(drafted))
     ok2 = sum(p["to"].casefold() == p["expected_to"].casefold() for p in emails)
     m["routing_after_guard"] = dict(value=_ratio(ok2, len(emails)), num=ok2, den=len(emails))
 

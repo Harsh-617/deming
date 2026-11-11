@@ -53,11 +53,17 @@ a matching `kev_products.csv` row, read that cveID's row in `kev_entries.csv`.
       discontinue the product: "retire".
    4. A matching KEV entry exists and the matching lifecycle row has a `fixed_version`: compare
       the device's firmware with it, number by number. Below `fixed_version`: "patch". At or
-      above it: "fine". Versions must be plain dot-separated numbers, or the PAN-OS hotfix form
-      major.minor.patch-h<number> (for example "11.1.4-h7"), compared as major, minor, patch,
-      then hotfix, with hotfix 0 when there is none ("11.1.4" is below "11.1.4-h1"; "11.1.4-h7"
-      is below "11.1.4-h13"). Any other form (for example "7.0.12 build 523", "7.0.1-5161",
-      "22.7R2.6") cannot be compared: "unknown".
+      above it: "fine". Versions must be in exactly one of these forms:
+      - plain dot-separated numbers ("1.5.1.5"), or the PAN-OS hotfix form
+        major.minor.patch-h<number> ("11.1.4-h7"), compared as major, minor, patch, then hotfix,
+        with hotfix 0 when there is none ("11.1.4" is below "11.1.4-h1");
+      - Ivanti Connect Secure major.minor"R"release.build ("22.7R2.6"), compared as major, minor,
+        release, build ("22.7R2.5" is below "22.7R2.6");
+      - Citrix NetScaler major.minor-build.sub ("14.1-47.46"), compared as major, minor, build,
+        sub ("14.1-43.50" is below "14.1-47.46").
+      Compare only two versions written in the same form ("22.7.2.6" and "22.7R2.6" cannot be
+      compared). Any other form (for example "7.0.12 build 523", "7.0.1-5161", "22.3R1",
+      "13.1-37.236-FIPS") cannot be compared: "unknown".
       If `fixed_version` holds several values separated by ";", each is the fix for one release
       train. Use only the value on the device's own train: the one whose leading numbers match
       the firmware's for the most places, and at least the first two (major.minor). Example:
@@ -66,12 +72,17 @@ a matching `kev_products.csv` row, read that cveID's row in `kev_entries.csv`.
       the firmware's major.minor (firmware 7.22.4 here), or the firmware cannot be compared
       (see above), or two values tie and the firmware lies between them: "unknown", and say
       which in `reason`.
-   5. A matching KEV entry exists but `fixed_version` is empty: "unknown", with the reason
-      "fixed version not documented". Never "fine" in this case.
-   6. Otherwise: "fine".
+   5. A matching KEV entry exists, and either the matching lifecycle row's `fixed_version` is
+      empty or no lifecycle row matches the device: "unknown", with the reason "fixed version
+      not documented". Never "patch" or "fine" in this case.
+   6. Otherwise: "fine". Steps 4 and 5 apply only when a KEV entry matches. With no matching
+      KEV entry, an empty `fixed_version` or missing support dates are not a reason for
+      "unknown": the device is "fine" (unless step 2 made it "retire").
 5. Evidence: put the cited KEV `cveID`s in `evidence_cve` and the cited `lifecycle_id` in
    `evidence_lifecycle_id`. Cite only ids that appear in the candidate rows. Never invent an id.
-   For "fine" and "unknown" leave `evidence_cve` empty and `evidence_lifecycle_id` null.
+   For "patch" and "retire" always cite at least one id. For "fine" leave `evidence_cve` empty and
+   put the matching lifecycle row's id (if any) in `evidence_lifecycle_id`. For "unknown" leave
+   `evidence_cve` empty and `evidence_lifecycle_id` null.
 6. `due_date`: for "patch", the earliest `dueDate` of the cited KEV entries; for "retire", the
    support end date you used; otherwise null.
 7. `reason`: two or three short sentences a device owner could read: what matched, which date

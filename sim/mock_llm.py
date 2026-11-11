@@ -134,25 +134,28 @@ class MockModel:
             deadline, action = due, "notify_patch"
             ask = f"Please apply the vendor fix by {deadline or 'the earliest maintenance window'}."
         elif lane == "retire":
-            esc = (dt.date.fromisoformat(today)
-                   + dt.timedelta(days=int(s.get("days_until_escalation", 7)))).isoformat()
-            deadline = min(x for x in (esc, due) if x)
+            # Rule 8: deadline = as_of_date + retire_days; the support end date is evidence only.
+            as_of_d = dt.date.fromisoformat(as_of)
+            days, iso = int(s.get("retire_days", 30)), int(s.get("retire_isolation_days", 7))
+            deadline = (as_of_d + dt.timedelta(days=days)).isoformat()
             action = "notify_retire"
-            ask = (f"Please plan replacement or decommissioning by {deadline}, and isolate the "
-                   "device from the network until then.")
+            ended = f"Vendor support ended on {due}. " if due else ""
+            ask = (f"{ended}Please replace or decommission the device by {deadline} ({days} days "
+                   f"from {as_of}). Until then, isolate it from the network within {iso} days "
+                   f"(by {as_of_d + dt.timedelta(days=iso)}).")
         else:
             deadline, action = None, "ask_identify"
             ask = "Please identify this device (vendor, product, version) in the inventory."
         if dnt and lane != "unknown":
-            ask = (f"This device is flagged do-not-touch, so a named person must decide the next "
-                   f"step by {deadline}. Deming proposes no change to it.")
-        to = s.get("approver_email") if lane == "unknown" else d.get("owner_email")
+            ended = f"Vendor support ended on {due}. " if lane == "retire" and due else ""
+            ask = (f"{ended}This device is flagged do-not-touch, so a named person must decide "
+                   f"the next step by {deadline}. Deming proposes no change to it.")
         issue = {"patch": "patch", "retire": "retire", "unknown": "identify"}[lane]
         existing = next((t for t in p.get("open_tickets", []) if t.get("issue") == issue), None)
         body = (f"Device {d['device_id']} ({ident or 'unidentified'}) at {d.get('location')}: "
                 f"lane {lane}. Evidence: {ev}. {ask}{passed}")
         return dict(out, action=action, deadline=deadline,
-                    message=dict(to=to, subject=f"[Deming] {lane}: {d['device_id']}", body=body),
+                    message=dict(subject=f"[Deming] {lane}: {d['device_id']}", body=body),
                     ticket=dict(create=existing is None,
                                 existing_ticket_id=existing["ticket_id"] if existing else None,
                                 issue=issue),

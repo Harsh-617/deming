@@ -108,7 +108,8 @@ def instability_rows(system: str, stab: dict, truth_by_id: dict[str, dict], inve
             "error_type": "unstable", "truth_lane": t["lane"], "pred_lane": " | ".join(u["lanes"]),
             "truth_identity": ident(t), "pred_identity": " | ".join(u["identities"]),
             "confidence": "", "pred_evidence": "", "truth_evidence": "",
-            "explanation": f"Repeated runs disagree on the same input: lanes {u['lanes']}.",
+            "explanation": (f"Repeated runs disagree on the same input ({', '.join(u['fields'])}): "
+                            f"lanes {u['lanes']}, evidence {u['evidence']}."),
             "truth_note": t.get("source_row_note", ""),
         })
     return out
@@ -225,9 +226,15 @@ def build_report(*, truth_rows: list[dict], systems: dict[str, list[tuple[str, d
         if st["runs"] < 2:
             L.append(f"- **{n}**: only {st['runs']} run, so stability is not measured.")
         else:
-            L.append(f"- **{n}**: {st['runs']} runs. Same lane on every run for {fmt(st['lane_agreement'])} "
-                     f"of devices; same vendor/product/version for {fmt(st['identity_agreement'])}. "
-                     f"Unstable devices: {', '.join(u['device_id'] for u in st['unstable_devices']) or 'none'}.")
+            fa = st["field_agreement"]
+            unstable = ", ".join(f"{u['device_id']} ({', '.join(u['fields'])})"
+                                 for u in st["unstable_devices"]) or "none"
+            L.append(f"- **{n}**: {st['runs']} runs. Structured fields, share of devices where every "
+                     f"run agrees: lane {fmt(st['lane_agreement'])}, vendor {fmt(fa['vendor'])}, "
+                     f"product {fmt(fa['product'])}, version {fmt(fa['version'])}, evidence ids "
+                     f"{fmt(fa['evidence'])}; all structured fields together "
+                     f"{fmt(st['structured_agreement'])}. Free text: not measured here (the "
+                     f"predictions CSV holds none; see the live run report). Unstable devices: {unstable}.")
     L.append("")
     if any(len(r) > 1 for r in per_run.values()):
         L += _md_table(["System", "Run", "Lane accuracy", "Norm. all three", "Unknown rate"],
@@ -255,7 +262,10 @@ def build_report(*, truth_rows: list[dict], systems: dict[str, list[tuple[str, d
           "precision/recall; a predicted `unknown` on an exposed device counts as a miss.",
           "- Unknown was right = of the devices predicted `unknown`, the share whose true lane is `unknown`. "
           "Unknown recall = of the truly-unknown devices, the share predicted `unknown`.",
-          "- Stability = share of devices where all runs agree. `n/a` = undefined (zero denominator or one run).",
+          "- Stability = share of devices where all runs agree, per structured field (lane, vendor, "
+          "product, version, evidence ids as a set) and for all of them together. Free text (reasons, "
+          "message bodies) is reported separately by `eval/live_fixture_run.py`. `n/a` = undefined "
+          "(zero denominator or one run).",
           "- Owner routing, duplicate tickets, approval compliance and verification correctness are **not** "
           "measured here (they need the Planner/Verifier run logs).", "",
           SYNTHETIC_STATEMENT, ""]

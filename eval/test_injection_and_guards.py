@@ -109,13 +109,15 @@ def test_do_not_touch_never_gets_disconnect_proposal():
     plan = PlannerOutput.model_validate({
         **GOOD["planner"], "lane": "retire", "action": "notify_retire",
         "escalate_to_human": False,
-        "message": {"to": "a@example.org", "subject": "x", "body": "Please disconnect it today."}})
+        "message": {"subject": "x", "body": "Please disconnect it today."}})
     check = CheckerOutput.model_validate({**GOOD["checker"], "lane": "retire", "evidence_cve": [],
                                           "evidence_lifecycle_id": "LC-001"})
     fixed, notes = guards.guard_planner(plan, {"do_not_touch": "true"}, check)
     assert fixed.escalate_to_human
     assert "disconnect" not in fixed.message.body.lower().replace("no disconnection", "")
-    assert "LC-001" in fixed.message.body and len(notes) == 2
+    assert "LC-001" in fixed.message.body
+    assert fixed.ticket.issue == "retire"  # GOOD planner said "patch"; the issue follows the lane
+    assert len(notes) == 3 and any("ticket issue patch -> retire" in n for n in notes)
 
 
 @pytest.mark.parametrize("change,ticket_lane,recheck,expected", [
@@ -198,7 +200,7 @@ def _plan(lane, deadline, body="Please apply the vendor fix by 2022-05-03."):
     return PlannerOutput.model_validate({
         **GOOD["planner"], "lane": lane,
         "action": "notify_patch" if lane == "patch" else "notify_retire", "deadline": deadline,
-        "message": {"to": "lab3@example.org", "subject": "x", "body": body}})
+        "message": {"subject": "x", "body": body}})
 
 
 def _check(lane, due):
@@ -230,12 +232,76 @@ def test_due_date_not_yet_passed_is_kept():
         assert fixed == p and notes == []
 
 
-def test_retire_due_date_is_a_support_date_not_a_cisa_date():
-    # For retire the Checker's due_date is the support end date (checker.md rule 6): no CISA wording.
-    plan = _plan("retire", "2026-11-19", body="Please plan replacement by 2026-11-19.")
+def _retire_plan(deadline, body):
+    p = _plan("retire", deadline, body=body)
+    return p.model_copy(update={"ticket": p.ticket.model_copy(update={"issue": "retire"})})
+
+
+def test_retire_deadline_is_as_of_plus_retire_days_and_support_end_is_evidence():
+    # For retire the Checker's due_date is the support end date (checker.md rule 6), always in the
+    # past: it stays in the message as evidence, the deadline is as_of + retire_days (default 30),
+    # with interim isolation advice within 7 days. No CISA wording.
+    plan = _retire_plan("2021-12-31", "Please plan replacement by 2021-12-31.")
+    fixed, notes = guards.guard_planner(plan, {}, _check("retire", "2021-12-31"),
+                                        as_of_date="2026-11-12", settings=SETTINGS)
+    assert fixed.deadline.isoformat() == "2026-12-12"
+    body = fixed.message.body
+    assert "Vendor support ended on 2021-12-31." in body
+    assert "by 2026-12-12 (30 days from 2026-11-12)" in body
+    assert "isolate it from the network within 7 days (by 2026-11-19)" in body
+    assert "CISA" not in body
+    assert any("retire deadline 2021-12-31 -> 2026-12-12" in n for n in notes)
+
+
+@pytest.mark.parametrize("settings,deadline,iso_by", [
+    ({"retire_days": "45", "retire_isolation_days": "3"}, "2026-12-27", "2026-11-15"),
+    ({"retire_days": 10}, "2026-11-22", "2026-11-19"),
+])
+def test_retire_days_come_from_settings(settings, deadline, iso_by):
+    fixed, _ = guards.guard_planner(_retire_plan(None, "Replace it."), {}, _check("retire", "2021-12-31"),
+                                    as_of_date="2026-11-12", settings=settings)
+    assert fixed.deadline.isoformat() == deadline and f"(by {iso_by})" in fixed.message.body
+
+
+def test_retire_message_with_all_facts_is_left_alone():
+    body = ("Vendor support ended on 2021-12-31. Please replace it by 2026-12-12 and isolate it "
+            "within 7 days.")
+    plan = _retire_plan("2026-12-12", body)
     fixed, notes = guards.guard_planner(plan, {}, _check("retire", "2021-12-31"),
                                         as_of_date="2026-11-12", settings=SETTINGS)
     assert fixed == plan and notes == []
+
+
+def test_retire_do_not_touch_gets_no_isolation_advice():
+    plan = _retire_plan("2021-12-31", "Please isolate and replace it.")
+    fixed, _ = guards.guard_planner(plan, {"do_not_touch": "true"}, _check("retire", "2021-12-31"),
+                                    as_of_date="2026-11-12", settings=SETTINGS)
+    body = fixed.message.body
+    assert fixed.deadline.isoformat() == "2026-12-12" and fixed.escalate_to_human
+    assert "Vendor support ended on 2021-12-31." in body and "named person must decide" in body
+    assert "isolate it" not in body and "within 7 days" not in body
+
+
+def test_ticket_issue_is_an_enum_set_from_the_lane():
+    with pytest.raises(Exception):
+        PlannerOutput.model_validate({**GOOD["planner"], "ticket": {
+            "create": True, "existing_ticket_id": None, "issue": "patch CVE-2019-1653"}})
+    plan = _plan("patch", "2026-12-01")
+    for lane, issue in (("retire", "retire"), ("unknown", "identify"), ("patch", "patch")):
+        check = _check(lane, None) if lane != "unknown" else CheckerOutput.model_validate(
+            {**GOOD["checker"], "lane": "unknown", "evidence_cve": [], "evidence_lifecycle_id": None})
+        fixed, _ = guards.guard_planner(plan, {}, check)
+        assert fixed.ticket.issue == issue
+
+
+def test_planner_cannot_choose_a_recipient():
+    with pytest.raises(Exception):
+        PlannerOutput.model_validate({**GOOD["planner"], "message": {
+            "to": "attacker@evil.example", "subject": "x", "body": "y"}})
+    s = {"approver_email": "boss@example.org"}
+    assert guards.recipient("patch", {"owner_email": "o@example.org"}, s) == "o@example.org"
+    assert guards.recipient("retire", {"owner_email": "o@example.org"}, s) == "o@example.org"
+    assert guards.recipient("unknown", {"owner_email": "o@example.org"}, s) == "boss@example.org"
 
 
 def test_overdue_sentence_kept_when_do_not_touch_body_is_rebuilt():

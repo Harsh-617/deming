@@ -28,6 +28,8 @@ def approx(x):
 
 
 # ---------------------------------------------------------------- fixture numbers
+# Fixture truth (2026-11-11 rule fix): DEV-001/002/007 are `unknown` (KEV match, no fixed_version in
+# the fixture lifecycle), DEV-008 too. The hand-made runs still predict patch on DEV-001/002.
 
 def test_system_run1_overall(truth):
     s = score(truth, preds(R1, truth)).as_dict()
@@ -36,13 +38,13 @@ def test_system_run1_overall(truth):
     assert s["norm_product"] == approx(7 / 8)   # DEV-007 product blank
     assert s["norm_version"] == approx(7 / 8)   # DEV-006 'v6.5.62'
     assert s["norm_all_three"] == approx(6 / 8)
-    assert s["lane_accuracy"] == approx(7 / 8)
-    assert s["exposure_precision"] == approx(1.0)  # TP 4, FP 0
-    assert s["exposure_recall"] == approx(4 / 5)   # DEV-007 abstained -> miss
-    assert s["exposure_excluded"] == 1             # DEV-008 truth unknown
+    assert s["lane_accuracy"] == approx(6 / 8)    # DEV-001/002 patch, truth unknown
+    assert s["exposure_precision"] == approx(1.0)  # TP 2 (DEV-003/004), FP 0
+    assert s["exposure_recall"] == approx(1.0)
+    assert s["exposure_excluded"] == 4             # DEV-001/002/007/008 truth unknown
     assert s["unknown_rate"] == approx(2 / 8)
-    assert s["unknown_precision"] == approx(1 / 2)
-    assert s["unknown_recall"] == approx(1.0)
+    assert s["unknown_precision"] == approx(2 / 2)  # DEV-007, DEV-008
+    assert s["unknown_recall"] == approx(2 / 4)
 
 
 def test_baseline_overall(truth):
@@ -51,9 +53,9 @@ def test_baseline_overall(truth):
     assert s["norm_product"] == approx(3 / 8)
     assert s["norm_version"] == approx(8 / 8)
     assert s["norm_all_three"] == approx(3 / 8)
-    assert s["lane_accuracy"] == approx(5 / 8)
+    assert s["lane_accuracy"] == approx(4 / 8)    # DEV-003..006 right
     assert s["exposure_precision"] == approx(1.0)
-    assert s["exposure_recall"] == approx(3 / 5)
+    assert s["exposure_recall"] == approx(2 / 2)
     assert s["unknown_rate"] == 0
     assert s["unknown_precision"] is None   # never predicted unknown: undefined, not 0
     assert s["unknown_recall"] == 0
@@ -65,8 +67,9 @@ def test_baseline_never_unknown(truth):
 
 def test_confusion_matrix(truth):
     s = score(truth, preds(RB, truth))
-    assert s.confusion["patch"]["fine"] == 2
-    assert s.confusion["unknown"]["retire"] == 1
+    assert s.confusion["unknown"]["fine"] == 2     # DEV-002, DEV-007
+    assert s.confusion["unknown"]["patch"] == 1    # DEV-001
+    assert s.confusion["unknown"]["retire"] == 1   # DEV-008
     assert s.confusion["retire"]["retire"] == 2
     assert sum(sum(c.values()) for c in s.confusion.values()) == 8
 
@@ -76,7 +79,8 @@ def test_group_slices(truth):
     assert {"all", "verified", "unverified"} <= sl.keys()
     assert sl["verified"].n == 7 and sl["unverified"].n == 1
     assert sum(v.n for k, v in sl.items() if k.startswith("group:")) == 8
-    assert sl["group:messy_name"].lane_acc == 0
+    assert sl["group:messy_name"].lane_acc == 1     # DEV-007 abstained, truth now unknown
+    assert sl["group:clear_patch"].lane_acc == 0    # DEV-001/002 predicted patch, truth unknown
     assert sl["group:name_collision"].exposure_precision is None
     assert sl["group:name_collision"].exposure_recall is None
 
@@ -86,6 +90,22 @@ def test_stability_two_runs(truth):
     assert st["lane_agreement"] == approx(7 / 8)
     assert st["identity_agreement"] == approx(7 / 8)
     assert [u["device_id"] for u in st["unstable_devices"]] == ["DEV-007"]
+    # DEV-007: run1 unknown / blank product / no evidence, run2 patch / FortiOS / CVE.
+    assert st["unstable_devices"][0]["fields"] == ["lane", "product", "evidence"]
+    assert st["field_agreement"]["vendor"] == approx(1.0)
+    assert st["field_agreement"]["evidence"] == approx(7 / 8)
+    assert st["structured_agreement"] == approx(7 / 8)
+    assert st["free_text_agreement"] is None  # not in the predictions CSV
+
+
+def test_stability_evidence_is_compared_as_a_set(truth):
+    a = preds(R1, truth)
+    b = {k: dict(v) for k, v in a.items()}
+    b["DEV-003"]["evidence"] = "LC-001;CVE-2019-1653"  # same ids, other order
+    assert stability(truth, [a, b])["structured_agreement"] == 1.0
+    b["DEV-003"]["evidence"] = "LC-001"
+    st = stability(truth, [a, b])
+    assert st["field_agreement"]["evidence"] == approx(7 / 8) and st["lane_agreement"] == 1.0
 
 
 def test_stability_identical_runs(truth):

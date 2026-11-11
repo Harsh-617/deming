@@ -28,12 +28,12 @@ def check(lane, cves=(), lc=None):
 @pytest.mark.parametrize("s,parsed", [
     ("1.5.1.5", (1, 5, 1, 5)), ("v1.4.2.22", (1, 4, 2, 22)), ("V1.4.2.22", (1, 4, 2, 22)),
     ("1.0.03.26", (1, 0, 3, 26)), (" 7.4 ", (7, 4)), ("1.5.1.0", (1, 5, 1)), ("0", (0,)),
-    ("7.0.12 build 523", None), ("11.1.4-h13", (11, 1, 4, 13)), ("13.0-92.19", None),
+    ("7.0.12 build 523", None), ("11.1.4-h13", (11, 1, 4, 13)), ("13.0-92.19", (13, 0, 92, 19)),
     # PAN-OS hotfix: only major.minor.patch-h<digits>, compared as (major, minor, patch, hotfix).
     ("11.1.16-h3", (11, 1, 16, 3)), ("v11.1.4-h7", (11, 1, 4, 7)), ("11.1.4-h0", (11, 1, 4)),
     ("11.1.4-H7", None), ("11.1.4-h", None), ("11.1-h3", None), ("11.1.4.2-h3", None),
     ("11.1.4-h7-h1", None), ("11.1.4 -h7", None), ("11.1.4-hotfix7", None), ("11.1.4-h٣", None),
-    ("7.0.1-5161", None), ("22.7R2.6", None), ("R81.20", None), ("", None), (None, None),
+    ("7.0.1-5161", None), ("22.7R2.6", (22, 7, 2, 6)), ("R81.20", None), ("", None), (None, None),
     ("1..2", None), ("1.2.", None), (".1", None), ("vv1.2", None), ("1.2 beta", None),
     ("１.２", None),  # full-width digits
     ("1.٢", None),  # Arabic-Indic digit
@@ -108,9 +108,17 @@ def test_not_kev_listed_is_not_touched():
     assert guards.guard_version(c, dev("1.5.1.4"), [], [ROW]) == (c, [])
 
 
-def test_no_matching_lifecycle_row_is_not_touched():
+def test_kev_product_without_matching_lifecycle_row_is_unknown():
+    # Changed 2026-11-11: checker.md rule 4.5 (KEV match, no documented fixed_version -> unknown)
+    # now also applies when no lifecycle row fits the device at all (Vigor2925 vs pattern Vigor2960*).
+    out, notes = guards.guard_version(check("fine"), dev("1.5.1.4", model="Vigor2925"), KEV, [ROW])
+    assert out.lane == "unknown" and "no lifecycle row" in notes[0]
+
+
+def test_product_not_in_kev_without_lifecycle_row_is_not_touched():
     c = check("fine")
-    assert guards.guard_version(c, dev("1.5.1.4", model="Vigor2925"), KEV, [ROW]) == (c, [])
+    other = {**dev("1.5.1.4", model="Vigor2925"), "vendor": "Ubiquiti", "product": "UniFi"}
+    assert guards.guard_version(c, other, KEV, [ROW]) == (c, [])
 
 
 def test_software_row_uses_version_glob_and_most_specific_row():

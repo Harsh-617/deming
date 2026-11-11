@@ -20,6 +20,8 @@ human approval.
   - days_until_reminder: 3
   - days_until_escalation: 7
   - kev_overdue_grace_days: 14
+  - retire_days: 30
+  - retire_isolation_days: 7
   - urgent: internet_facing is true and criticality is high or critical
   - mode: suggest-only (every outward action needs approval)
 
@@ -40,8 +42,10 @@ human approval.
      separated by ";"), confidence, proposed_action, approver (blank), decision ("pending"),
      action_taken (blank), outcome (blank), verification_note (blank).
    - **Proposed actions**: a numbered list, one item per device that needs an outward action,
-     showing priority, owner, lane, evidence, deadline and the drafted message. Mark
-     do-not-touch devices "ESCALATE: a named person must decide".
+     showing priority, recipient, lane, evidence, deadline and the drafted message. The
+     recipient is set by this rule, never by a subagent: the device's owner_email, or
+     approver_email when the lane is "unknown". Mark do-not-touch devices "ESCALATE: a named
+     person must decide".
    - **Verification**: ticket_id, device_id, observed_change, decision, note.
 8. Stop and wait. Carry out a proposed action only when the approver replies in this chat
    with the action numbers to approve (for example "approve 1, 3"), and the platform's own

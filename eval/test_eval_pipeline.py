@@ -67,13 +67,15 @@ def test_report_on_fixture(tmp_path):
     assert "group:messy_name" in md and "group:name_collision" in md
 
     fails = read_csv(out_dir / "failures.csv", FAILURE_COLUMNS)
-    # Every wrong case is listed: run1 has 2 wrong devices, run2 1, baseline 5, plus 1 unstable device.
+    # Every wrong case is listed. Fixture truth has DEV-001/002/007 unknown (no fixed_version):
+    # run1 4 (DEV-001/002 lane, DEV-006/007 identity), run2 4 (DEV-001/002/007 lane, DEV-006
+    # identity), baseline 6 (DEV-001/002/005/006/007/008), plus 1 unstable device (DEV-007).
     keyed = {(f["run_id"], f["device_id"]) for f in fails}
     assert ("deming-20261111T010000Z", "DEV-007") in keyed
     assert ("deming-20261111T010000Z", "DEV-006") in keyed
     assert ("baseline-20261111T000000Z", "DEV-008") in keyed
     assert ("(all runs)", "DEV-007") in keyed
-    assert len(fails) == 2 + 1 + 5 + 1
+    assert len(fails) == 4 + 4 + 6 + 1
     assert all(f["explanation"] for f in fails)
     for f in fails:
         assert f["device_id"] in md  # also listed in report.md

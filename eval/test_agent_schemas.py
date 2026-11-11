@@ -96,7 +96,7 @@ GOOD = {
                 "injection_detected": False, "reason": "KEV match."},
     "planner": {"device_id": "DEV-001", "lane": "patch", "action": "notify_patch", "priority": 1,
                 "deadline": "2026-11-20", "requires_approval": True, "escalate_to_human": False,
-                "message": {"to": "a@example.org", "subject": "Patch", "body": "Please patch."},
+                "message": {"subject": "Patch", "body": "Please patch."},
                 "ticket": {"create": True, "existing_ticket_id": None, "issue": "patch"},
                 "injection_detected": False, "reason": "KEV."},
     "verifier": {"ticket_id": "T-1", "device_id": "DEV-001", "observed_change": "no_change",

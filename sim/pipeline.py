@@ -29,6 +29,7 @@ class DeviceResult:
     kev_candidates: list[dict]
     lifecycle_candidates: list[dict]
     guard_notes: list[str] = field(default_factory=list)
+    recipient: str = ""  # set by rule (guards.recipient), never by the model
 
 
 def run_device(runner: GeminiRunner, device: dict, kev_index: retrieval.KevIndex,
@@ -75,7 +76,8 @@ def run_device(runner: GeminiRunner, device: dict, kev_index: retrieval.KevIndex
         "open_tickets": open_tickets or [], "settings": settings}, repeat_index).output
     plan, n = guards.guard_planner(plan, record, check, as_of_date=as_of, settings=settings)
     notes += n
-    return DeviceResult(record["device_id"], norm, check, plan, kev_c, lc_c, notes)
+    to = guards.recipient(check.lane, record, settings) if plan.message else ""
+    return DeviceResult(record["device_id"], norm, check, plan, kev_c, lc_c, notes, to)
 
 
 def verify_ticket(runner: GeminiRunner, *, today: str, ticket: dict, record_at_ticket: dict,
@@ -110,11 +112,13 @@ def main(argv: list[str] | None = None) -> Path:
         devices = list(csv.DictReader(f))
     kev_index = retrieval.KevIndex.build(retrieval.load_kev(args.kev))
     lifecycle_rows = retrieval.load_lifecycle(args.lifecycle)
+    from .loop import typed_settings  # late import: sim.loop imports this module
+    settings = typed_settings()  # Settings tab defaults (docs/contracts.md)
     runner = GeminiRunner()
     rows = []
     for d in devices:
         r = run_device(runner, d, kev_index, lifecycle_rows, today=started.date().isoformat(),
-                       settings={}, as_of_date=as_of)
+                       settings=settings, as_of_date=as_of)
         evidence = r.check.evidence_cve + ([r.check.evidence_lifecycle_id]
                                            if r.check.evidence_lifecycle_id else [])
         rows.append({"device_id": r.device_id, "vendor": r.normalized.vendor or "",

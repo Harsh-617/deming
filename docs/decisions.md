@@ -221,3 +221,96 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
   changes were needed. Lanes 5/8 correct; lane agreement over 3 repeats 8/8. The 3 misses
   (DEV-001/002/007, truth patch → unknown) follow checker.md rule 4.5: the fixture has no
   lifecycle row (so no `fixed_version`) for Fortinet or Ivanti.
+
+### 2026-11-11 · Ivanti and NetScaler version forms (contracts v1.4)
+- **Choice:** `sim/guards.parse_version` accepts two more exact forms, each its own family:
+  Ivanti Connect Secure `<major>.<minor>R<release>.<build>` (`22.7R2.6`) ordered
+  `(major, minor, release, build)`, and Citrix NetScaler `<major>.<minor>-<build>.<sub>`
+  (`14.1-47.46`) ordered `(major, minor, build, sub)`. No `v` prefix, capital `R`, ASCII digits,
+  nothing before or after. `compare_versions` returns None across families (so `22.7.2.6` vs
+  `22.7R2.6` → `unknown`); the guard and the loop's Verifier rule treat that as not comparable.
+  Still unparseable: `22.7r2.6`, `22.3R1` (no build), `v22.7R2.6`, `13.1-37.236-FIPS`, `14.1-47`,
+  `14.1-47.46a`, `7.0.1-5161`. `tests/test_inventory.py` keeps using the same parser; its
+  "unparseable clear_patch" allowance (DEV-009/021/034/050) is gone: all four now compare and
+  reach `patch` through the guard (`eval/test_vendor_versions.py`, real `data/` rows).
+- **How the vendors order releases (read 2026-11-11):** Ivanti's page says "Ivanti Connect Secure
+  (version 22.7R2.5 and earlier)" is affected and the issue "was fully patched in Ivanti Connect
+  Secure 22.7R2.6"; it gives no ordering rule beyond "and earlier" / "up to". Citrix CTX694788
+  lists affected "14.1 BEFORE 14.1-47.46" and "13.1 BEFORE 13.1-59.19", fixed "14.1-47.46 and
+  later releases" (per release line, "later releases of 13.1"); FIPS/NDcPP builds carry a suffix
+  (`13.1-37.236-FIPS`). Neither page defines the parts, so the numeric left-to-right order is an
+  inference from "earlier/BEFORE/later" and is stated as such.
+- **Alternatives:** generic `<dotted><sep><dotted>` (would admit SonicWall `7.0.1-5161` build
+  numbers); `packaging.version` (PEP 440 misreads both forms); keep them unknown (4 avoidable misses).
+- **Source:** https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways ·
+  https://support.citrix.com/external/article/CTX694788/netscaler-adc-and-netscaler-gateway-secu.html
+  (the LC-022 / LC-023 `source_url`s).
+- **Not verified:** that Ivanti never ships a release whose build part is compared other than
+  numerically (e.g. `22.7R2.10` vs `22.7R2.9`); that NetScaler `sub` is always numeric outside
+  FIPS builds.
+
+### 2026-11-11 · Retire deadline = as_of_date + retire_days (closes the open issue above)
+- **Choice:** retire deadline = `as_of_date` + Settings `retire_days` (default 30). The Checker's
+  retire `due_date` (the support end date) stays as evidence: the message says "Vendor support
+  ended on X." Interim isolation advice within Settings `retire_isolation_days` (default 7) days,
+  except for do_not_touch devices (escalated, no isolation wording). Enforced in
+  `guards.guard_planner` (sentence rebuilt from trusted fields when a fact is missing), the mock,
+  the loop's body rebuild (`guards.deadline_sentence`) and planner.md rule 8.
+- **Why:** the support end date is always in the past for retire, so the old rule
+  (`today + days_until_escalation` unless the due date is earlier) produced past deadlines.
+- **Source:** rule and defaults set by the user; no external research.
+
+### 2026-11-11 · Recipient and ticket issue taken out of the model's hands; evidence filled in code
+- **Choice:** `schemas/planner.json` / `sim/models.Message` have no `to`; `guards.recipient` sets
+  it (owner_email, or approver_email for `unknown`), as the loop already did. Proposals write
+  `drafted_to` blank, so `owner_routing_accuracy` is null on new state and `routing_after_guard`
+  is the routing metric. `ticket.issue` is the enum `patch|retire|identify`, and the guard sets
+  it from the lane. `guards.fill_evidence` sets `evidence_lifecycle_id` (governing candidate row)
+  for patch/retire/fine and fills `evidence_cve` for patch/retire from the KEV candidates of the
+  same vendor/product when the model gave none; model ids are kept only if they are candidates.
+  `fine` carries no CVEs (a CVE on a fine device reads as "affected"). An id outside the
+  candidates still forces `unknown` (unchanged anti-hallucination rule).
+- **Also changed (consistency):** the version guard now applies checker.md rule 4.5 when no
+  lifecycle row matches at all: a KEV match with no documented fixed version is `unknown`, never
+  patch/fine. Before, a model `patch` on such a device passed, and the evidence fill would have
+  given it CVE evidence. One old test pinned the gap (`test_no_matching_lifecycle_row_is_not_touched`)
+  and was rewritten.
+- **Why:** a model-chosen recipient is an injection target; a free-text issue breaks dedupe keys;
+  empty evidence on a patch/retire decision breaks "evidence on every decision".
+- **Source:** rules set by the user; internal consistency, no external research.
+
+### 2026-11-11 · Fixture truth DEV-001/002/007 → unknown
+- **Choice:** relabelled the three `eval/fixtures/ground_truth.csv` rows from patch to unknown
+  (evidence cleared, notes say why), rather than adding fixture lifecycle rows.
+- **Why:** the labels predate "KEV match with blank fixed_version → unknown". Adding rows would
+  not have fixed DEV-002: its firmware `22.3R1` has no build number, so it is not the exact Ivanti
+  form and stays `unknown` anyway. The hand-made fixture runs were left unchanged (they were
+  predictions against the old labels); `eval/test_metrics.py` and `test_eval_pipeline.py`
+  expectations were recomputed and commented.
+
+### 2026-11-11 · Stability: structured fields vs free text
+- **Choice:** `eval/metrics.stability` reports agreement per structured field (lane, vendor,
+  product, version, evidence ids as a set) and all together; free text isn't in the predictions
+  CSV, so the eval report says so. `eval/live_fixture_run.py` reports three groups: contract
+  structured fields, Planner structured fields (action, priority, deadline, escalate, ticket
+  issue/create, recipient), and free text (reasons, subject, body), all exact-match.
+- **Why:** with temperature 0 a reworded reason made "full output agreement" look unstable
+  when every decision was the same.
+
+### 2026-11-11 · Live fixture run after the rule fixes (gemini-3.5-flash-lite, real API)
+- **Setup:** `eval/live_fixture_run.py --repeats 3`, default Settings (`sim.loop.SETTINGS_DEFAULTS`,
+  not `{}`), fresh empty cache (`DEMING_CACHE_DIR`) so every call was live, sequential.
+- **Run 1 (regression found):** 69 calls, 0 schema failures, 15 retries (429/503), 291 s. Lanes
+  6/8 on every repeat: DEV-005/006 (truth fine, no KEV match) came back `unknown` with the
+  reason "fixed version not documented". My reworded checker.md step 4.5 ("…or no lifecycle row
+  matches") was read as applying without a KEV match. The previous live run had both `fine`.
+- **Fix:** wording only, no new rule: step 6 now says steps 4-5 apply only when a KEV entry
+  matches. Guide re-synced.
+- **Run 2:** 69 live calls, 0 schema failures, 0 other errors, 21 retries (429/503), 258 s. Lanes
+  8/8 vs the updated fixture truth on all 3 repeats. Structured agreement: lane 8/8, vendor
+  8/8, product 6/8 (DEV-006 "UniFi Access Point" vs "UniFi AP AC Pro"; DEV-008 "" vs "Router"),
+  version 8/8, evidence ids 8/8, all five 6/8. Planner structured fields 8/8. Free text 0/8
+  devices fully identical (subjects/bodies 3/8), though temperature is 0.
+  Mean latency: Normalizer 1.9 s, Checker 4.3 s, Planner 5.0 s.
+- **Not verified:** the full 60-device inventory with these changes (not run, and no prompt
+  tuning on data/inventory.csv); the free-tier RPM/RPD for this model.
