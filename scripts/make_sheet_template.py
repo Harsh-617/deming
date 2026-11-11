@@ -170,6 +170,7 @@ def build_summary(wb: Workbook):
     ws = wb.create_sheet("Summary")
     dl = "'Decision Log'"
     lane_c, run_c = col(DECISION_LOG, "lane"), col(DECISION_LOG, "run_id")
+    act_c = col(DECISION_LOG, "proposed_action")
     st_c, due_c = col(TICKETS, "status"), col(TICKETS, "due")
     inet_c, crit_c = col(INVENTORY, "internet_facing"), col(INVENTORY, "criticality")
     run_rng, lane_rng = f"{dl}!{run_c}:{run_c}", f"{dl}!{lane_c}:{lane_c}"
@@ -184,9 +185,13 @@ def build_summary(wb: Workbook):
          "run_id in the last filled Decision Log row (rows are appended in run order)"),
         ("devices_in_inventory", "=MAX(COUNTA(Inventory!A:A)-1,0)", "Inventory rows below the header"),
     ]
+    # verify/remind rows also carry a lane (contracts 1.3); counting them would count a device twice.
+    act_rng = f"{dl}!{act_c}:{act_c}"
     for lane in LANES:
-        rows.append((f"lane_{lane}", f'=IF($B$2="",0,COUNTIFS({lane_rng},"{lane}",{run_rng},$B$2))',
-                     f"Decision Log rows in the latest run with lane = {lane}"))
+        rows.append((f"lane_{lane}",
+                     f'=IF($B$2="",0,COUNTIFS({lane_rng},"{lane}",{run_rng},$B$2,'
+                     f'{act_rng},"<>verify",{act_rng},"<>remind"))',
+                     f"Device rows (not verify/remind) in the latest run with lane = {lane}"))
     rows += [
         ("devices_decided_latest_run", "=SUM(B4:B7)", "patch + retire + fine + unknown"),
         ("unknown_rate", '=IF(B8=0,"",B7/B8)', "unknown / devices decided in the latest run"),
@@ -248,13 +253,20 @@ def fill_inventory(ws, csv_path: Path) -> int:
     return n
 
 
-def build(out: Path = DEFAULT_OUT, fill_csv: Path | None = None) -> Path:
+def new_workbook() -> Workbook:
+    """The template as an in-memory workbook (all five tabs, no data rows)."""
     wb = Workbook()
-    inv = build_inventory(wb)
+    build_inventory(wb)
     build_decision_log(wb)
     build_settings(wb)
     build_tickets(wb)
     build_summary(wb)
+    return wb
+
+
+def build(out: Path = DEFAULT_OUT, fill_csv: Path | None = None) -> Path:
+    wb = new_workbook()
+    inv = wb["Inventory"]
     if fill_csv is not None:
         n = fill_inventory(inv, fill_csv)
         print(f"filled Inventory with {n} rows from {fill_csv}")
