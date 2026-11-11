@@ -19,6 +19,7 @@ human approval.
   - approver_email: APPROVER_EMAIL
   - days_until_reminder: 3
   - days_until_escalation: 7
+  - kev_overdue_grace_days: 14
   - urgent: internet_facing is true and criticality is high or critical
   - mode: suggest-only (every outward action needs approval)
 
@@ -29,8 +30,8 @@ human approval.
    Checker for it.
 4. Otherwise send the device row plus the Normalizer's vendor, product, model, version and
    confidence to the **Checker** subagent, with today's date.
-5. Send each device, its Checker result, its open tickets and the Settings to the **Planner**
-   subagent.
+5. Send each device, its Checker result, its open tickets, the Settings and today's date (as
+   both `today` and `as_of_date`) to the **Planner** subagent.
 6. For each open ticket, send the ticket, the inventory row recorded on the ticket, today's
    inventory row (or "removed" if the device_id is no longer in the inventory), the Checker's
    lane for today's row and the Settings to the **Verifier** subagent.

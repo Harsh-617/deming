@@ -121,13 +121,22 @@ class MockModel:
         ev = ";".join(c.get("evidence_cve", []) + ([c["evidence_lifecycle_id"]]
                                                    if c.get("evidence_lifecycle_id") else [])) or "none"
         ident = " ".join(x for x in (d.get("vendor"), d.get("product"), d.get("version")) if x)
+        # Rule 8: a KEV due date before as_of_date has passed -> as_of + kev_overdue_grace_days.
+        due, passed = c.get("due_date"), ""
+        as_of = p.get("as_of_date") or today
+        if lane == "patch" and due and due < as_of:
+            grace = int(s.get("kev_overdue_grace_days", 14))
+            new_due = (dt.date.fromisoformat(as_of) + dt.timedelta(days=grace)).isoformat()
+            passed = (f" The CISA KEV due date {due} has passed, so the deadline is {new_due} "
+                      f"({grace} days from {as_of}).")
+            due = new_due
         if lane == "patch":
-            deadline, action = c.get("due_date"), "notify_patch"
+            deadline, action = due, "notify_patch"
             ask = f"Please apply the vendor fix by {deadline or 'the earliest maintenance window'}."
         elif lane == "retire":
             esc = (dt.date.fromisoformat(today)
                    + dt.timedelta(days=int(s.get("days_until_escalation", 7)))).isoformat()
-            deadline = min(x for x in (esc, c.get("due_date")) if x)
+            deadline = min(x for x in (esc, due) if x)
             action = "notify_retire"
             ask = (f"Please plan replacement or decommissioning by {deadline}, and isolate the "
                    "device from the network until then.")
@@ -141,7 +150,7 @@ class MockModel:
         issue = {"patch": "patch", "retire": "retire", "unknown": "identify"}[lane]
         existing = next((t for t in p.get("open_tickets", []) if t.get("issue") == issue), None)
         body = (f"Device {d['device_id']} ({ident or 'unidentified'}) at {d.get('location')}: "
-                f"lane {lane}. Evidence: {ev}. {ask}")
+                f"lane {lane}. Evidence: {ev}. {ask}{passed}")
         return dict(out, action=action, deadline=deadline,
                     message=dict(to=to, subject=f"[Deming] {lane}: {d['device_id']}", body=body),
                     ticket=dict(create=existing is None,
@@ -160,7 +169,7 @@ class MockModel:
         opened = dt.date.fromisoformat(t["opened"])
         last = max(opened, dt.date.fromisoformat(t["last_reminder"])) if t.get("last_reminder") else opened
         rl = (re_ or {}).get("lane")
-        if (change == "device_removed" and t["lane"] == "retire") or (change == "version_changed" and rl == "fine"):
+        if change == "device_removed" or (change == "version_changed" and rl == "fine"):
             dec = "close"
         elif (today >= opened + dt.timedelta(days=int(s["days_until_escalation"]))
               or (change == "version_changed" and rl != "fine") or rl == "unknown"):

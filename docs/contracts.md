@@ -3,7 +3,14 @@
 These are the exact file formats every component and branch reads and writes. If code and this
 file disagree, this file wins. Change it only on `main` (see Parallel work).
 
-Version: 1.2 (2026-11-11)
+Version: 1.3 (2026-11-11)
+
+Changes in 1.3: the loop's state files are now contracts: Decision Log (adds `proposal_id`,
+`ticket_id`, `notes`), Tickets (adds `lane`, `dedupe_key`, `fixed_version`, `firmware_at_open`,
+`owner_email`, `flags`, `closed_on`, and the other columns `sim/loop.py` writes), Settings,
+`proposals.csv`, `approvals.csv` and `expected_verification.csv`. The version grammar accepts the
+PAN-OS hotfix form `X.Y.Z-h<n>` and nothing else beyond dotted integers. New Settings key
+`kev_overdue_grace_days`.
 
 Changes in 1.2: `fixed_version` may hold one value per release train, `;`-separated, and only
 the value on the device's own train is compared; owner emails use exactly `example.org`;
@@ -188,6 +195,160 @@ device_id,vendor,product,version,confidence,lane,evidence,run_id
   is in KEV; otherwise use `lifecycle.csv` spelling.
 - `version` is written as the vendor writes it, with no `v` prefix.
 - Scoring compares vendor/product/version case-insensitively after trimming whitespace.
+
+### Version grammar (firmware vs `fixed_version`)
+
+One parser, `sim/guards.parse_version`, used by the Checker's version guard, the loop's Verifier
+rule and `tests/test_inventory.py`. A version parses only if it is, after trimming:
+
+- optional `v`/`V`, then dot-separated ASCII integers (`1.5.1.5`, `v1.4.2.22`, `7.24.3`), or
+- the PAN-OS hotfix form `major.minor.patch-h<digits>` exactly (`11.1.4-h7`, `11.1.16-h3`),
+  compared as `(major, minor, patch, hotfix)` with hotfix 0 when absent.
+
+Trailing zero parts are dropped (`1.5.1` == `1.5.1.0`; `11.1.4` == `11.1.4-h0`). Anything else
+does not parse, e.g. build numbers `7.0.1-5161` (SonicWall), `7.0.12 build 523`, `22.7R2.6`
+(Ivanti), `14.1-43.50` (NetScaler), `11.1.4-H7`, `11.1-h3`. A device whose firmware or
+`fixed_version` doesn't parse goes to `unknown`.
+
+## Loop state files (`sim/loop.py`, default folder `sim/state/`)
+
+These stand in for the Sheet tabs and the approval Inbox. Same general CSV rules as above;
+`sim/loop.py` writes exactly these columns in this order. Blank means unknown or not yet set.
+
+### Settings tab: `settings.csv`
+
+```
+key,value
+```
+
+| key | Default | Rule |
+|---|---|---|
+| `approver_email` | `approver@example.org` | Named human who approves; recipient for `unknown` devices |
+| `days_until_reminder` | `3` | Integer days after `opened` / `last_reminder` before a reminder is proposed |
+| `days_until_escalation` | `7` | Integer days after `opened` before a ticket is escalated |
+| `urgent` | `internet_facing is true and criticality is high or critical` | Text rule (see Inventory) |
+| `tier2_mode` | `approval` | Only `approval` is supported (email, calendar, ticket need a recorded approval) |
+| `tier3_mode` | `draft_only` | Isolate / disconnect / replace are never executed |
+| `maintenance_lead_days` | `2` | Calendar window = run date + this, capped at the deadline |
+| `kev_overdue_grace_days` | `14` | **New in 1.3.** If the KEV `dueDate` is before `as_of_date`, the deadline is `as_of_date` + this many days and the message says the CISA date has passed |
+| `digest_channel` | blank | Where the run digest goes; blank = none |
+
+Missing keys take the default.
+
+### Decision Log tab: `decision_log.csv`
+
+```
+timestamp,run_id,device_id,lane,evidence,confidence,proposed_action,approver,decision,action_taken,outcome,verification_note,proposal_id,ticket_id,notes
+```
+
+| Column | Rule |
+|---|---|
+| `timestamp` | UTC timestamp of the run |
+| `run_id` | `deming-<YYYYMMDDTHHMMSSZ>` |
+| `device_id` | Inventory `device_id` |
+| `lane` | Lane enum (blank on a verify row for a removed device) |
+| `evidence` | `;`-separated `cveID`s and/or `lifecycle_id` |
+| `confidence` | Normalizer confidence, two decimals; blank on verify rows |
+| `proposed_action` | Planner `action` (`notify_patch`, `notify_retire`, `ask_identify`, `log_only`), `remind`, `verify` or `none` |
+| `approver` | Named human who decided, or blank |
+| `decision` | `pending` / `approved` / `rejected` / `n/a` on device rows; `close` / `remind` / `escalate` / `keep_open` on verify rows |
+| `action_taken` | What was executed (e.g. `ticket:T-0001;email;calendar`), plus tier 3 drafts and escalations |
+| `outcome` | Free text; on verify rows the observed change (`device_removed` / `version_changed` / `no_change`) |
+| `verification_note` | Verifier note about the **inventory record** only, never device security |
+| `proposal_id` | **New in 1.3.** The proposal this row created or decided, or blank |
+| `ticket_id` | **New in 1.3.** The ticket this row opened or verified, or blank |
+| `notes` | **New in 1.3.** `;`-separated guard notes and flags (e.g. `injection_detected`, `still_vulnerable`, `llm_decision=close`) |
+
+One row per device per run, plus one `verify` row per open ticket and one `remind` row per reminder.
+
+### Tickets tab: `tickets.csv`
+
+```
+ticket_id,device_id,issue,lane,dedupe_key,status,opened,due,last_reminder,owner_email,evidence,fixed_version,firmware_at_open,device_name_at_open,last_updated_at_open,proposal_id,closed_on,flags,last_note
+```
+
+| Column | Rule |
+|---|---|
+| `ticket_id` | `T-` + 4 digits, e.g. `T-0001` |
+| `device_id` | Inventory `device_id` |
+| `issue` | `patch` / `retire` / `identify` (lane `unknown`) |
+| `lane` | **New in 1.3.** Lane when opened |
+| `dedupe_key` | **New in 1.3.** `<device_id>|<issue>`; at most one `open`/`escalated` ticket per key |
+| `status` | `open` / `escalated` / `closed` |
+| `opened`, `due`, `last_reminder` | ISO dates; `due` = the approved proposal's deadline |
+| `owner_email` | **New in 1.3.** Owner when opened (`example.org`) |
+| `evidence` | As in the Decision Log |
+| `fixed_version` | **New in 1.3.** From the governing lifecycle row for `patch` (may hold one value per train, `;`); blank otherwise |
+| `firmware_at_open` | **New in 1.3.** `firmware_version_raw` when opened; the Verifier compares against it |
+| `device_name_at_open`, `last_updated_at_open` | Inventory values when opened |
+| `proposal_id` | The approved proposal that opened it |
+| `closed_on` | **New in 1.3.** ISO date the Verifier closed it, else blank |
+| `flags` | **New in 1.3.** `;`-separated, sorted: `still_vulnerable`, `low_evidence`, `recheck_disagrees` |
+| `last_note` | Latest Verifier note (inventory record only) |
+
+Closing rule: a ticket of **any** issue closes when the device is gone from the inventory; a
+`patch`/`retire` ticket closes when the version changed, parses, is at or above the fixed version
+on its own train, and the re-check is not `patch`/`retire`; an `identify` ticket closes when the
+re-check lane is not `unknown`.
+
+### Proposals (the approval Inbox): `proposals.csv`
+
+```
+proposal_id,run_id,created_on,kind,device_id,issue,dedupe_key,lane,priority,deadline,actions,to,cc,subject,body,drafted_to,expected_to,escalate_to_human,ticket_id,evidence,fixed_version,firmware_at_open,device_name_at_open,last_updated_at_open,owner_email,status,decided_by,decided_at,executed_at
+```
+
+| Column | Rule |
+|---|---|
+| `proposal_id` | `P-<run_seq, 3 digits>-<device_id>` for device proposals, `P-<run_seq>-<ticket_id>-R` for reminders |
+| `run_id`, `created_on` | Run that drafted it; `created_on` = that run's `as_of` date |
+| `kind` | `device` / `reminder` |
+| `device_id`, `issue`, `lane` | As in Tickets |
+| `dedupe_key` | `<device_id>|<issue>` (device) or `<ticket_id>|remind` (reminder); one `pending` per key |
+| `priority` | Planner priority 1-4; blank for reminders |
+| `deadline` | ISO date or blank |
+| `actions` | `;`-separated tier 2 actions only: `email`, `ticket`, `calendar` |
+| `to`, `cc` | Recipients set by rule (owner, or approver for `unknown`; approver cc'd on escalation) |
+| `subject`, `body` | Message text after the guards |
+| `drafted_to` | The model's recipient (routing metric only) |
+| `expected_to` | The rule's recipient |
+| `escalate_to_human` | `true` / `false` |
+| `ticket_id` | Ticket it opened or reminds about, else blank |
+| `evidence`, `fixed_version`, `firmware_at_open`, `device_name_at_open`, `last_updated_at_open`, `owner_email` | Copied to the ticket on execution |
+| `status` | `pending` / `approved` / `rejected` |
+| `decided_by`, `decided_at` | From `approvals.csv` |
+| `executed_at` | ISO date the approved actions were written to `outbox/`, else blank |
+
+### Approvals: `approvals.csv`
+
+```
+proposal_id,decision,approver,decided_at,note
+```
+
+| Column | Rule |
+|---|---|
+| `proposal_id` | A `pending` proposal; at most one row per proposal |
+| `decision` | `approved` / `rejected` |
+| `approver` | Required, non-blank: the named human |
+| `decided_at` | UTC timestamp |
+| `note` | Free text or blank |
+
+Rows are executed on the next `run` (or at once by `python -m sim.loop approve|reject`). A row
+with a blank approver or any other decision is ignored. Nothing reaches `outbox/` without one.
+
+### Expected verification (eval): `expected_verification.csv`
+
+```
+as_of,device_id,expected_decision
+```
+
+| Column | Rule |
+|---|---|
+| `as_of` | The run's `as_of` date |
+| `device_id` | Device whose ticket is verified on that run |
+| `expected_decision` | `close` / `remind` / `escalate` / `keep_open` |
+
+Optional and human-written. If present, `metrics.json` reports `verification_correctness` over
+the verify rows that have an expected decision.
 
 ## LLM model
 

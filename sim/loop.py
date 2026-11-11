@@ -24,7 +24,8 @@ Safety rules enforced here, whatever the model says:
 - Email recipients are fixed by rule (owner, or approver for unknown devices); the model's
   recipient is recorded only to measure routing accuracy.
 - A ticket closes only when the device is removed from the inventory, or its version changed
-  AND the new version parses AND is >= the ticket's fixed_version (sim/guards.compare_versions).
+  AND the new version parses AND is >= the ticket's fixed_version on its own release train
+  (sim/guards.select_train_fixes + compare_versions).
   The Verifier only confirms what the inventory record shows, never that a device is secure.
 
 Idempotency (docs/decisions/feat-loop.md): run_id comes from the scheduled time (`--now`); a
@@ -87,6 +88,7 @@ SETTINGS_DEFAULTS = {
     "tier2_mode": "approval",   # email, calendar, ticket: needs recorded approval
     "tier3_mode": "draft_only",  # isolate, disconnect, replace: never executed by Deming
     "maintenance_lead_days": "2",
+    "kev_overdue_grace_days": "14",  # KEV dueDate already passed: deadline = as_of + this
     "digest_channel": "",
 }
 ISSUE_BY_LANE = {"patch": "patch", "retire": "retire", "unknown": "identify"}
@@ -146,7 +148,8 @@ class State:
     @property
     def settings(self) -> dict:
         s = {**SETTINGS_DEFAULTS, **self.settings_raw}
-        for k in ("days_until_reminder", "days_until_escalation", "maintenance_lead_days"):
+        for k in ("days_until_reminder", "days_until_escalation", "maintenance_lead_days",
+                  "kev_overdue_grace_days"):
             s[k] = int(s[k])
         return s
 
@@ -307,6 +310,20 @@ class Verification:
     flags: list[str] = field(default_factory=list)
 
 
+def _train_compare(cur: str, fixed: str) -> tuple[int | None, str]:
+    """Compare the new version with the fixed version(s) on its own release train (contracts
+    v1.2, sim/guards.select_train_fixes). Returns (cmp, fixed_used) or (None, reason)."""
+    train, why = guards.select_train_fixes(fixed, cur)
+    if why:
+        return None, why
+    if any(guards.parse_version(f) is None for f in train):
+        return None, f"fixed version {';'.join(train)} does not parse"
+    signs = {guards.compare_versions(cur, f) < 0 for f in train}
+    if len(signs) > 1:
+        return None, f"version {cur} is between fixed versions {';'.join(train)} on its train"
+    return (-1 if signs == {True} else 1), ";".join(train)
+
+
 def decide_verification(ticket: dict, record_now: dict | None, recheck_lane: str | None,
                         today: str, settings: dict) -> Verification:
     """The deterministic closing rule. The LLM Verifier's answer is logged but this decides."""
@@ -332,8 +349,11 @@ def decide_verification(ticket: dict, record_now: dict | None, recheck_lane: str
         elif guards.parse_version(cur) is None:
             flags.append("low_evidence")
             note += f"; the new version {cur!r} does not parse, so it can't be compared (low evidence)"
+        elif (sel := _train_compare(cur, fixed))[0] is None:
+            flags.append("low_evidence")
+            note += f"; {sel[1]} (low evidence)"
         else:
-            cmp = guards.compare_versions(cur, fixed)
+            cmp, fixed = sel
             if cmp < 0:
                 flags.append("still_vulnerable")
                 note += f", which is still below the fixed version {fixed}; a change is not a fix"
@@ -548,13 +568,15 @@ def _expected_to(lane: str, owner: str, settings: dict) -> str:
     return settings["approver_email"] if lane == "unknown" else owner
 
 
-def _safe_body(body: str, did: str, lane: str, evidence: str, deadline: str, dnt: bool) -> tuple[str, str]:
+def _safe_body(body: str, did: str, lane: str, evidence: str, deadline: str, dnt: bool,
+               passed: str = "") -> tuple[str, str]:
     """Rebuild the message body when it carries injected text or (do_not_touch) disconnect words."""
     if INJECTION.search(body) or (dnt and guards._DISCONNECT.search(body)):
         ask = ("a named person must decide the next step; Deming proposes no change"
                if dnt else "please review and act by the deadline")
         return (f"Device {did}: lane {lane}. Evidence: {evidence or 'none'}. Deadline: "
-                f"{deadline or 'none'}. {ask[0].upper() + ask[1:]}."), "message body rebuilt by loop guard"
+                f"{deadline or 'none'}. {ask[0].upper() + ask[1:]}." + (f" {passed}" if passed else "")
+                ), "message body rebuilt by loop guard"
     return body, ""
 
 
@@ -580,7 +602,11 @@ def _propose_device(state, d, r, evidence, run_id, run_seq, as_of, settings, lif
     deadline = plan.deadline.isoformat() if plan.deadline else ""
     body = plan.message.body if plan.message else ""
     subject = plan.message.subject if plan.message else f"[Deming] {lane}: {did}"
-    body, guard_note = _safe_body(body or "-", did, lane, evidence, deadline, dnt)
+    # "The CISA due date has passed" is rebuilt from trusted fields if the body is rebuilt.
+    grace = settings.get(guards.KEV_OVERDUE_GRACE_KEY, guards.KEV_OVERDUE_GRACE_DEFAULT)
+    overdue = guards.kev_deadline(r.check.due_date, as_of, grace)[1] if lane == "patch" else False
+    passed = guards.overdue_sentence(r.check.due_date, deadline, as_of, grace) if overdue and deadline else ""
+    body, guard_note = _safe_body(body or "-", did, lane, evidence, deadline, dnt, passed)
     if not plan.message:
         guard_note = "planner drafted no message; loop wrote a minimal one"
     if INJECTION.search(subject):

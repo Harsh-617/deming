@@ -123,7 +123,9 @@ def test_do_not_touch_never_gets_disconnect_proposal():
     ("version_changed", "patch", "patch", "escalate"),   # a change is not a fix
     ("version_changed", "patch", "fine", "close"),
     ("device_removed", "retire", None, "close"),
-    ("device_removed", "patch", None, "escalate"),
+    # Removal closes any ticket type, matching sim/loop.decide_verification.
+    ("device_removed", "patch", None, "close"),
+    ("device_removed", "unknown", None, "close"),
 ])
 def test_verifier_close_only_on_record_evidence(change, ticket_lane, recheck, expected):
     out = VerifierOutput.model_validate({**GOOD["verifier"], "observed_change": change,
@@ -167,3 +169,90 @@ def test_checker_input_carries_as_of_date(tmp_path):
     run_device(r, DEVICE, KEV, [], today="2026-11-20", settings=SETTINGS)
     run_device(r, DEVICE, KEV, [], today="2026-11-20", settings=SETTINGS, as_of_date="2026-12-10")
     assert seen == [config.load_as_of_date(), "2026-12-10"]
+
+
+@pytest.mark.parametrize("ticket_lane", ["patch", "retire", "unknown"])
+def test_verifier_removal_close_needs_the_row_to_be_gone(ticket_lane):
+    out = VerifierOutput.model_validate({**GOOD["verifier"], "observed_change": "device_removed",
+                                         "decision": "close"})
+    assert guards.guard_verifier(out, ticket_lane, None, record_present=False)[0].decision == "close"
+    fixed, notes = guards.guard_verifier(out, ticket_lane, "patch", record_present=True)
+    assert fixed.decision == "escalate" and "contradicts the inventory" in notes[0]
+
+
+def test_guard_verifier_matches_loop_on_removal():
+    from sim.loop import decide_verification
+    settings = {"days_until_reminder": 3, "days_until_escalation": 7}
+    for issue, lane in (("patch", "patch"), ("retire", "retire"), ("identify", "unknown")):
+        ticket = {"issue": issue, "lane": lane, "opened": "2026-11-12", "last_reminder": "",
+                  "firmware_at_open": "1.0", "fixed_version": "2.0"}
+        assert decide_verification(ticket, None, None, "2026-11-13", settings).decision == "close"
+        out = VerifierOutput.model_validate({**GOOD["verifier"], "observed_change": "device_removed",
+                                             "decision": "close"})
+        assert guards.guard_verifier(out, lane, None, record_present=False)[0].decision == "close"
+
+
+# --- Overdue KEV due date: deadline = as_of_date + kev_overdue_grace_days (agents/planner.md 8) --
+
+def _plan(lane, deadline, body="Please apply the vendor fix by 2022-05-03."):
+    return PlannerOutput.model_validate({
+        **GOOD["planner"], "lane": lane,
+        "action": "notify_patch" if lane == "patch" else "notify_retire", "deadline": deadline,
+        "message": {"to": "lab3@example.org", "subject": "x", "body": body}})
+
+
+def _check(lane, due):
+    return CheckerOutput.model_validate({**GOOD["checker"], "lane": lane, "due_date": due,
+                                         "evidence_cve": ["CVE-2019-1653"],
+                                         "evidence_lifecycle_id": "LC-001"})
+
+
+@pytest.mark.parametrize("grace,settings,expected", [
+    (14, {}, "2026-11-26"),                                   # default when the key is missing
+    (14, {"kev_overdue_grace_days": 14}, "2026-11-26"),
+    (21, {"kev_overdue_grace_days": "21"}, "2026-12-03"),     # Settings tab values are text
+])
+def test_overdue_kev_due_date_moves_patch_deadline(grace, settings, expected):
+    fixed, notes = guards.guard_planner(_plan("patch", "2022-05-03"), {}, _check("patch", "2022-05-03"),
+                                        as_of_date="2026-11-12", settings=settings)
+    assert fixed.deadline.isoformat() == expected
+    body = fixed.message.body
+    assert "The CISA KEV due date 2022-05-03 has passed" in body
+    assert f"deadline is {expected} ({grace} days from 2026-11-12)" in body
+    assert any("passed" in n for n in notes)
+
+
+def test_due_date_not_yet_passed_is_kept():
+    plan = _plan("patch", "2026-12-01", body="Please apply the vendor fix by 2026-12-01.")
+    for due in ("2026-12-01", "2026-11-12"):  # on as_of_date is not "before"
+        p = plan.model_copy(update={"deadline": due})
+        fixed, notes = guards.guard_planner(p, {}, _check("patch", due), as_of_date="2026-11-12")
+        assert fixed == p and notes == []
+
+
+def test_retire_due_date_is_a_support_date_not_a_cisa_date():
+    # For retire the Checker's due_date is the support end date (checker.md rule 6): no CISA wording.
+    plan = _plan("retire", "2026-11-19", body="Please plan replacement by 2026-11-19.")
+    fixed, notes = guards.guard_planner(plan, {}, _check("retire", "2021-12-31"),
+                                        as_of_date="2026-11-12", settings=SETTINGS)
+    assert fixed == plan and notes == []
+
+
+def test_overdue_sentence_kept_when_do_not_touch_body_is_rebuilt():
+    plan = _plan("patch", "2022-05-03", body="Please disconnect it today.")
+    fixed, _ = guards.guard_planner(plan, {"do_not_touch": "true"}, _check("patch", "2022-05-03"),
+                                    as_of_date="2026-11-12", settings=SETTINGS)
+    assert "disconnect it" not in fixed.message.body
+    assert fixed.deadline.isoformat() == "2026-11-26"
+    assert "The CISA KEV due date 2022-05-03 has passed" in fixed.message.body
+
+
+def test_overdue_rule_end_to_end_with_mock_planner(tmp_path):
+    from sim.mock_llm import MockModel
+    m = MockModel([("Cisco", "Small Business RV Series Routers")])
+    out = m.planner({"today": "2026-11-12", "as_of_date": "2026-11-12",
+                     "settings": {**SETTINGS, "kev_overdue_grace_days": 14},
+                     "device": {**DEVICE, "device_name_raw": "RV320"},
+                     "check": {"lane": "patch", "evidence_cve": ["CVE-2019-1653"],
+                               "evidence_lifecycle_id": None, "due_date": "2022-05-03"}})
+    assert out["deadline"] == "2026-11-26" and "has passed" in out["message"]["body"]

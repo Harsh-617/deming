@@ -5,6 +5,7 @@
 - [feat/eval](decisions/feat-eval.md): baseline, metrics, report, Sheet template
 - [feat/agents](decisions/feat-agents.md): subagent prompts, schemas, runner, Agent Designer port
 - [feat/inventory](decisions/feat-inventory.md): 60-device inventory, ground truth, fixed_version sources
+- [feat/loop](decisions/feat-loop.md): closed-loop simulator, approvals, idempotency, loop metrics
 
 One short entry per decision: choice, alternatives, source, and what couldn't be verified.
 
@@ -154,3 +155,51 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Limits:** PAN-OS hotfix strings (`11.1.4-h13`) are outside the strict version grammar, so every
   PAN-OS device with a KEV match still goes to `unknown`. Single-value rows are not train-checked
   (LC-029 WatchGuard `12.11.4` vs model-specific 12.5.x builds).
+
+### 2026-11-11 · PAN-OS hotfix suffixes parse (reverses part of "Firmware version comparison")
+- **Choice:** `sim/guards.parse_version` now also accepts exactly `major.minor.patch-h<digits>`
+  (lowercase `h`, ASCII digits, nothing after), compared as `(major, minor, patch, hotfix)` with
+  hotfix 0 when absent (`11.1.4` == `11.1.4-h0` < `11.1.4-h1`). Train selection is unchanged and
+  uses the numbers before `-h`. Every other suffix still does not parse → `unknown`:
+  SonicWall build numbers `7.0.1-5161`, `build 523`, Ivanti `22.7R2.6`, NetScaler `14.1-43.50`,
+  and near-misses `-H7`, `11.1-h3`, `11.1.4-hotfix7`. `tests/test_inventory.py` now imports this
+  parser and `select_train_fixes` instead of its own digit-grab `_vkey`.
+- **Why reversed:** the earlier rule sent every PAN-OS device with a KEV match to `unknown`
+  (7 real devices: DEV-033/047/048 patch, DEV-006/008/035/038 fine), although Palo Alto's own
+  advisories state fixes as `-h<n>` hotfixes on a release line, which is an unambiguous total order.
+  The `-h` form can't be confused with a build number, unlike `7.0.1-5161`, which stays out.
+- **Side effect found:** with one shared parser, 4 `clear_patch` labels can't be compared by the
+  guard (DEV-009/034 Ivanti `22.7R2.x`, DEV-021/050 NetScaler `14.1-NN.NN`). They were already
+  predicted `unknown`; the old lenient test parser hid that. Pinned as an explicit list in the test.
+- **Alternatives:** keep PAN-OS unknown (safe but 7 avoidable unknowns); a per-vendor parser table
+  (more surface, not needed for one vendor); generic `-<suffix>` (would let `7.0.1-5161` in).
+- **Source:** https://security.paloaltonetworks.com/CVE-2025-0108 (LC-021 `source_url`; fixed
+  versions written `11.1.2-h18`, `11.1.4-h13`, `11.1.6-h1`). Rule set by the user; no new research.
+- **Limits:** a 4-part dotted version `11.1.4.7` compares equal to `11.1.4-h7`; no PAN-OS release
+  uses 4 dotted parts, and trains are chosen per lifecycle row, so the two never meet in practice.
+
+### 2026-11-11 · Overdue KEV due date → deadline = as_of_date + 14 days
+- **Choice:** if the Checker's KEV `due_date` is before `as_of_date`, the Planner's deadline is
+  `as_of_date + kev_overdue_grace_days` (new Settings key, default 14) and the owner message says
+  the CISA date has passed. Patch lane only: for retire the Checker's `due_date` is the support end
+  date (checker.md rule 6), not a CISA date. Prompt rule 8 says so; `guards.guard_planner` enforces
+  it, and the sentence is rebuilt from trusted fields (never copied from model text, which can
+  carry injected words).
+- **Open issue (not changed):** planner rule 8 for retire takes `today + days_until_escalation`
+  unless the due date is earlier, and a retire `due_date` (support end) is always in the past, so
+  retire deadlines come out in the past. Needs a rule decision.
+- **Why:** most KEV due dates are years old (federal BOD 22-01 deadlines), so a deadline in the
+  past is meaningless to an owner and breaks reminders and calendar windows.
+- **Alternatives:** keep the past date (useless); today + escalation days (mixes two settings).
+- **Source:** https://www.cisa.gov/known-exploited-vulnerabilities-catalog (dueDate is the BOD
+  22-01 remediation date). Rule and default set by the user.
+
+### 2026-11-11 · Verifier: removal closes any ticket type; merge of feat/loop
+- **Choice:** `guards.guard_verifier` allows `close` on `device_removed` for patch, retire and
+  identify tickets, matching `sim/loop.decide_verification`; with `record_present=True` (passed
+  by `sim/pipeline.verify_ticket`) a model claiming removal while the row exists is escalated.
+  On merge, `decide_verification` was switched to `select_train_fixes`: feat/loop compared the new
+  version with the whole `;`-joined `fixed_version`, which can't parse after contracts v1.2.
+- **Why:** a removed device leaves nothing to track; the loop already closed such tickets, so the
+  LLM guard and the loop disagreed.
+- **Source:** internal consistency; no external research.

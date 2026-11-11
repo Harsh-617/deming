@@ -28,7 +28,11 @@ def check(lane, cves=(), lc=None):
 @pytest.mark.parametrize("s,parsed", [
     ("1.5.1.5", (1, 5, 1, 5)), ("v1.4.2.22", (1, 4, 2, 22)), ("V1.4.2.22", (1, 4, 2, 22)),
     ("1.0.03.26", (1, 0, 3, 26)), (" 7.4 ", (7, 4)), ("1.5.1.0", (1, 5, 1)), ("0", (0,)),
-    ("7.0.12 build 523", None), ("11.1.4-h13", None), ("13.0-92.19", None),
+    ("7.0.12 build 523", None), ("11.1.4-h13", (11, 1, 4, 13)), ("13.0-92.19", None),
+    # PAN-OS hotfix: only major.minor.patch-h<digits>, compared as (major, minor, patch, hotfix).
+    ("11.1.16-h3", (11, 1, 16, 3)), ("v11.1.4-h7", (11, 1, 4, 7)), ("11.1.4-h0", (11, 1, 4)),
+    ("11.1.4-H7", None), ("11.1.4-h", None), ("11.1-h3", None), ("11.1.4.2-h3", None),
+    ("11.1.4-h7-h1", None), ("11.1.4 -h7", None), ("11.1.4-hotfix7", None), ("11.1.4-h٣", None),
     ("7.0.1-5161", None), ("22.7R2.6", None), ("R81.20", None), ("", None), (None, None),
     ("1..2", None), ("1.2.", None), (".1", None), ("vv1.2", None), ("1.2 beta", None),
     ("１.２", None),  # full-width digits
@@ -42,6 +46,9 @@ def test_parse_version(s, parsed):
     ("1.5.1.4", "1.5.1.5", -1), ("1.5.1.5", "1.5.1.5", 0), ("1.5.1.10", "1.5.1.5", 1),
     ("1.5.1", "1.5.1.0", 0), ("v1.4.2.22", "1.4.2.20", 1), ("1.0.03.26", "1.0.3.26", 0),
     ("7.0.12 build 523", "7.0.13", None), ("1.5.1.4", "", None),
+    ("11.1.4-h7", "11.1.4-h13", -1), ("11.1.4-h13", "11.1.4-h13", 0), ("11.1.16-h3", "11.1.6-h1", 1),
+    ("11.1.4", "11.1.4-h1", -1), ("11.1.4", "11.1.4-h0", 0), ("11.1.5", "11.1.4-h99", 1),
+    ("11.1.1", "11.1.2-h18", -1), ("7.0.1-5161", "7.0.1-5162", None),
 ])
 def test_compare_versions(a, b, expected):
     assert guards.compare_versions(a, b) == expected
@@ -74,8 +81,10 @@ def test_messy_firmware_forces_unknown(fw):
     assert "does not parse" in notes[0]
 
 
-def test_messy_fixed_version_forces_unknown():
-    row = {**ROW, "fixed_version": "11.1.4-h13"}
+@pytest.mark.parametrize("fixed", ["7.0.1-5161", "22.7R2.6", "7.0.12 build 523"])
+def test_messy_fixed_version_forces_unknown(fixed):
+    # SonicWall-style build numbers and other vendor suffixes stay unparseable (only -h<n> parses).
+    row = {**ROW, "fixed_version": fixed}
     out, _ = guards.guard_version(check("patch", ["CVE-2024-12987"], "LC-030"),
                                   dev("1.5.1.4"), KEV, [row])
     assert out.lane == "unknown"

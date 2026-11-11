@@ -53,16 +53,19 @@ a matching `kev_products.csv` row, read that cveID's row in `kev_entries.csv`.
       discontinue the product: "retire".
    4. A matching KEV entry exists and the matching lifecycle row has a `fixed_version`: compare
       the device's firmware with it, number by number. Below `fixed_version`: "patch". At or
-      above it: "fine". If either version is not plain dot-separated numbers (for example
-      "7.0.12 build 523"), you cannot compare them: "unknown".
+      above it: "fine". Versions must be plain dot-separated numbers, or the PAN-OS hotfix form
+      major.minor.patch-h<number> (for example "11.1.4-h7"), compared as major, minor, patch,
+      then hotfix, with hotfix 0 when there is none ("11.1.4" is below "11.1.4-h1"; "11.1.4-h7"
+      is below "11.1.4-h13"). Any other form (for example "7.0.12 build 523", "7.0.1-5161",
+      "22.7R2.6") cannot be compared: "unknown".
       If `fixed_version` holds several values separated by ";", each is the fix for one release
       train. Use only the value on the device's own train: the one whose leading numbers match
       the firmware's for the most places, and at least the first two (major.minor). Example:
       "7.24.3;7.23.6" with firmware 7.24.1 → compare with 7.24.3 only → "patch", even though
       7.24.1 is above 7.23.6. Never compare with a fix from another train. If no value shares
-      the firmware's major.minor (firmware 7.22.4 here), or the firmware is not plain numbers,
-      or two values tie and the firmware lies between them: "unknown", and say which in
-      `reason`.
+      the firmware's major.minor (firmware 7.22.4 here), or the firmware cannot be compared
+      (see above), or two values tie and the firmware lies between them: "unknown", and say
+      which in `reason`.
    5. A matching KEV entry exists but `fixed_version` is empty: "unknown", with the reason
       "fixed version not documented". Never "fine" in this case.
    6. Otherwise: "fine".

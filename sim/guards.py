@@ -61,19 +61,26 @@ def guard_checker(out: CheckerOutput, kev_candidates: list[dict], lifecycle_cand
 
 
 # Strict version grammar: optional v/V, then dot-separated integers, nothing else.
-# Anything messier ("7.0.12 build 523", "11.1.4-h13", "22.7R2.6") does not parse, and the
-# device goes to unknown. packaging.version is deliberately not used: PEP 440 reads
-# "7.0.1-5161" as a post-release and normalises other vendor strings in ways that look valid
-# but mean something else (docs/decisions.md, 2026-11-11 version comparison).
+# One vendor suffix is allowed: the PAN-OS hotfix form major.minor.patch-h<digits>
+# (e.g. 11.1.4-h7), compared as (major, minor, patch, hotfix) with hotfix 0 when absent.
+# Every other suffix ("7.0.12 build 523", "7.0.1-5161", "22.7R2.6", "11.1.4-H7", "11.1-h3")
+# does not parse, and the device goes to unknown. packaging.version is deliberately not used:
+# PEP 440 reads "7.0.1-5161" as a post-release and normalises other vendor strings in ways that
+# look valid but mean something else (docs/decisions.md, 2026-11-11 version comparison and
+# PAN-OS hotfix suffixes).
 _VERSION = re.compile(r"[vV]?([0-9]+(?:\.[0-9]+)*)")  # [0-9], not \d: \d matches non-ASCII digits
+_PANOS_HOTFIX = re.compile(r"[vV]?([0-9]+)\.([0-9]+)\.([0-9]+)-h([0-9]+)")
 
 
 def parse_version(s: str | None) -> tuple[int, ...] | None:
-    m = _VERSION.fullmatch((s or "").strip())
-    if not m:
+    s = (s or "").strip()
+    if m := _PANOS_HOTFIX.fullmatch(s):
+        parts = [int(x) for x in m.groups()]  # (major, minor, patch, hotfix)
+    elif m := _VERSION.fullmatch(s):
+        parts = [int(x) for x in m.group(1).split(".")]
+    else:
         return None
-    parts = [int(x) for x in m.group(1).split(".")]
-    while len(parts) > 1 and parts[-1] == 0:  # 1.5.1 == 1.5.1.0
+    while len(parts) > 1 and parts[-1] == 0:  # 1.5.1 == 1.5.1.0; 11.1.4 == 11.1.4-h0
         parts.pop()
     return tuple(parts)
 
@@ -208,9 +215,54 @@ def guard_version(out: CheckerOutput, device: dict, kev_candidates: list[dict],
     return out.model_copy(update=upd), [f"version guard override: {why}"]
 
 
-def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput):
+# Settings key: days added to as_of_date when the KEV dueDate has already passed.
+KEV_OVERDUE_GRACE_KEY = "kev_overdue_grace_days"
+KEV_OVERDUE_GRACE_DEFAULT = 14
+_CISA_PASSED = re.compile(r"CISA[^.]*\bpassed\b", re.IGNORECASE)
+
+
+def kev_deadline(due_date: dt.date | str | None, as_of_date: dt.date | str,
+                 grace_days: int = KEV_OVERDUE_GRACE_DEFAULT) -> tuple[dt.date | None, bool]:
+    """Effective deadline from a KEV dueDate. If the dueDate is before as_of_date (CISA's date
+    has passed), the deadline is as_of_date + grace_days. Returns (deadline, overdue)."""
+    if not due_date:
+        return None, False
+    due = due_date if isinstance(due_date, dt.date) else dt.date.fromisoformat(str(due_date))
+    as_of = as_of_date if isinstance(as_of_date, dt.date) else dt.date.fromisoformat(str(as_of_date))
+    if due < as_of:
+        return as_of + dt.timedelta(days=int(grace_days)), True
+    return due, False
+
+
+def overdue_sentence(due: dt.date | str, deadline: dt.date | str, as_of: str, grace: int) -> str:
+    """The sentence the owner message must carry when the KEV due date has passed."""
+    as_of_d = dt.date.fromisoformat(str(as_of))
+    why = (f" ({grace} days from {as_of})"
+           if str(deadline) == (as_of_d + dt.timedelta(days=int(grace))).isoformat() else "")
+    return f"The CISA KEV due date {due} has passed, so the deadline is {deadline}{why}."
+
+
+def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
+                  as_of_date: str | None = None, settings: dict | None = None):
+    """`as_of_date` turns on the overdue-KEV deadline rule (agents/planner.md rule 8). It applies
+    to the patch lane only: there the Checker's due_date is the KEV dueDate. For retire it is the
+    support end date (agents/checker.md rule 6), which is not a CISA date."""
     notes = []
     upd = {}
+    passed = ""  # the overdue sentence, rebuilt from trusted fields (never copied from the model)
+    if as_of_date and checker.due_date and checker.lane == "patch":
+        grace = int((settings or {}).get(KEV_OVERDUE_GRACE_KEY) or KEV_OVERDUE_GRACE_DEFAULT)
+        eff, overdue = kev_deadline(checker.due_date, as_of_date, grace)
+        if overdue:
+            want = eff
+            if out.deadline != want:
+                upd["deadline"] = want
+                notes.append(f"KEV due date {checker.due_date} passed: deadline {out.deadline} -> {want}")
+            passed = overdue_sentence(checker.due_date, want, as_of_date, grace)
+            if out.message and not _CISA_PASSED.search(out.message.body):
+                body = f"{out.message.body.rstrip()} {passed}"
+                upd["message"] = out.message.model_copy(update={"body": body})
+                notes.append("message: added that the CISA due date has passed")
     if not out.requires_approval:
         upd["requires_approval"] = True
         notes.append("requires_approval forced true")
@@ -221,21 +273,33 @@ def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput):
         if not out.escalate_to_human:
             upd["escalate_to_human"] = True
             notes.append("do_not_touch: escalate_to_human forced true")
-        if out.message and _DISCONNECT.search(out.message.body):
+        msg = upd.get("message", out.message)
+        if msg and _DISCONNECT.search(msg.body):
             body = ("This device is flagged do-not-touch. Deming makes no disconnection or "
                     "isolation proposal; a named person must decide the next step. "
                     f"Lane: {checker.lane}. Evidence: "
                     f"{';'.join(checker.evidence_cve + ([checker.evidence_lifecycle_id] if checker.evidence_lifecycle_id else [])) or 'none'}.")
-            upd["message"] = out.message.model_copy(update={"body": body})
+            if passed:
+                body += " " + passed
+            upd["message"] = msg.model_copy(update={"body": body})
             notes.append("do_not_touch: disconnect/isolate wording removed from message")
     return out.model_copy(update=upd), notes
 
 
-def guard_verifier(out: VerifierOutput, ticket_lane: str, recheck_lane: str | None):
+def guard_verifier(out: VerifierOutput, ticket_lane: str, recheck_lane: str | None,
+                   record_present: bool | None = None):
+    """Close is allowed when the device is gone from the inventory, for any ticket type (patch,
+    retire or identify), matching sim/loop.decide_verification; or when the version changed and
+    the re-check is fine. `ticket_lane` is informational only. `record_present` (when the caller
+    knows it) overrules a model that claims device_removed while the row is still there."""
     notes = []
     upd = {}
+    removed = out.observed_change == "device_removed"
+    if removed and record_present:
+        notes.append("observed_change device_removed contradicts the inventory (row present)")
+        removed = False
     if out.decision == "close":
-        ok = ((out.observed_change == "device_removed" and ticket_lane == "retire")
+        ok = (removed
               or (out.observed_change == "version_changed" and recheck_lane == "fine"))
         if not ok:
             upd["decision"] = "escalate"

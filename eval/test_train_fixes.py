@@ -140,18 +140,54 @@ def test_routeros_on_unlisted_train_is_unknown(lane):
     assert "no fixed version listed for release train 7.22 (listed: 7.24.3;7.23.6)" in out.reason
 
 
-@pytest.mark.parametrize("dev_id", ["DEV-033", "DEV-047", "DEV-008"])
-def test_panos_hotfix_firmware_does_not_parse_so_unknown(dev_id):
-    # 11.1.4-h7 / 11.1.2-h3 / 11.1.16-h3: hotfix suffixes are outside the strict version grammar.
-    out, _ = run(dev_id, "fine", PANOS)
-    assert out.lane == "unknown"
-    assert "does not parse, so its release train" in out.reason
+# PAN-OS hotfix suffixes (-h<digits>) parse as (major, minor, patch, hotfix) since 2026-11-11
+# (docs/decisions.md, "PAN-OS hotfix suffixes"). Real devices, real LC-021 row.
+
+@pytest.mark.parametrize("dev_id,train", [
+    ("DEV-033", ["11.1.4-h13"]),                              # 11.1.4-h7: the 11.1.4 line
+    ("DEV-047", ["11.1.2-h18"]),                              # 11.1.2-h3: the 11.1.2 line
+    ("DEV-048", ["11.1.2-h18", "11.1.4-h13", "11.1.6-h1"]),   # 11.1.1: below all three
+])
+def test_panos_patch_devices(dev_id, train):
+    assert GT[dev_id]["lane"] == "patch"
+    fw = INV[dev_id]["firmware_version_raw"]
+    assert guards.select_train_fixes(PANOS["fixed_version"], fw) == (train, None)
+    out, notes = run(dev_id, "fine", PANOS)  # model wrongly says fine
+    assert out.lane == "patch" and out.evidence_lifecycle_id == "LC-021"
+    assert set(GT[dev_id]["evidence_cve"].split(";")) <= set(out.evidence_cve)
+    assert "below fixed version" in notes[0]
+    expected = check(dev_id, "patch", "LC-021", [k["cveID"] for k in kev_for(PANOS)])
+    assert run(dev_id, "patch", PANOS) == (expected, [])  # agreeing answer left alone
 
 
-def test_panos_plain_firmware_but_hotfix_fixes_is_unknown():
-    # DEV-048 runs 11.1.1 (parses); its train's fixes are 11.1.2-h18/11.1.4-h13/11.1.6-h1 (don't).
-    out, _ = run("DEV-048", "patch", PANOS)
-    assert out.lane == "unknown" and "fixed_version '11.1.2-h18'" in out.reason
+@pytest.mark.parametrize("dev_id", ["DEV-006", "DEV-008", "DEV-035", "DEV-038"])
+def test_panos_fine_devices(dev_id):
+    assert GT[dev_id]["lane"] == "fine" and INV[dev_id]["firmware_version_raw"] == "11.1.16-h3"
+    out, notes = run(dev_id, "patch", PANOS)  # model wrongly says patch
+    assert out.lane == "fine" and out.evidence_cve == [] and "at or above" in notes[0]
+    assert run(dev_id, "fine", PANOS) == (check(dev_id, "fine"), [])
+
+
+@pytest.mark.parametrize("fw", ["11.1.4-H7", "11.1.4-h7 build 2", "11.1.4-hotfix7"])
+def test_panos_other_suffixes_still_unknown(fw):
+    out, _ = run("DEV-033", "patch", PANOS, firmware=fw)
+    assert out.lane == "unknown" and "does not parse" in out.reason
+
+
+def test_sonicwall_build_suffix_still_does_not_parse():
+    # LC-024 SonicOS fixes are written like 7.0.1-5161 (build number, not a hotfix): never parsed.
+    sonicos = LC["LC-024"]
+    assert "7.0.1-5161" in sonicos["replacement_hint"]
+    for v in ("7.0.1-5161", "7.1.1-7058", "7.0.1-5161-h1"):
+        assert guards.parse_version(v) is None
+    row = {**sonicos, "fixed_version": "7.0.1-5161"}
+    d = {**INV["DEV-033"], "vendor": "SonicWall", "product": "SonicOS", "version": "7.0.1-5035",
+         "firmware_version_raw": "7.0.1-5035"}
+    kev = [{"cveID": "CVE-2024-40766", "vendorProject": "SonicWall", "product": "SonicOS",
+            "dueDate": "2024-09-30"}]
+    out, notes = guards.guard_version(check("DEV-033", "patch", "LC-024", ["CVE-2024-40766"]),
+                                      d, kev, [row])
+    assert out.lane == "unknown" and "does not parse" in notes[0]
 
 
 def test_firmware_between_two_fixes_on_same_train_is_unknown():

@@ -1,4 +1,4 @@
-"""Validate data/inventory.csv and data/ground_truth.csv against docs/contracts.md (v1.1).
+"""Validate data/inventory.csv and data/ground_truth.csv against docs/contracts.md (v1.3).
 
 Run: python -m pytest tests/test_inventory.py -q
 Offline: reads only files in the repo.
@@ -13,9 +13,17 @@ import re
 from datetime import date
 from pathlib import Path
 
+import sys
+
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+# The ground-truth checks use the Checker's own version parser and train selection, so labels
+# and the version guard can never disagree on what "below the fix" means.
+from sim.guards import parse_version, select_train_fixes  # noqa: E402
 INV = ROOT / "data" / "inventory.csv"
 GT = ROOT / "data" / "ground_truth.csv"
 LC = ROOT / "data" / "lifecycle.csv"
@@ -153,38 +161,42 @@ def test_lanes_follow_lifecycle_dates(gt, lifecycle):
             assert not past, f"{r['device_id']}: patch but {lc['lifecycle_id']} is past support"
 
 
+# clear_patch rows whose version the guard's strict grammar can't read (Ivanti 22.7R2.x,
+# NetScaler 14.1-NN.NN build numbers). The labels say patch (from the vendor advisories), but the
+# version guard sends these devices to unknown, so they are expected misses in the eval. Listed
+# here so a new unparseable label fails the test instead of being skipped quietly.
+UNPARSEABLE_PATCH_LABELS = {"DEV-009", "DEV-021", "DEV-034", "DEV-050"}
+
+
 def _vkey(v: str) -> tuple:
-    return tuple(int(x) for x in re.findall(r"\d+", v))
+    key = parse_version(v)
+    assert key is not None, f"version {v!r} does not parse with sim.guards.parse_version"
+    return key
 
 
 def _train_fixes(fixed: str, version: str) -> list[str]:
-    """Fixed versions on the version's release train (contracts v1.2): one entry is used as is;
-    with several ';' entries, those sharing the longest leading numeric prefix with the version,
-    at least major.minor. Empty if none share a train. Never falls back across trains."""
-    entries = [f for f in fixed.split(";") if f]
-    if len(entries) <= 1:
-        return entries
-    def shared(f):
-        n = 0
-        for a, b in zip(_vkey(f), _vkey(version)):
-            if a != b:
-                break
-            n += 1
-        return n
-    best = max(shared(f) for f in entries)
-    return [f for f in entries if shared(f) == best] if best >= 2 else []
+    """Fixed versions on the version's release train (contracts v1.2), via the guard itself."""
+    fixes, _why = select_train_fixes(fixed, version)
+    return fixes
 
 
 def test_clear_patch_below_fixed_version(gt, lifecycle):
+    seen_unparseable: set[str] = set()
     for r in gt:
         if r["group"] != "clear_patch":
             continue
         lc = lifecycle[r["evidence_lifecycle_id"]]
         assert lc["fixed_version"], f"{r['device_id']}: clear_patch needs a documented fixed_version"
         assert fnmatch.fnmatch(r["version"].lower(), lc["model_pattern"].lower()), r["device_id"]
+        if parse_version(r["version"]) is None:
+            assert r["device_id"] in UNPARSEABLE_PATCH_LABELS, (
+                f"{r['device_id']}: version {r['version']!r} does not parse; the guard would say unknown")
+            seen_unparseable.add(r["device_id"])
+            continue
         fixes = _train_fixes(lc["fixed_version"], r["version"])
         assert fixes, f"{r['device_id']}: no fixed version on the train of {r['version']}"
         assert _vkey(r["version"]) < min(_vkey(f) for f in fixes), f"{r['device_id']}: not below {fixes}"
+    assert seen_unparseable == UNPARSEABLE_PATCH_LABELS
 
 
 def test_supported_fine_at_or_above_fixed_version(gt, lifecycle):

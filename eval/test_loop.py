@@ -325,3 +325,33 @@ def test_duplicate_delivery_of_same_run_is_a_no_op(tmp_path):
     rep = run(state, "2026-11-12", approver=APPROVE)
     assert rep.skipped
     assert (len(state.decision_log), len(state.proposals), outbox(state)) == before
+
+
+# ---- overdue KEV due date (agents/planner.md rule 8) -----------------------------------------
+@pytest.mark.parametrize("grace,expected", [(None, "2026-11-26"), ("21", "2026-12-03")])
+def test_overdue_kev_due_date_sets_deadline_from_as_of(tmp_path, grace, expected):
+    # DEV-101's KEV entry CVE-2024-21762 has dueDate 2024-02-16, long before as_of 2026-11-12.
+    state = make_state(tmp_path, [dev("DEV-101")])
+    if grace:
+        write_rows(state.root / "settings.csv", ["key", "value"],
+                   [{"key": k, "value": v} for k, v in {**SETTINGS_DEFAULTS,
+                                                         "kev_overdue_grace_days": grace}.items()])
+        state.load()
+    run(state, "2026-11-12", approver=APPROVE)
+    p = next(p for p in state.proposals if p["device_id"] == "DEV-101")
+    assert p["lane"] == "patch" and p["deadline"] == expected
+    assert "The CISA KEV due date 2024-02-16 has passed" in p["body"]
+    assert ticket(state, "DEV-101")["due"] == expected
+    cal = json.loads((state.outbox / f"{p['proposal_id']}.calendar.json").read_text(encoding="utf-8"))
+    assert cal["date"] <= expected
+
+
+def test_contract_columns_match_loop():
+    # docs/contracts.md v1.3 documents the loop's state files; the header lines must not drift.
+    from sim import config, loop
+    text = (config.ROOT / "docs" / "contracts.md").read_text(encoding="utf-8")
+    for cols in (loop.DECISION_LOG_COLUMNS, loop.TICKET_COLUMNS, loop.PROPOSAL_COLUMNS,
+                 loop.APPROVAL_COLUMNS, ["as_of", "device_id", "expected_decision"]):
+        assert "\n" + ",".join(cols) + "\n" in text
+    for key in loop.SETTINGS_DEFAULTS:
+        assert f"| `{key}` |" in text

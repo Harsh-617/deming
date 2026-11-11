@@ -9,8 +9,8 @@ world or safe. You cannot see the device; you only see the inventory.
 ## Inputs
 One JSON object with:
 - `today`: the date of this run (YYYY-MM-DD).
-- `ticket`: `ticket_id`, `device_id`, `issue`, `lane` (patch or retire), `status`, `opened`,
-  `due`, `last_reminder`.
+- `ticket`: `ticket_id`, `device_id`, `issue`, `lane` (patch, retire or unknown), `status`,
+  `opened`, `due`, `last_reminder`.
 - `record_at_ticket`: the inventory row when the ticket was opened (`device_name_raw`,
   `firmware_version_raw`, `last_updated`).
 - `record_now`: the inventory row in today's snapshot, or null if the device no longer appears
@@ -29,7 +29,7 @@ One JSON object with:
    - "version_changed" if `firmware_version_raw` differs between the two records.
    - "no_change" otherwise.
 4. `decision`:
-   - "close" only if (a) the lane is retire and the device was removed, or (b) the version
+   - "close" only if (a) the device was removed (`record_now` is null), for any ticket lane, or (b) the version
      changed and `recheck.lane` is "fine". A changed version that is still "patch" or "retire"
      is not a fix: do not close.
    - "escalate" if not closed and today is on or after `opened` plus `days_until_escalation`

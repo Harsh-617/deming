@@ -68,12 +68,12 @@ def run_device(runner: GeminiRunner, device: dict, kev_index: retrieval.KevIndex
 
     planner_device = {**record, **norm.model_dump(include={"vendor", "product", "version"})}
     plan = runner.run("planner", {
-        "today": today, "device": planner_device,
+        "today": today, "as_of_date": as_of, "device": planner_device,
         "check": check.model_dump(mode="json", include={"lane", "evidence_cve",
                                                         "evidence_lifecycle_id", "due_date",
                                                         "reason"}),
         "open_tickets": open_tickets or [], "settings": settings}, repeat_index).output
-    plan, n = guards.guard_planner(plan, record, check)
+    plan, n = guards.guard_planner(plan, record, check, as_of_date=as_of, settings=settings)
     notes += n
     return DeviceResult(record["device_id"], norm, check, plan, kev_c, lc_c, notes)
 
@@ -85,7 +85,8 @@ def verify_ticket(runner: GeminiRunner, *, today: str, ticket: dict, record_at_t
                                   "record_at_ticket": record_at_ticket, "record_now": record_now,
                                   "recheck": recheck, "settings": settings}, repeat_index).output
     return guards.guard_verifier(out, ticket.get("lane", ""),
-                                 (recheck or {}).get("lane"))
+                                 (recheck or {}).get("lane"),
+                                 record_present=record_now is not None)
 
 
 def main(argv: list[str] | None = None) -> Path:
