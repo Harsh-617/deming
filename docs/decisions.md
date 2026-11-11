@@ -203,3 +203,21 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Why:** a removed device leaves nothing to track; the loop already closed such tickets, so the
   LLM guard and the loop disagreed.
 - **Source:** internal consistency; no external research.
+
+### 2026-11-11 · Live smoke test concurrency (Gemini free tier)
+- **Choice:** concurrency 1 (strictly sequential calls) for live runs, relying on the runner's own
+  429/503 backoff (5 retries, 1 s base, 30 s cap, jitter). Harness: `eval/live_fixture_run.py`.
+- **Why:** the official rate-limits page no longer lists free-tier RPM/TPM/RPD per model; it says
+  limits apply **per project** (not per key), RPD resets at midnight Pacific, and the active
+  limits are shown in AI Studio. Without a verified RPM, sequential is the only safe choice.
+  Observed: even sequential, 17 of 69 live calls hit 429 or 503 once or more (all recovered),
+  so parallel calls would hit the limit harder.
+- **Alternatives:** 2-4 worker threads (faster, but unverified limits and more 429s); the Batch
+  API (the page lists Gemini 3.5 Flash-Lite batch quotas only for Tier 1-3, not free tier).
+- **Source:** https://ai.google.dev/gemini-api/docs/rate-limits (301 → https://aistudio.google.com/docs/rate-limits), read 2026-11-11.
+- **Not verified:** the actual free-tier RPM/RPD for `gemini-3.5-flash-lite`; check AI Studio's
+  rate-limit page for this project before the 60 x 3 run.
+- **Result (fixture, 8 devices):** 0 schema-validation failures, 0 HTTP 400s, so no schema
+  changes were needed. Lanes 5/8 correct; lane agreement over 3 repeats 8/8. The 3 misses
+  (DEV-001/002/007, truth patch → unknown) follow checker.md rule 4.5: the fixture has no
+  lifecycle row (so no `fixed_version`) for Fortinet or Ivanti.
