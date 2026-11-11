@@ -86,6 +86,49 @@ def compare_versions(a: str | None, b: str | None) -> int | None:
     return (pa > pb) - (pa < pb)
 
 
+_LEADING = re.compile(r"[vV]?([0-9]+(?:\.[0-9]+)*)")
+
+
+def _leading_numbers(s: str | None) -> tuple[int, ...]:
+    """Leading dot-separated integers, untrimmed: '11.1.4-h13' -> (11, 1, 4); 'R81.20' -> ()."""
+    m = _LEADING.match((s or "").strip())
+    return tuple(int(x) for x in m.group(1).split(".")) if m else ()
+
+
+def _shared_prefix(a: tuple[int, ...], b: tuple[int, ...]) -> int:
+    n = 0
+    for x, y in zip(a, b):
+        if x != y:
+            break
+        n += 1
+    return n
+
+
+def select_train_fixes(fixed: str | None, firmware: str | None) -> tuple[list[str], str | None]:
+    """Pick the fixed_version entries that apply to this firmware (contracts v1.2).
+
+    fixed_version may hold one value per release train, separated by ';'.
+    - One entry: returned as is (no train check; the lifecycle row's pattern scopes it).
+    - Several: the firmware must parse; the entries sharing the longest leading numeric prefix
+      with it (at least major.minor) are its train. Never compares across trains.
+    Returns (entries, None), or ([], reason) when the device must go to unknown.
+    """
+    entries = [e.strip() for e in (fixed or "").split(";") if e.strip()]
+    if len(entries) <= 1:
+        return entries, None
+    if parse_version(firmware) is None:
+        return [], (f"firmware {firmware!r} does not parse, so its release train among "
+                    f"fixed versions {';'.join(entries)} can't be identified")
+    fw = _leading_numbers(firmware)
+    shared = {e: _shared_prefix(fw, _leading_numbers(e)) for e in entries}
+    best = max(shared.values())
+    if best < 2:
+        train = ".".join(str(x) for x in fw[:2])
+        return [], (f"no fixed version listed for release train {train} "
+                    f"(listed: {';'.join(entries)})")
+    return [e for e in entries if shared[e] == best], None
+
+
 def _same(a: str | None, b: str | None) -> bool:
     return bool(a) and (a or "").strip().casefold() == (b or "").strip().casefold()
 
@@ -109,6 +152,8 @@ def guard_version(out: CheckerOutput, device: dict, kev_candidates: list[dict],
     Applies only when the Checker said patch or fine (retire and unknown are left alone).
     The firmware is the inventory's firmware_version_raw (the Normalizer's version if blank).
     - fixed_version blank: unknown, "fixed version not documented".
+    - fixed_version with several ';' entries: only the entry on the firmware's release train is
+      used (select_train_fixes); no entry on that train, or unparseable firmware: unknown.
     - either version doesn't parse: unknown.
     - both parse: firmware < fixed -> patch, else fine; a contradicting lane is overridden.
     """
@@ -135,11 +180,18 @@ def guard_version(out: CheckerOutput, device: dict, kev_candidates: list[dict],
 
     if not fixed:
         return unknown("fixed version not documented")
-    cmp = compare_versions(firmware, fixed)
-    if cmp is None:
-        bad = [f"{k} {v!r}" for k, v in (("firmware", firmware), ("fixed_version", fixed))
-               if parse_version(v) is None]
+    train, why = select_train_fixes(fixed, firmware)
+    if why:
+        return unknown(why)
+    bad = [f"{k} {v!r}" for k, v in [("firmware", firmware)] + [("fixed_version", f) for f in train]
+           if parse_version(v) is None]
+    if bad:
         return unknown("version could not be compared: " + ", ".join(bad) + " does not parse")
+    below = {compare_versions(firmware, f) < 0 for f in train}
+    fixed = ";".join(train)
+    if len(below) > 1:  # several fixes on the same train and the firmware sits between them
+        return unknown(f"firmware {firmware} is between fixed versions {fixed} on its release train")
+    cmp = -1 if below == {True} else 1
     expected = "patch" if cmp < 0 else "fine"
     if out.lane == expected:
         return out, []

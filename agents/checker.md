@@ -19,6 +19,8 @@ One JSON object with:
   `vendor`, `product`, `model_pattern`, `eol_date`, `last_security_support_date`,
   `patch_available`, `replacement_hint`, `source_url`, `notes`, `fixed_version`).
   `fixed_version` is the first fixed version from the vendor advisory, or empty if unknown.
+  When the vendor fixed several release trains it holds one value per train, separated by
+  ";" (for example "7.24.3;7.23.6").
   The rows come most specific first.
 
 ## Candidate lookup
@@ -53,6 +55,14 @@ a matching `kev_products.csv` row, read that cveID's row in `kev_entries.csv`.
       the device's firmware with it, number by number. Below `fixed_version`: "patch". At or
       above it: "fine". If either version is not plain dot-separated numbers (for example
       "7.0.12 build 523"), you cannot compare them: "unknown".
+      If `fixed_version` holds several values separated by ";", each is the fix for one release
+      train. Use only the value on the device's own train: the one whose leading numbers match
+      the firmware's for the most places, and at least the first two (major.minor). Example:
+      "7.24.3;7.23.6" with firmware 7.24.1 → compare with 7.24.3 only → "patch", even though
+      7.24.1 is above 7.23.6. Never compare with a fix from another train. If no value shares
+      the firmware's major.minor (firmware 7.22.4 here), or the firmware is not plain numbers,
+      or two values tie and the firmware lies between them: "unknown", and say which in
+      `reason`.
    5. A matching KEV entry exists but `fixed_version` is empty: "unknown", with the reason
       "fixed version not documented". Never "fine" in this case.
    6. Otherwise: "fine".

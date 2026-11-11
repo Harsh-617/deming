@@ -4,6 +4,7 @@
 - [feat/feeds](decisions/feeds.md): KEV fetcher, lifecycle.csv sourcing
 - [feat/eval](decisions/feat-eval.md): baseline, metrics, report, Sheet template
 - [feat/agents](decisions/feat-agents.md): subagent prompts, schemas, runner, Agent Designer port
+- [feat/inventory](decisions/feat-inventory.md): 60-device inventory, ground truth, fixed_version sources
 
 One short entry per decision: choice, alternatives, source, and what couldn't be verified.
 
@@ -134,3 +135,22 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
   numbers) to `unknown`; `fixed_version` is blank in every `data/lifecycle.csv` row today, so
   every KEV-listed device with a lifecycle row currently goes to `unknown` ("fixed version not
   documented") until humans fill that column.
+
+### 2026-11-11 · fixed_version per release train (contracts v1.2)
+- **Choice:** `fixed_version` may list one fix per train (`7.24.3;7.23.6`). The version guard
+  (`sim/guards.py::select_train_fixes`) compares the firmware only with the entry sharing the
+  longest leading numeric prefix with it, at least major.minor, compared as numbers (`7.2` is
+  not on train `7.23`). No entry on the train, unparseable firmware, or firmware between two tied
+  entries → `unknown`. A single value is compared as before. Same rule in `tests/test_inventory.py`
+  (its old fallback compared against all entries across trains).
+- **Why:** vendor advisories list fixes per train (MikroTik stable/long-term, Cisco ASA
+  9.20/9.22/9.23, PAN-OS 11.1.x hotfix lines). The lowest fix on another train makes a vulnerable
+  device look fixed (RouterOS 7.24.1 > 7.23.6, but its own fix is 7.24.3).
+- **Alternatives:** compare against the minimum (cross-train, wrong); against the maximum (marks
+  fixed long-term devices as patch); one lifecycle row per train (more rows, same result; possible later).
+- **Source:** https://mikrotik.com/supportsec/september-2026-vulnerability ·
+  https://sec.cloudapps.cisco.com/security/center/resources/asa_ftd_continued_attacks (row source_urls).
+  No new research; rule set by the user.
+- **Limits:** PAN-OS hotfix strings (`11.1.4-h13`) are outside the strict version grammar, so every
+  PAN-OS device with a KEV match still goes to `unknown`. Single-value rows are not train-checked
+  (LC-029 WatchGuard `12.11.4` vs model-specific 12.5.x builds).

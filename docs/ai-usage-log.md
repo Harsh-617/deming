@@ -4,6 +4,7 @@
 - [feat/feeds](ai-usage/feat-feeds.md)
 - [feat/eval](ai-usage/feat-eval.md)
 - [feat/agents](ai-usage/feat-agents.md)
+- [feat/inventory](ai-usage/feat-inventory.md)
 
 | Date | Tool | What for |
 |---|---|---|
@@ -15,3 +16,4 @@
 | 2026-11-11 | Claude Code (Claude Opus 5.5) | Added `jsonschema` to requirements.txt (commit 74d7fb3) and checked its Python requirement and `pip check` from the installed package metadata. |
 | 2026-11-11 | Claude Code (Claude Opus 5.5) | Merged feat/feeds, feat/eval and feat/agents into main; added `openpyxl` to requirements; indexed the branch logs; amended docs/contracts.md to v1.1 (lifecycle `fixed_version` column, `ground_truth_meta.json`); added the platform findings to the PRD. |
 | 2026-11-11 | Claude Code (Claude Opus 5.5) | Fix task: urgency wording, most-specific model_pattern retrieval, fixed_version/as_of_date Checker rules, deterministic version guard + tests, --as-of CLIs |
+| 2026-11-11 | Claude Code (Claude Opus 5.5) | Merged feat/inventory; contracts v1.2 (per-train fixed_version, example.org, urgency note); per-train version guard fix + tests on real rows; checker prompt + guide sync; offline baseline run. |

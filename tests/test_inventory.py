@@ -158,13 +158,21 @@ def _vkey(v: str) -> tuple:
 
 
 def _train_fixes(fixed: str, version: str) -> list[str]:
-    """Fixed versions on the closest train: same first three numeric parts (PAN-OS 11.1.4 line),
-    else same first two (ASA 9.20, RouterOS 7.24). Empty if none share a train."""
-    for n in (3, 2):
-        same = [f for f in fixed.split(";") if _vkey(f)[:n] == _vkey(version)[:n]]
-        if same:
-            return same
-    return []
+    """Fixed versions on the version's release train (contracts v1.2): one entry is used as is;
+    with several ';' entries, those sharing the longest leading numeric prefix with the version,
+    at least major.minor. Empty if none share a train. Never falls back across trains."""
+    entries = [f for f in fixed.split(";") if f]
+    if len(entries) <= 1:
+        return entries
+    def shared(f):
+        n = 0
+        for a, b in zip(_vkey(f), _vkey(version)):
+            if a != b:
+                break
+            n += 1
+        return n
+    best = max(shared(f) for f in entries)
+    return [f for f in entries if shared(f) == best] if best >= 2 else []
 
 
 def test_clear_patch_below_fixed_version(gt, lifecycle):
@@ -174,7 +182,8 @@ def test_clear_patch_below_fixed_version(gt, lifecycle):
         lc = lifecycle[r["evidence_lifecycle_id"]]
         assert lc["fixed_version"], f"{r['device_id']}: clear_patch needs a documented fixed_version"
         assert fnmatch.fnmatch(r["version"].lower(), lc["model_pattern"].lower()), r["device_id"]
-        fixes = _train_fixes(lc["fixed_version"], r["version"]) or lc["fixed_version"].split(";")
+        fixes = _train_fixes(lc["fixed_version"], r["version"])
+        assert fixes, f"{r['device_id']}: no fixed version on the train of {r['version']}"
         assert _vkey(r["version"]) < min(_vkey(f) for f in fixes), f"{r['device_id']}: not below {fixes}"
 
 
@@ -189,7 +198,8 @@ def test_supported_fine_at_or_above_fixed_version(gt, lifecycle):
         lc = next(l for l in lifecycle.values()
                   if l["fixed_version"] and l["vendor"] == r["vendor"]
                   and fnmatch.fnmatch(r["version"].lower(), l["model_pattern"].lower()))
-        fixes = _train_fixes(lc["fixed_version"], r["version"]) or lc["fixed_version"].split(";")
+        fixes = _train_fixes(lc["fixed_version"], r["version"])
+        assert fixes, f"{r['device_id']}: no fixed version on the train of {r['version']}"
         assert _vkey(r["version"]) >= max(_vkey(f) for f in fixes), r["device_id"]
 
 
