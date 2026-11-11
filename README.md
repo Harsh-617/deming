@@ -64,7 +64,8 @@ as data, never as instructions (the test inventory contains an injection string 
   one open ticket per device and issue, ticket closes only on the fixed version or removal.
 - The closed loop (`sim/loop.py`) keeps state in CSV files that stand in for the Sheet tabs
   (Inventory, Decision Log, Settings, Tickets) plus a proposals file that stands in for the
-  approval Inbox. Outward actions are written to `outbox/` as JSON records. **Nothing is sent**:
+  approval Inbox. Outward actions are written as JSON records to an `outbox/` folder inside the
+  state folder (`sim/state/outbox/` or `sim/demo_state/outbox/`). **Nothing is sent**:
   no email, calendar invite or ticket leaves the machine.
 - A rule-based mock model (`sim/mock_llm.py`) lets the loop and demo run with no API key. It is
   not an evaluation of the prompts.
@@ -88,16 +89,44 @@ as data, never as instructions (the test inventory contains an injection string 
 Every command below was run on this branch on 2026-11-11 unless marked otherwise
 (`docs/decisions/feat-docs.md`).
 
+**Requirements**
+
+- **Python 3.11.** Tested on 3.11.7 only (Windows 11). Other versions weren't tried.
+- **git**, to clone the repo and for the commit hooks below. **gh** (GitHub CLI) only if you
+  want to open pull requests from the command line.
+- No API key for anything except the full run at the end of this section.
+
 **Install**
 
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -r requirements.txt
+python -m pip install -r requirements-lock.txt
 git config core.hooksPath "$(git rev-parse --show-toplevel)/scripts/githooks"   # blocks committing .env or Google keys
 ```
 
-**Tests** (no key needed): `python -m pytest -q` → 396 passed.
+- If `Activate.ps1` fails with "running scripts is disabled on this system", allow local scripts
+  for your user once: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, or for this window
+  only: `Set-ExecutionPolicy -Scope Process Bypass`. Then activate again.
+- pip may print a red or yellow "A new release of pip is available" notice. It is harmless;
+  the install still succeeded.
+- `requirements-lock.txt` pins every package to the version the tests pass with.
+  `requirements.txt` lists only the direct dependencies, unpinned. `requirements-dev.txt` adds
+  the optional `formulas` package (offline check of the Sheet formulas); you don't need it.
+
+**Safety hooks.** Two hooks run the same scanner, `scripts/block_secrets.py`:
+1. The git hooks in `scripts/githooks` (pre-commit and pre-merge-commit; enabled by the
+   `git config` line above) block a commit whose staged files include a file named `.env` or a
+   Google API key pattern (`AIza...` / `AQ....`).
+2. A Claude Code `PreToolUse` hook in `.claude/settings.json` runs before every Bash or
+   PowerShell command Claude Code issues. On commands containing `git commit` it blocks the
+   command if its text holds a key pattern or runs `git add` on `.env`, or if staged, unstaged or
+   untracked files would add a `.env` file or a key pattern. It does nothing outside Claude Code.
+
+Don't bypass either one with `--no-verify`.
+
+**Tests** (no key needed): `python -m pytest -q`. All tests should pass (one is skipped unless the
+optional `formulas` package from `requirements-dev.txt` is installed).
 
 **Offline baseline and scoring** (no key needed):
 
@@ -107,13 +136,29 @@ python eval/run_eval.py --inventory data/inventory.csv --pred `
   eval/runs/baseline-20261111T075945Z/baseline.csv `
   eval/runs/deming-20261111T075938Z/deming.csv `
   eval/runs/deming-20261111T081026Z/deming.csv
-# → eval/results/<UTC>/report.md and failures.csv (scores the published runs; Deming = repeat 0)
+# → eval/results/<UTC>/report.md and failures.csv
 ```
 
-The per-repeat, per-group and post-hoc tables come from `eval/offline_analysis.py`. It replays
-model responses from the local response cache and refuses to call the API. **The cache is not in
-the repo** (`.cache/` is gitignored), so from a fresh clone it stops with `cache miss`; its
-published output is in `eval/results/20261111T141730Z/offline_analysis.md`.
+**This `run_eval.py` command scores the published files**, including the published baseline
+`baseline-20261111T075945Z`, not the baseline you just generated. It reproduces the published
+report `eval/results/20261111T141730Z/report.md` (Deming primary metrics = repeat 0). To score
+your own baseline, replace the first `--pred` path with the path `baseline.py` printed; the
+baseline is deterministic, so the numbers should match. Running `run_eval.py` with no `--pred`
+scores every CSV under `eval/runs/`; if you generated a baseline, there are then two baseline
+runs and the earlier (published) one is the primary.
+
+**What a fresh clone cannot reproduce.** The model's responses for the published run are in a
+local response cache (`.cache/`, gitignored), which is not in the repo. Without it:
+- `eval/offline_analysis.py` stops with `cache miss` (it never calls the API). So the
+  **repeat 1 column** of the evaluation table below (strict product match, exposure precision
+  and recall), the per-group tables per repeat, the three-repeat stability footnote and the
+  **post-hoc alias numbers** (0.30 / 0.90 / 0.95) can't be regenerated from a clone.
+  Published output: `eval/results/20261111T141730Z/offline_analysis.md` and `.json`.
+- Repeat 1's lane accuracy (0.88), all-three match (0.52) and unknown rate (0.17) are
+  reproducible: they are in the per-run table of the `run_eval.py` report above.
+- A new `eval/full_run.py` with a key makes new model calls, so its numbers can differ from the
+  published run (the model isn't deterministic across calls, and google-genai in the lock file
+  is 3.0.0, while the published run used 2.4.0; `docs/prompts-freeze.md`).
 
 **Demo scenario** (no key needed; the mock model is the default):
 
@@ -125,6 +170,7 @@ Run 1 assigns patch / retire / unknown / patch / fine, a scripted approver appro
 outbox gets email, ticket and calendar records. Between runs the inventory is edited. Run 2
 closes the patched and removed devices' tickets, escalates DEV-104 (changed to 7.0.12, still
 below the fix 7.0.14: a change is not a fix) and leaves the unknown device's ticket open.
+Outward actions are written as JSON to `sim/demo_state/outbox/` (created on the first run).
 `python -m sim.demo_scenario --gemini` uses the real API instead (not run for this README).
 
 Step by step, with your own approvals:
@@ -136,7 +182,8 @@ python -m sim.loop approve P-001-DEV-004 --approver approver@example.org
 python -m sim.loop metrics
 ```
 
-(State goes to `sim/state/`. The rule-based mock sends most fixture devices to `unknown`; it is a
+(State goes to `sim/state/`, created on the first run; approved actions land in
+`sim/state/outbox/`. Both state folders are gitignored. The rule-based mock sends most fixture devices to `unknown`; it is a
 loop demo, not a model.)
 
 **Full run with a key** (not run for this README):

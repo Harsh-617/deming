@@ -15,8 +15,8 @@ import sys
 from pathlib import Path
 
 from io_utils import GROUND_TRUTH_COLUMNS, INVENTORY_COLUMNS, PREDICTION_COLUMNS, ContractError, read_csv, utc_stamp
-from metrics import index_predictions
-from report import build_report
+from metrics import index_predictions, is_verified
+from report import DEFAULT_LABEL_STATUS, build_report
 
 REPO = Path(__file__).resolve().parent.parent
 GT_META = REPO / "data/ground_truth_meta.json"
@@ -28,6 +28,15 @@ def load_as_of_date(override: str | None = None, path: Path = GT_META) -> str:
     import json
     value = override or json.loads(path.read_text(encoding="utf-8"))["as_of_date"]
     return dt.date.fromisoformat(value).isoformat()
+
+
+def load_label_status(path: Path = GT_META) -> str:
+    """How the labels were made (`label_status` in ground_truth_meta.json). A missing field is
+    read as the conservative `ai_drafted_unverified`, never as human-verified."""
+    import json
+    return json.loads(path.read_text(encoding="utf-8")).get("label_status", DEFAULT_LABEL_STATUS)
+
+
 FIXTURE = REPO / "eval/fixtures"
 
 
@@ -69,6 +78,7 @@ def main(argv: list[str] | None = None) -> Path:
                    help="YYYY-MM-DD the truth is labelled against; default: data/ground_truth_meta.json")
     args = p.parse_args(argv)
     as_of = load_as_of_date(args.as_of)
+    label_status = load_label_status()
 
     base = FIXTURE if args.fixture else REPO / "data"
     gt_path = args.ground_truth or base / "ground_truth.csv"
@@ -87,12 +97,15 @@ def main(argv: list[str] | None = None) -> Path:
     ids = [t["device_id"] for t in truth]
     if len(ids) != len(set(ids)):
         raise ContractError(f"{gt_path}: duplicate device_id")
+    if label_status == "human_verified" and not all(is_verified(t) for t in truth):
+        raise ContractError(f"{_show(GT_META)} says human_verified but {gt_path} has rows without two "
+                            "different reviewers")
     inventory = {r["device_id"]: r for r in read_csv(inv_path, INVENTORY_COLUMNS)} if inv_path.exists() else {}
 
     systems = load_runs(pred_paths, set(ids))
     out_dir = args.out_root / utc_stamp()
     res = build_report(truth_rows=truth, systems=systems, inventory=inventory, out_dir=out_dir,
-                       sources={"ground truth": _show(gt_path), "inventory": _show(inv_path),
+                       label_status=label_status, sources={"ground truth": _show(gt_path), "inventory": _show(inv_path),
                                 "as_of_date": as_of + (" (--as-of override)" if args.as_of else
                                                        f" ({_show(GT_META)})")})
     for name in systems:

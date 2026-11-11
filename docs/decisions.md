@@ -350,3 +350,36 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Source:** https://github.com/gitleaks/gitleaks (README, `git` scan mode).
 - **Not verified:** a regex scan can miss secrets with no recognisable shape; gitleaks itself
   was not run.
+
+### 2026-11-11 · Fresh-clone fixes: label wording from data, pinned installs, README reproducibility
+- **Choice (report wording):** `data/ground_truth_meta.json` gets `label_status`
+  (`ai_drafted_unverified` now). `eval/report.py` builds its caveat sentence from that value
+  instead of a hardcoded string, so the report can't say more than the data does;
+  `eval/run_eval.py` refuses `human_verified` unless every truth row has two different
+  reviewers. `eval/test_report_wording.py` fails if a fresh report, its failures.csv, or any
+  git-tracked `eval/results/*/report.md` claims human labelling while the meta says unverified.
+  The failure explanations also said "a human labelled"; reworded to "labelled".
+- **Regenerated report:** same command and inputs as the published one, written to a scratch
+  folder, diffed (only the caveat line and explanation wording changed; every number equal),
+  then copied over `eval/results/20261111T141730Z/` so existing doc links stay valid.
+  The `prompts-v1` sha256 of the meta file in `docs/prompts-freeze.md` is the tagged version;
+  `as_of_date` is unchanged, so no result changes.
+- **Choice (README numbers):** no test count in the README (it drifted: 396 at freeze, 458 now).
+  Published figures point at the files they come from; the README says which ones need the
+  gitignored response cache (repeat 1 column, per-group per-repeat tables, three-repeat footnote,
+  post-hoc alias view) and states that the `run_eval.py` example scores the published baseline.
+  Alternatives: a test asserting README numbers equal the published report (rejected for now:
+  the README table mixes run_eval and offline_analysis outputs; more parsing than the deadline allows).
+- **Choice (pins):** keep `requirements.txt` as the unpinned direct-dependency list and add
+  `requirements-lock.txt` = `pip freeze` of the venv the suite passes in (Python 3.11.7,
+  Windows 11); README installs from the lock. `requirements-dev.txt` = lock + `formulas==1.3.4`
+  (optional; 1.3.4 was the latest release on PyPI today and was not installed in the tested
+  venv). Alternatives: pinning in place in `requirements.txt` (loses the direct-vs-transitive
+  split); pip-tools / uv lock files (another tool to install for a 2-day deadline).
+  Note: the lock has google-genai 3.0.0; the published run used 2.4.0 (`docs/prompts-freeze.md`).
+- **Source:** https://pip.pypa.io/en/stable/topics/repeatable-installs/ (pip freeze for
+  repeatable installs); https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_execution_policies
+  (CurrentUser RemoteSigned / Process Bypass). Both URLs cited from prior knowledge, not
+  re-opened this session.
+- **Not verified:** the lock file installing on Linux/macOS or another Python version (colorama
+  is a Windows-only pytest dependency but installs anywhere).
