@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deming blind labelling</title>
+<style>
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --ink:#1b1f24; --muted:#5b6470; --line:#d9dde3;
+  --accent:#1f5fbf; --accent-ink:#ffffff; --ok:#1d7a46; --ok-bg:#e3f4ea; --warn:#8a5a00;
+  --warn-bg:#fff3d6; --bad:#b42318; --bad-bg:#fde8e7; --chip:#eef1f5; --focus:#7aa7ff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111418; --panel:#1a1f25; --ink:#e7eaee; --muted:#9aa4b1; --line:#2d343d;
+    --accent:#6ea2ff; --accent-ink:#0b1220; --ok:#6fd39b; --ok-bg:#163525; --warn:#f2c46b;
+    --warn-bg:#3a2e12; --bad:#ff8a80; --bad-bg:#3d1b1a; --chip:#242b33; --focus:#6ea2ff;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111418; --panel:#1a1f25; --ink:#e7eaee; --muted:#9aa4b1; --line:#2d343d;
+  --accent:#6ea2ff; --accent-ink:#0b1220; --ok:#6fd39b; --ok-bg:#163525; --warn:#f2c46b;
+  --warn-bg:#3a2e12; --bad:#ff8a80; --bad-bg:#3d1b1a; --chip:#242b33; --focus:#6ea2ff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:0 0 4px} h2{font-size:15px;margin:0 0 8px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.04em}
+.sub{color:var(--muted);margin:0 0 12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin:0 0 12px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar .grow{flex:1 1 200px}
+label.field{display:block;font-weight:600;margin:0 0 4px}
+input[type=text],input[type=url],textarea,select{width:100%;padding:8px 10px;border:1px solid var(--line);
+  border-radius:8px;background:var(--panel);color:var(--ink);font:inherit}
+textarea{min-height:80px;resize:vertical}
+input:focus,textarea:focus,select:focus,button:focus{outline:2px solid var(--focus);outline-offset:1px}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--line);
+  background:var(--chip);color:var(--ink);cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+button:disabled{opacity:.5;cursor:default}
+.progress{height:10px;background:var(--chip);border-radius:6px;overflow:hidden;margin:6px 0 2px}
+.progress>div{height:100%;background:var(--accent);width:0}
+.muted{color:var(--muted)} .small{font-size:13px}
+.err{color:var(--bad);font-weight:600;min-height:1.2em;margin:4px 0 0}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--chip);font-size:13px;margin:0 4px 4px 0}
+.chip.ok{background:var(--ok-bg);color:var(--ok)} .chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.bad{background:var(--bad-bg);color:var(--bad)}
+.lane{display:inline-block;font-weight:700;padding:2px 12px;border-radius:999px;background:var(--chip)}
+dl.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;margin:0}
+dl.kv dt{color:var(--muted)} dl.kv dd{margin:0;overflow-wrap:anywhere}
+.raw{font-family:ui-monospace,Consolas,monospace;background:var(--chip);padding:6px 8px;border-radius:6px;
+  overflow-wrap:anywhere;white-space:pre-wrap}
+ul.plain{margin:0;padding-left:18px} ul.plain li{margin:0 0 6px;overflow-wrap:anywhere}
+a{color:var(--accent)}
+.choices{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.choices label{display:flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid var(--line);
+  border-radius:8px;cursor:pointer;background:var(--panel)}
+.choices input{margin:0}
+.choices label.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.nav{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.nav select{width:auto;flex:1 1 220px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:640px){.grid2{grid-template-columns:1fr} dl.kv{grid-template-columns:1fr} dl.kv dt{margin-top:6px}}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h1>Deming blind labelling</h1>
+  <p class="sub">Label each device yourself from its name and firmware. All devices are synthetic.
+  Do this <b>before</b> you open the label review page, and don't look at any answers while you work.</p>
+
+  <div class="panel">
+    <label class="field" for="reviewer">Your initials (required before export)</label>
+    <input type="text" id="reviewer" autocomplete="off" placeholder="e.g. AB" maxlength="40">
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+    <div class="small muted" id="progress" role="status"></div>
+    <div class="small muted" id="saved"></div>
+  </div>
+
+  <div id="card"></div>
+
+  <div class="panel">
+    <div class="nav">
+      <button id="prev">&larr; Previous</button>
+      <button id="next">Next &rarr;</button>
+      <button id="nextopen">Next unfinished</button>
+      <select id="jump" aria-label="Jump to device"></select>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Lanes</h2>
+    <ul class="plain small">
+      <li><b>patch</b>: the product is supported, it has a known exploited vulnerability (CISA KEV) at this version, and the vendor has a fix.</li>
+      <li><b>retire</b>: the vendor no longer supports it (past end of life or end of security support), even if it is also in KEV.</li>
+      <li><b>fine</b>: supported, and no known exploited vulnerability at this version.</li>
+      <li><b>unknown</b>: you can't tell what it is, or can't decide from the name and firmware. Never guess.</li>
+    </ul>
+    <p class="small muted">Use public sources only: the vendor's own security advisory or end-of-life page,
+    and the <a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener noreferrer">CISA KEV catalog</a>.
+    Judge support dates as of 2026-11-12.</p>
+  </div>
+
+  <div class="panel">
+    <h2>Finish</h2>
+    <div class="bar">
+      <button class="primary" id="export">Export CSV</button>
+      <label class="small"><input type="file" id="import" accept=".csv,text/csv" class="hidden">
+        <button type="button" id="importbtn">Resume from an exported CSV</button></label>
+    </div>
+    <p class="err" id="err" role="alert"></p>
+  </div>
+</div>
+
+<script type="application/json" id="data">{"export_header": ["blind_id", "device_name_raw", "firmware_version_raw", "labeller", "vendor", "product", "version", "lane", "comment", "source_url_used"], "key": "deming-blind:efe66dddaf5b", "lanes": ["patch", "retire", "fine", "unknown"], "rows": [{"blind_id": "B01", "device_name_raw": "Ivanti Connect Secure VPN (old appliance)", "firmware_version_raw": "9.1R18"}, {"blind_id": "B02", "device_name_raw": "Edimax IC-7100 IP camera (server room)", "firmware_version_raw": ""}, {"blind_id": "B03", "device_name_raw": "Cisco RV320 Dual WAN VPN router", "firmware_version_raw": "1.4.2.22"}, {"blind_id": "B04", "device_name_raw": "D-Link DIR-820L wireless router", "firmware_version_raw": "1.05B03"}, {"blind_id": "B05", "device_name_raw": "Palo Alto firewall - HQ internet edge", "firmware_version_raw": "11.1.16-h3"}, {"blind_id": "B06", "device_name_raw": "MikroTik router hostel A", "firmware_version_raw": "7.24.3"}, {"blind_id": "B07", "device_name_raw": "WatchGuard Firebox T35 (sports complex)", "firmware_version_raw": "12.5.15"}, {"blind_id": "B08", "device_name_raw": "wtchgrd firebox T35", "firmware_version_raw": "12.5.9"}, {"blind_id": "B09", "device_name_raw": "ivanti ICS remote access appliance", "firmware_version_raw": "22.7R2.4"}, {"blind_id": "B10", "device_name_raw": "MikroTik router - library", "firmware_version_raw": "7.23.6"}, {"blind_id": "B11", "device_name_raw": "Watchguard Firebox (admin office)", "firmware_version_raw": "12.9.2"}, {"blind_id": "B12", "device_name_raw": "D-Link DIR-600 router", "firmware_version_raw": "2.18"}, {"blind_id": "B13", "device_name_raw": "Zyxel USG60 firewall", "firmware_version_raw": "4.73"}, {"blind_id": "B14", "device_name_raw": "MikroTik router - hostel block C", "firmware_version_raw": "7.24.1"}, {"blind_id": "B15", "device_name_raw": "Cisco ASA 5506-X (exam system firewall)", "firmware_version_raw": "9.16.4.19"}]}</script>
+<script id="core">
+function csvCell(v){ v = (v === null || v === undefined) ? '' : String(v);
+  return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function toCsv(header, rows){
+  var lines = [header.map(csvCell).join(',')];
+  rows.forEach(function(r){ lines.push(header.map(function(h){ return csvCell(r[h]); }).join(',')); });
+  return lines.join('\r\n') + '\r\n'; }
+function parseCsv(text){
+  var rows = [], row = [], cell = '', q = false, i = 0, c;
+  text = String(text).replace(/^\uFEFF/, '');
+  for (; i < text.length; i++){
+    c = text[i];
+    if (q){ if (c === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === ','){ row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r'){ if (c === '\r' && text[i+1] === '\n') i++;
+      row.push(cell); rows.push(row); row = []; cell = ''; }
+    else cell += c; }
+  if (cell !== '' || row.length){ row.push(cell); rows.push(row); }
+  return rows; }
+function csvObjects(text){
+  var rows = parseCsv(text); if (!rows.length) return [];
+  var h = rows[0];
+  return rows.slice(1).filter(function(r){ return r.length > 1 || r[0] !== ''; }).map(function(r){
+    var o = {}; h.forEach(function(k, i){ o[k] = r[i] === undefined ? '' : r[i]; }); return o; }); }
+function validReviewer(s){ return /^[A-Za-z][A-Za-z .'\-]{0,39}$/.test(String(s || '').trim()); }
+function safeUrl(u){ try { var x = new URL(u); return x.protocol === 'https:' ? x.href : null; } catch(e){ return null; } }
+function fileStamp(){ var d = new Date(); function p(n){ return (n < 10 ? '0' : '') + n; }
+  return d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes()); }
+function slug(s){ return String(s || '').trim().replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'reviewer'; }
+if (typeof module !== 'undefined') module.exports = {csvCell:csvCell, toCsv:toCsv, parseCsv:parseCsv,
+  csvObjects:csvObjects, validReviewer:validReviewer, safeUrl:safeUrl, slug:slug};
+</script>
+<script>
+function storageGet(key){ try { return JSON.parse(window.localStorage.getItem(key) || 'null'); } catch(e){ return null; } }
+function storageSet(key, val){ try { window.localStorage.setItem(key, JSON.stringify(val)); return true; } catch(e){ return false; } }
+function download(name, text){
+  var blob = new Blob([text], {type: 'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000); }
+function el(tag, attrs){
+  var n = document.createElement(tag), k;
+  for (k in (attrs || {})){
+    if (k === 'text') n.textContent = attrs[k];
+    else if (k === 'cls') n.className = attrs[k];
+    else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), attrs[k]);
+    else n.setAttribute(k, attrs[k]); }
+  for (var i = 2; i < arguments.length; i++){
+    var c = arguments[i]; if (c === null || c === undefined || c === false) continue;
+    n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); }
+  return n; }
+function link(url, text){
+  var u = safeUrl(url);
+  return u ? el('a', {href: u, target: '_blank', rel: 'noopener noreferrer', text: text || url})
+           : el('span', {text: (text || url) + ' (not an https link)'}); }
+function kv(pairs){
+  var dl = el('dl', {cls: 'kv'});
+  pairs.forEach(function(p){ if (p) { dl.appendChild(el('dt', {text: p[0]}));
+    var v = p[1]; dl.appendChild(el('dd', null, (v === '' || v === null || v === undefined) ? el('span', {cls: 'muted', text: '(blank)'}) : v)); } });
+  return dl; }
+function typing(e){ var t = e.target && e.target.tagName; return t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT'; }
+</script>
+<script>
+(function(){
+var D = JSON.parse(document.getElementById('data').textContent);
+var FIELDS = ['vendor', 'product', 'version', 'lane', 'source_url_used', 'comment'];
+var byId = {}; D.rows.forEach(function(r){ byId[r.blind_id] = r; });
+var ids = D.rows.map(function(r){ return r.blind_id; });
+var S = storageGet(D.key) || {reviewer: '', answers: {}, current: null};
+var $ = function(id){ return document.getElementById(id); };
+$('reviewer').value = S.reviewer || '';
+
+function ans(id){ return S.answers[id] || (S.answers[id] = {vendor: '', product: '', version: '', lane: '', source_url_used: '', comment: ''}); }
+function done(id){ var a = S.answers[id]; return !!(a && a.lane); }
+function save(){ var ok = storageSet(D.key, S);
+  $('saved').textContent = ok ? 'Progress saved in this browser.' :
+    'This browser does not allow saving here. Export regularly and use "Resume from an exported CSV".'; }
+
+function field(id, labelText, value, onInput, type, hint){
+  var input = el('input', {type: type || 'text', id: id, autocomplete: 'off'});
+  input.value = value || ''; input.addEventListener('input', function(){ onInput(input.value); });
+  return el('div', null, el('label', {cls: 'field', 'for': id, text: labelText}), input,
+            hint ? el('div', {cls: 'small muted', text: hint}) : null); }
+
+function render(){
+  if (ids.indexOf(S.current) < 0) S.current = ids[0];
+  var r = byId[S.current], a = ans(S.current), pos = ids.indexOf(S.current);
+  var set = function(k){ return function(v){ a[k] = v; save(); updateProgress(); refreshJump(); }; };
+  var lane = el('select', {id: 'lane'});
+  lane.appendChild(el('option', {value: '', text: '— choose a lane —'}));
+  D.lanes.forEach(function(l){ var o = el('option', {value: l, text: l}); if (a.lane === l) o.selected = true; lane.appendChild(o); });
+  lane.addEventListener('change', function(){ set('lane')(lane.value); });
+  var notes = el('textarea', {id: 'comment', placeholder: 'How you decided, what you were unsure about.'});
+  notes.value = a.comment || ''; notes.addEventListener('input', function(){ set('comment')(notes.value); });
+  $('card').replaceChildren(
+    el('div', {cls: 'panel'},
+      el('h1', {text: r.blind_id}), el('div', {cls: 'small muted', text: 'Device ' + (pos + 1) + ' of ' + ids.length}),
+      kv([['Device name', el('div', {cls: 'raw', text: r.device_name_raw})],
+          ['Firmware', r.firmware_version_raw ? el('span', {cls: 'raw', text: r.firmware_version_raw}) : '']])),
+    el('div', {cls: 'panel'}, el('h2', {text: 'Your answer'}),
+      el('div', {cls: 'grid2'},
+        field('vendor', 'Vendor', a.vendor, set('vendor')),
+        field('product', 'Product', a.product, set('product'), 'text', 'As the vendor or the KEV catalog names it.'),
+        field('version', 'Version', a.version, set('version'), 'text', 'As the vendor writes it, no "v" prefix. Blank if none given.'),
+        el('div', null, el('label', {cls: 'field', 'for': 'lane', text: 'Lane'}), lane)),
+      field('source_url_used', 'Source URL you used', a.source_url_used, set('source_url_used'), 'url'),
+      el('label', {cls: 'field', 'for': 'comment', text: 'Notes'}), notes));
+  $('prev').disabled = pos <= 0; $('next').disabled = pos >= ids.length - 1;
+  var jump = $('jump'); jump.replaceChildren();
+  ids.forEach(function(i){ var o = el('option', {value: i, text: (done(i) ? '✓ ' : '· ') + i});
+    if (i === S.current) o.selected = true; jump.appendChild(o); });
+  updateProgress(); }
+function refreshJump(){ Array.prototype.forEach.call($('jump').options, function(o){ o.textContent = (done(o.value) ? '✓ ' : '· ') + o.value; }); }
+function updateProgress(){ var n = ids.filter(done).length;
+  $('bar').style.width = (100 * n / ids.length) + '%';
+  $('progress').textContent = n + ' of ' + ids.length + ' devices have a lane'; }
+function go(delta){ var i = ids.indexOf(S.current) + delta;
+  if (i >= 0 && i < ids.length){ S.current = ids[i]; save(); render(); window.scrollTo(0, 0); } }
+
+$('prev').onclick = function(){ go(-1); };
+$('next').onclick = function(){ go(1); };
+$('nextopen').onclick = function(){ var i = ids.indexOf(S.current);
+  for (var k = 1; k <= ids.length; k++){ var id = ids[(i + k) % ids.length]; if (!done(id)){ S.current = id; save(); render(); return; } }
+  $('err').textContent = 'Every device has a lane.'; };
+$('jump').onchange = function(){ S.current = this.value; save(); render(); };
+$('reviewer').oninput = function(){ S.reviewer = this.value; $('err').textContent = ''; save(); };
+document.addEventListener('keydown', function(e){ if (typing(e)) return;
+  if (e.key === 'ArrowRight') go(1); if (e.key === 'ArrowLeft') go(-1); });
+
+function exportRows(who){
+  return ids.map(function(id){ var r = byId[id], a = S.answers[id] || {}, o = {};
+    D.export_header.forEach(function(h){ o[h] = ''; });
+    o.blind_id = id; o.device_name_raw = r.device_name_raw; o.firmware_version_raw = r.firmware_version_raw;
+    o.labeller = who; FIELDS.forEach(function(k){ o[k] = (a[k] || '').trim(); });
+    return o; }); }
+$('export').onclick = function(){
+  var who = $('reviewer').value.trim();
+  if (!validReviewer(who)){ $('err').textContent = 'Enter your initials first (letters, spaces, dots or hyphens; no commas).';
+    $('reviewer').focus(); return; }
+  var open = ids.filter(function(i){ return !done(i); }).length;
+  if (open && !window.confirm(open + ' device(s) have no lane yet. Export anyway?')) return;
+  download('deming-blind-' + slug(who) + '-' + fileStamp() + '.csv', toCsv(D.export_header, exportRows(who)));
+  $('err').textContent = ''; };
+$('importbtn').onclick = function(){ $('import').click(); };
+$('import').onchange = function(){
+  var f = this.files && this.files[0]; if (!f) return;
+  var rd = new FileReader();
+  rd.onload = function(){
+    var rows = csvObjects(rd.result), n = 0;
+    if (!rows.length || !('blind_id' in rows[0]) || !('lane' in rows[0])){ $('err').textContent = 'That file is not a blind-labelling export.'; return; }
+    rows.forEach(function(x){ if (!byId[x.blind_id]) return; var a = ans(x.blind_id);
+      FIELDS.forEach(function(k){ a[k] = x[k] || ''; }); if (D.lanes.indexOf(a.lane) < 0) a.lane = ''; n++;
+      if (!S.reviewer && x.labeller) S.reviewer = x.labeller; });
+    $('reviewer').value = S.reviewer || ''; save(); render();
+    $('err').textContent = 'Restored ' + n + ' device(s) from ' + f.name + '.'; };
+  rd.readAsText(f); this.value = ''; };
+save(); render();
+})();
+</script>
+</body>
+</html>
