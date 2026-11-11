@@ -182,6 +182,10 @@ is made about real-world accuracy or time saved.
 Every wrong case is listed and explained in `docs/results-analysis.md`. Candidate fixes are
 listed there and **not applied**.
 
+Fifteen of the draft labels were cross-checked blind by a separate AI session (Claude, the same
+model family; not human verification): lane agreement 12/15, Cohen's kappa 0.68, with the three
+disagreements triaged for a human in `docs/ai-cross-check.md`.
+
 ## Limits and honest caveats
 
 - Synthetic inventory; ground-truth labels drafted by an AI from cited sources and not yet

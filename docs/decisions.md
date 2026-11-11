@@ -8,6 +8,7 @@
 - [feat/loop](decisions/feat-loop.md): closed-loop simulator, approvals, idempotency, loop metrics
 - [feat/review](decisions/feat-review.md): label checks, static review and blind pages, review merge
 - [feat/docs](decisions/feat-docs.md): README, limits, AI and teamwork, demo script, submission checklist
+- [feat/cross-check](decisions/feat-cross-check.md): agreement metrics for the blind AI cross-check, adapter, source checks
 
 One short entry per decision: choice, alternatives, source, and what couldn't be verified.
 

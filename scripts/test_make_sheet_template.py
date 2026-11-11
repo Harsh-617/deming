@@ -101,6 +101,10 @@ def test_summary_formulas(wb):
                 "tickets_open", "tickets_overdue", "tickets_closed", "latest_run_id"):
         assert isinstance(s[key], str) and s[key].startswith("="), key
     assert '"unknown"' in s["lane_unknown"] and "'Decision Log'!D:D" in s["lane_unknown"]
+    # Lane counts skip the Verifier's verify rows and remind rows, which also carry a lane.
+    for lane in ("patch", "retire", "fine", "unknown"):
+        assert "'Decision Log'!G:G,\"<>verify\"" in s[f"lane_{lane}"]
+        assert "'Decision Log'!G:G,\"<>remind\"" in s[f"lane_{lane}"]
     assert "TODAY()" in s["tickets_overdue"]
     assert s["unknown_rate"] == '=IF(B8=0,"",B7/B8)'
     # Row positions the formulas rely on:
