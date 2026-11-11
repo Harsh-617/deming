@@ -6,6 +6,8 @@
 - [feat/agents](decisions/feat-agents.md): subagent prompts, schemas, runner, Agent Designer port
 - [feat/inventory](decisions/feat-inventory.md): 60-device inventory, ground truth, fixed_version sources
 - [feat/loop](decisions/feat-loop.md): closed-loop simulator, approvals, idempotency, loop metrics
+- [feat/review](decisions/feat-review.md): label checks, static review and blind pages, review merge
+- [feat/docs](decisions/feat-docs.md): README, limits, AI and teamwork, demo script, submission checklist
 
 One short entry per decision: choice, alternatives, source, and what couldn't be verified.
 
@@ -330,3 +332,20 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Source:** rate limits are per model and per day (https://ai.google.dev/gemini-api/docs/rate-limits).
   The exact RPD for `gemini-3.5-flash-lite` on this key was not verified; about 500 calls in a
   day were reached before the quota 429.
+
+### 2026-11-11 · Publish-readiness history scan
+- **Choice:** a read-only Python scan of `git log --all -p` (all branches, the `prompts-v1` tag,
+  remotes; 43 commits) with gitleaks-style regexes: `AIza…`, `AQ.…`, `ya29.…`, private-key
+  blocks, service-account JSON, GitHub / OpenAI / Anthropic / AWS / Slack tokens, JWTs, and
+  `key|secret|password|token = value` assignments. Hits print redacted (first 4 chars + length).
+  Plus path checks for `.env`, `.cache/`, `.venv/`, key files, and a blob-size scan (> 5 MB).
+- **Alternatives:** gitleaks (`gitleaks git --log-opts="--all"`) is the standard tool for this
+  and was the first choice; Docker wasn't running and downloading the release binary was
+  declined in this session. TruffleHog (verifies live keys against the provider) was ruled out
+  because it would send candidate keys to Google.
+- **Result:** 0 secret hits. Every `AIza`/`AQ.` string in history is a docs mention, a hook regex
+  or a test string. `.env`, `.cache/`, `.venv/` never committed (`.env.example` only, always
+  `GEMINI_API_KEY=` empty). No blob over 5 MB (largest: `data/feeds/kev.json`, 1.75 MB).
+- **Source:** https://github.com/gitleaks/gitleaks (README, `git` scan mode).
+- **Not verified:** a regex scan can miss secrets with no recognisable shape; gitleaks itself
+  was not run.

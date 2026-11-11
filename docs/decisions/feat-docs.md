@@ -47,20 +47,13 @@ These entries will be merged into `docs/decisions.md` on `main`.
 - **Finding:** `sim.demo_scenario` has no `--mock` flag; the mock is its default and `--gemini`
   opts into the API. `--mock` belongs to `python -m sim.loop`. The README uses the real flags.
 
-### 2026-11-11 · Related tools: Eolix and Xeol, described from their own listings
-- **Choice:** name both, say what each covers, and say Deming is not unique (PRD "Never claim").
-  Eolix: an IT asset lifecycle product that checks software found via Intune / Jamf or a CSV /
-  Excel export against vendor lifecycle data. Xeol: an open-source (Apache-2.0) scanner for
-  end-of-life software in container images, filesystems and SBOMs; HeroDevs acquired it in
-  February 2025. Deming's stated edge is the PRD's: closed loop, measured evaluation, portable
-  no-code design.
-- **Sources:** https://www.g2.com/products/eolix/discuss ·
-  https://www.herodevs.com/blog-posts/herodevs-acquires-xeol-to-help-users-of-end-of-life-open-source-software-secure-their-applications-and-protect-their-data ·
-  https://awesome.ecosyste.ms/projects/github.com%2Fxeol-io%2Fxeol ·
-  `docs/reference/full-report.md` (sources table)
-- **Not verified:** read from search-result excerpts, not from the products' own docs; neither
-  tool was installed or tried. Whether either covers network edge devices, KEV, approvals or
-  re-verification wasn't checked, so the README doesn't claim they lack those.
+### 2026-11-11 · Related tools: Eolix and Xeol
+- **Choice:** name both and say only what `docs/PRD.md` states: they cover end-of-life checks,
+  so Deming is not unique (PRD "Never claim"). Deming's stated edge is the PRD's: closed loop,
+  measured evaluation, portable no-code design.
+- **Source:** `docs/PRD.md`.
+- **Not verified:** we did not test either tool, so the docs make no other claim about what
+  they do or don't do.
 
 ### 2026-11-11 · Submission summary draft
 - **Choice:** a 2-sentence summary (319 characters) in `docs/submission-checklist.md`,

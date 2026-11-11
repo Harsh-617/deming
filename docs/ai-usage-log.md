@@ -6,6 +6,8 @@
 - [feat/agents](ai-usage/feat-agents.md)
 - [feat/inventory](ai-usage/feat-inventory.md)
 - [feat/loop](ai-usage/feat-loop.md)
+- [feat/review](ai-usage/feat-review.md)
+- [feat/docs](ai-usage/feat-docs.md)
 
 | Date | Tool | What for |
 |---|---|---|
@@ -25,3 +27,4 @@
 | 2026-11-11 | Gemini API (gemini-3.5-flash-lite) | Second live fixture run (8 devices x 3 repeats, 69 live calls) after a checker.md wording fix for a regression the first run showed. |
 | 2026-11-11 | Claude Code (Claude Opus 5.5) | Froze prompts-v1 (tag, docs/prompts-freeze.md with sha256s); wrote eval/full_run.py (quota stop rule) and eval/offline_analysis.py (cache-only replay, per-repeat/group scores, stability, post-hoc alias view); scored baseline vs Deming; wrote docs/results-analysis.md. No prompt, schema, guard or data change. |
 | 2026-11-11 | Gemini API (gemini-3.5-flash-lite) | Full evaluation run on data/inventory.csv, prompts-v1: about 500 Normalizer/Checker/Planner calls, sequential, default Settings. Repeats 0-1 complete; repeat 2 stopped at 40/60 (network drop, then daily quota). |
+| 2026-11-11 | Claude Code (Claude Opus 5.5) | Merged feat/review and feat/docs into main; trimmed Eolix/Xeol text in README and `docs/decisions/feat-docs.md` to the PRD statement plus "we did not test them"; added feat-review/feat-docs index links; ran a read-only, redacted secret and large-file scan of the full git history. |

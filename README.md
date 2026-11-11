@@ -199,14 +199,10 @@ Details with device ids: `docs/limits.md`.
 
 ## Related tools
 
-Deming is not unique. **Eolix** checks software found through Intune, Jamf or a CSV/Excel
-inventory export against vendor lifecycle data. **Xeol** (open source, now part of HeroDevs) scans
-container images, filesystems and SBOMs for end-of-life software. Both cover end-of-life checks,
-and both are more mature products than this prototype. What Deming tries to add is the closed
-loop (approval, owner action, next-run verification of the record), a published evaluation
-against a naive baseline with every failure listed, and prompts written to be portable to a
-no-code platform. We haven't tried either tool, so we don't claim what they lack. Sources:
-`docs/decisions/feat-docs.md`.
+Deming is not unique. **Eolix** and **Xeol** already cover end-of-life checks. We did not
+test them. What Deming tries to add is the closed loop (approval, owner action, next-run
+verification of the record), a published evaluation against a naive baseline with every failure
+listed, and prompts written to be portable to a no-code platform. Source: `docs/PRD.md`.
 
 ## More
 
