@@ -114,7 +114,7 @@ device_id,device_name_raw,location,owner_email,firmware_version_raw,internet_fac
 | `owner_email` | Synthetic address at `example.org` |
 | `firmware_version_raw` | Free text as typed, or blank |
 | `internet_facing` | `true` / `false` |
-| `criticality` | `low` / `medium` / `high` / `critical`. `critical` always counts as urgent |
+| `criticality` | `low` / `medium` / `high` / `critical`. urgent = `internet_facing` AND `criticality` in (`high`, `critical`) |
 | `do_not_touch` | `true` / `false`. If `true`, never propose disconnection; escalate to a human |
 | `last_updated` | ISO date the row last changed |
 

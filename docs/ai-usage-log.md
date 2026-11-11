@@ -14,3 +14,4 @@
 | 2026-11-11 | Gemini API (gemini-3.5-flash-lite, gemini-3.8-flash) | Smoke test: 6 calls extracting vendor/product/version from one synthetic device name. |
 | 2026-11-11 | Claude Code (Claude Opus 5.5) | Added `jsonschema` to requirements.txt (commit 74d7fb3) and checked its Python requirement and `pip check` from the installed package metadata. |
 | 2026-11-11 | Claude Code (Claude Opus 5.5) | Merged feat/feeds, feat/eval and feat/agents into main; added `openpyxl` to requirements; indexed the branch logs; amended docs/contracts.md to v1.1 (lifecycle `fixed_version` column, `ground_truth_meta.json`); added the platform findings to the PRD. |
+| 2026-11-11 | Claude Code (Claude Opus 5.5) | Fix task: urgency wording, most-specific model_pattern retrieval, fixed_version/as_of_date Checker rules, deterministic version guard + tests, --as-of CLIs |

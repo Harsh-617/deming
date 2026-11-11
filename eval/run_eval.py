@@ -3,6 +3,7 @@
   python eval/run_eval.py                              # every eval/runs/*/*.csv vs data/ground_truth.csv
   python eval/run_eval.py --pred a.csv b.csv           # explicit files
   python eval/run_eval.py --fixture                    # the 8-device fixture (harness self-check)
+  python eval/run_eval.py --as-of 2026-12-10           # override data/ground_truth_meta.json
 
 Output: eval/results/<UTC timestamp>/report.md and failures.csv.
 System name = the part of run_id before the first '-' (deming, baseline), else the file stem.
@@ -18,6 +19,15 @@ from metrics import index_predictions
 from report import build_report
 
 REPO = Path(__file__).resolve().parent.parent
+GT_META = REPO / "data/ground_truth_meta.json"
+
+
+def load_as_of_date(override: str | None = None, path: Path = GT_META) -> str:
+    """as_of_date the ground truth is labelled against (contracts.md); `override` wins."""
+    import datetime as dt
+    import json
+    value = override or json.loads(path.read_text(encoding="utf-8"))["as_of_date"]
+    return dt.date.fromisoformat(value).isoformat()
 FIXTURE = REPO / "eval/fixtures"
 
 
@@ -55,7 +65,10 @@ def main(argv: list[str] | None = None) -> Path:
     p.add_argument("--pred", type=Path, nargs="*", default=None, help="predictions CSVs")
     p.add_argument("--runs-dir", type=Path, default=None, help="scan <dir>/*/*.csv when --pred is not given")
     p.add_argument("--out-root", type=Path, default=REPO / "eval/results")
+    p.add_argument("--as-of", default=None,
+                   help="YYYY-MM-DD the truth is labelled against; default: data/ground_truth_meta.json")
     args = p.parse_args(argv)
+    as_of = load_as_of_date(args.as_of)
 
     base = FIXTURE if args.fixture else REPO / "data"
     gt_path = args.ground_truth or base / "ground_truth.csv"
@@ -79,11 +92,14 @@ def main(argv: list[str] | None = None) -> Path:
     systems = load_runs(pred_paths, set(ids))
     out_dir = args.out_root / utc_stamp()
     res = build_report(truth_rows=truth, systems=systems, inventory=inventory, out_dir=out_dir,
-                       sources={"ground truth": _show(gt_path), "inventory": _show(inv_path)})
+                       sources={"ground truth": _show(gt_path), "inventory": _show(inv_path),
+                                "as_of_date": as_of + (" (--as-of override)" if args.as_of else
+                                                       f" ({_show(GT_META)})")})
     for name in systems:
         s = res["primary"][name]["all"]
         print(f"{name:9s} lane_acc={s.lane_acc:.2f} norm_all3={s.norm_acc('all_three'):.2f} "
               f"unknown_rate={s.unknown_rate:.2f}")
+    print(f"as_of_date {as_of}")
     print(f"wrote {out_dir / 'report.md'} and failures.csv ({len(res['failures'])} failure rows)")
     return out_dir
 

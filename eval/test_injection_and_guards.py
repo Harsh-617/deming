@@ -150,3 +150,20 @@ def test_verifier_ignores_injection_and_never_claims_secure(tmp_path):
     assert out.decision == "escalate"
     assert "inventory record" in out.note and "not that the device is secure" in out.note
     assert len(notes) == 2
+
+
+def test_checker_input_carries_as_of_date(tmp_path):
+    from sim import config
+    seen = []
+
+    def resp(agent, payload, i):
+        if agent == "normalizer":
+            return {**GOOD["normalizer"], "device_id": payload["device_id"]}
+        if agent == "checker":
+            seen.append(payload["as_of_date"])
+            return {**GOOD["checker"], "lane": "unknown", "evidence_cve": []}
+        return {**GOOD["planner"], "lane": "unknown", "action": "ask_identify"}
+    r = make_runner(tmp_path, resp)
+    run_device(r, DEVICE, KEV, [], today="2026-11-20", settings=SETTINGS)
+    run_device(r, DEVICE, KEV, [], today="2026-11-20", settings=SETTINGS, as_of_date="2026-12-10")
+    assert seen == [config.load_as_of_date(), "2026-12-10"]

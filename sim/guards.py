@@ -6,8 +6,10 @@ and a list of human-readable notes about what it changed.
 """
 from __future__ import annotations
 
+import datetime as dt
 import re
 
+from . import retrieval
 from .config import CONFIDENCE_THRESHOLD
 from .models import CheckerOutput, NormalizerOutput, PlannerOutput, VerifierOutput
 
@@ -29,7 +31,7 @@ def guard_normalizer(out: NormalizerOutput, threshold: float = CONFIDENCE_THRESH
 
 def guard_checker(out: CheckerOutput, kev_candidates: list[dict], lifecycle_candidates: list[dict],
                   normalizer: NormalizerOutput | None = None,
-                  threshold: float = CONFIDENCE_THRESHOLD):
+                  threshold: float = CONFIDENCE_THRESHOLD, device: dict | None = None):
     notes = []
     allowed_cve = {c["cveID"] for c in kev_candidates}
     allowed_lc = {c["lifecycle_id"] for c in lifecycle_candidates}
@@ -52,7 +54,106 @@ def guard_checker(out: CheckerOutput, kev_candidates: list[dict], lifecycle_cand
     if out.lane == "fine" and (out.evidence_cve or out.evidence_lifecycle_id):
         notes.append("lane fine: evidence cleared")
         out = out.model_copy(update=dict(evidence_cve=[], evidence_lifecycle_id=None))
+    if device is not None:
+        out, n = guard_version(out, device, kev_candidates, lifecycle_candidates)
+        notes += n
     return out, notes
+
+
+# Strict version grammar: optional v/V, then dot-separated integers, nothing else.
+# Anything messier ("7.0.12 build 523", "11.1.4-h13", "22.7R2.6") does not parse, and the
+# device goes to unknown. packaging.version is deliberately not used: PEP 440 reads
+# "7.0.1-5161" as a post-release and normalises other vendor strings in ways that look valid
+# but mean something else (docs/decisions.md, 2026-11-11 version comparison).
+_VERSION = re.compile(r"[vV]?([0-9]+(?:\.[0-9]+)*)")  # [0-9], not \d: \d matches non-ASCII digits
+
+
+def parse_version(s: str | None) -> tuple[int, ...] | None:
+    m = _VERSION.fullmatch((s or "").strip())
+    if not m:
+        return None
+    parts = [int(x) for x in m.group(1).split(".")]
+    while len(parts) > 1 and parts[-1] == 0:  # 1.5.1 == 1.5.1.0
+        parts.pop()
+    return tuple(parts)
+
+
+def compare_versions(a: str | None, b: str | None) -> int | None:
+    """-1 / 0 / 1 if both parse, else None."""
+    pa, pb = parse_version(a), parse_version(b)
+    if pa is None or pb is None:
+        return None
+    return (pa > pb) - (pa < pb)
+
+
+def _same(a: str | None, b: str | None) -> bool:
+    return bool(a) and (a or "").strip().casefold() == (b or "").strip().casefold()
+
+
+def _governing_row(out: CheckerOutput, device: dict, lifecycle_candidates: list[dict]):
+    if out.evidence_lifecycle_id:
+        for r in lifecycle_candidates:
+            if r.get("lifecycle_id") == out.evidence_lifecycle_id:
+                return r
+    # Candidates come most specific first (sim/retrieval.py); take the first whose pattern fits.
+    for r in lifecycle_candidates:
+        if retrieval.pattern_matches(r, device):
+            return r
+    return None
+
+
+def guard_version(out: CheckerOutput, device: dict, kev_candidates: list[dict],
+                  lifecycle_candidates: list[dict]):
+    """Deterministic patch/fine check for a KEV-listed product with a lifecycle row.
+
+    Applies only when the Checker said patch or fine (retire and unknown are left alone).
+    The firmware is the inventory's firmware_version_raw (the Normalizer's version if blank).
+    - fixed_version blank: unknown, "fixed version not documented".
+    - either version doesn't parse: unknown.
+    - both parse: firmware < fixed -> patch, else fine; a contradicting lane is overridden.
+    """
+    if out.lane not in ("patch", "fine"):
+        return out, []
+    row = _governing_row(out, device, lifecycle_candidates)
+    if row is None:
+        return out, []
+    kev = [c for c in kev_candidates
+           if (_same(c.get("vendorProject"), row.get("vendor")) and _same(c.get("product"), row.get("product")))
+           or (_same(c.get("vendorProject"), device.get("vendor")) and _same(c.get("product"), device.get("product")))]
+    if not kev and not (out.lane == "patch" and out.evidence_cve):
+        return out, []  # not a KEV-listed product: nothing to compare
+
+    lc_id = row.get("lifecycle_id")
+    firmware = (device.get("firmware_version_raw") or "").strip() or (device.get("version") or "").strip()
+    fixed = (row.get("fixed_version") or "").strip()
+
+    def unknown(why: str):
+        note = f"version guard: lane {out.lane} -> unknown ({why}; {lc_id})"
+        return out.model_copy(update=dict(
+            lane="unknown", evidence_cve=[], evidence_lifecycle_id=None, due_date=None,
+            reason=f"[version guard] {why}. {out.reason}")), [note]
+
+    if not fixed:
+        return unknown("fixed version not documented")
+    cmp = compare_versions(firmware, fixed)
+    if cmp is None:
+        bad = [f"{k} {v!r}" for k, v in (("firmware", firmware), ("fixed_version", fixed))
+               if parse_version(v) is None]
+        return unknown("version could not be compared: " + ", ".join(bad) + " does not parse")
+    expected = "patch" if cmp < 0 else "fine"
+    if out.lane == expected:
+        return out, []
+    why = (f"firmware {firmware} is {'below' if cmp < 0 else 'at or above'} fixed version "
+           f"{fixed} ({lc_id}), so lane {expected}, not {out.lane}")
+    if expected == "patch":
+        cves = sorted({c["cveID"] for c in kev}) or list(out.evidence_cve)
+        dues = sorted(c["dueDate"] for c in kev if c.get("dueDate"))
+        upd = dict(lane="patch", evidence_cve=cves, evidence_lifecycle_id=lc_id,
+                   due_date=dt.date.fromisoformat(dues[0]) if dues else None)
+    else:
+        upd = dict(lane="fine", evidence_cve=[], evidence_lifecycle_id=None, due_date=None)
+    upd["reason"] = f"[version guard override] {why}. {out.reason}"
+    return out.model_copy(update=upd), [f"version guard override: {why}"]
 
 
 def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput):

@@ -1,4 +1,5 @@
 """Single place for runtime settings. The model name lives here and nowhere else."""
+import json
 import os
 from pathlib import Path
 
@@ -21,3 +22,14 @@ RETRY_STATUS_CODES = (429, 503)
 MAX_RETRIES = 5
 BACKOFF_BASE_S = 1.0
 BACKOFF_MAX_S = 30.0
+
+# docs/contracts.md: lane decisions compare support dates with the ground-truth as_of_date,
+# not the wall clock. `--as-of` on the CLIs overrides it.
+GROUND_TRUTH_META = ROOT / "data" / "ground_truth_meta.json"
+
+
+def load_as_of_date(override: str | None = None, path: Path = GROUND_TRUTH_META) -> str:
+    """The as_of_date to evaluate against: `override` if given, else ground_truth_meta.json."""
+    import datetime as dt
+    value = override or json.loads(Path(path).read_text(encoding="utf-8"))["as_of_date"]
+    return dt.date.fromisoformat(value).isoformat()  # raises on a malformed date

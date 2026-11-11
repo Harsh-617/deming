@@ -113,3 +113,24 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Why:** feat/feeds found the v1 `model_pattern` rule could never match KEV family names (see [decisions/feeds.md](decisions/feeds.md)); Sheets exports `TRUE`/`FALSE`; `LC-030` flips to retire on 2026-12-09, so a wall-clock date would change the ground truth.
 - **Alternatives:** a separate `version_pattern` column (cleaner, more churn two days before the deadline).
 - **Not verified:** the Sheets `TRUE`/`FALSE` export behaviour is taken from the user's instruction, not tested here.
+
+### 2026-11-11 · Firmware version comparison and pattern matching
+- **Choice:** own strict parser in `sim/guards.py`: optional `v`/`V`, then dot-separated ASCII
+  integers (`[0-9]`, not `\d`, which matches non-ASCII digits), compared as integer tuples with
+  trailing zeros dropped (`1.5.1` == `1.5.1.0`, `1.0.03.26` == `1.0.3.26`). Anything else
+  (`7.0.12 build 523`, `11.1.4-h13`, `22.7R2.6`, `7.0.1-5161`) does not parse, and the guard
+  forces `unknown`. Glob matching uses `fnmatch.fnmatchcase` on lowercased strings.
+- **Why:** checked locally with packaging 26.3 on Python 3.11: `packaging.version.Version` rejects
+  `7.0.12 build 523` but *accepts* `7.0.1-5161` as `7.0.1.post5161` (PEP 440 post-release), so a
+  SonicWall build number would be silently reinterpreted. `v1.4.2.22` parses fine in both.
+  `fnmatch.fnmatch` applies `os.path.normcase`, so it is case-insensitive on Windows only;
+  `fnmatchcase` + explicit lowercasing is the same on every OS.
+- **Alternatives:** `packaging.version` (PEP 440 semantics don't fit vendor firmware);
+  `looseversion`/`distutils.LooseVersion` (compares mixed int/str parts, order is surprising
+  and distutils is removed in 3.12); regex-extract the first dotted number (guesses).
+- **Source:** https://docs.python.org/3/library/fnmatch.html ·
+  https://packaging.pypa.io/en/stable/version.html · https://peps.python.org/pep-0440/#post-releases
+- **Limits:** strict parsing sends every vendor-specific suffix (hotfix `-h13`, `R` trains, build
+  numbers) to `unknown`; `fixed_version` is blank in every `data/lifecycle.csv` row today, so
+  every KEV-listed device with a lifecycle row currently goes to `unknown` ("fixed version not
+  documented") until humans fill that column.

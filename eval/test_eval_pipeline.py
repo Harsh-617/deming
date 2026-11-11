@@ -77,3 +77,14 @@ def test_report_on_fixture(tmp_path):
     assert all(f["explanation"] for f in fails)
     for f in fails:
         assert f["device_id"] in md  # also listed in report.md
+
+
+def test_run_eval_as_of_default_and_override(tmp_path):
+    import json
+    import run_eval
+    meta = tmp_path / "m.json"
+    meta.write_text(json.dumps({"as_of_date": "2026-11-12"}), encoding="utf-8")
+    assert run_eval.load_as_of_date(path=meta) == "2026-11-12"
+    assert run_eval.load_as_of_date("2026-12-10", path=meta) == "2026-12-10"
+    out = run_eval.main(["--fixture", "--out-root", str(tmp_path), "--as-of", "2026-12-10"])
+    assert "as_of_date: `2026-12-10 (--as-of override)`" in (out / "report.md").read_text(encoding="utf-8")
