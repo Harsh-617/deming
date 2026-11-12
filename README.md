@@ -62,6 +62,10 @@ as data, never as instructions (the test inventory contains an injection string 
   are deterministic code applied after every model call: confidence threshold, version
   comparison per release train, approval before any outward action, no tier-3 execution,
   one open ticket per device and issue, ticket closes only on the fixed version or removal.
+  Since guards-v2 they also refuse a malformed `owner_email` as a recipient (it goes to the
+  approver), read `do_not_touch` strictly (an unrecognised value means do-not-touch), and build
+  every message from trusted fields only (no inventory or feed text, no CVE id outside the
+  evidence). Red-team: `docs/redteam-results.md`.
 - The closed loop (`sim/loop.py`) keeps state in CSV files that stand in for the Sheet tabs
   (Inventory, Decision Log, Settings, Tickets) plus a proposals file that stands in for the
   approval Inbox. Outward actions are written as JSON records to an `outbox/` folder inside the
@@ -166,8 +170,8 @@ python scripts/console.py                       # macOS / Linux, venv active
   returned, logged or written to a file; the start-up line says only whether a key was found
   and where (environment or `.env`). Inputs carry `autocomplete="off"` and the password-manager
   ignore attributes so no autofill popup appears.
-- Tests: `tests/test_console.py`, `tests/test_console_key.py`, `tests/test_frozen_files.py` (fails if `agents/`, `schemas/`
-  or `sim/guards.py` differ from `main`).
+- Tests: `tests/test_console.py`, `tests/test_console_key.py`, `tests/test_frozen_files.py` (fails if `agents/` or
+  `schemas/` differ from `main`, or `sim/guards.py` differs from its pinned guards-v2 hash).
 
 **Offline baseline and scoring** (no key needed):
 
@@ -316,6 +320,11 @@ circular: the correction followed the AI's own finding, after the vendor page wa
 - The Verifier confirms the inventory record changed, not that a device is secure.
 - In the prototype the rules are enforced by code; in an Agent Designer port they would only be
   requested in prompts.
+- Red-team (45 hostile cases, synthetic, offline mocks only, no real model): after the guards-v2
+  fixes the rule-based mock passes 45/45 and a worst-case "obedient" mock 43/45 (before: 33/45
+  and 15/45). Two findings stay open on purpose: F5 (a model-written KEV due date is not checked)
+  and F7 (a retire lane is not checked against a support-end date; fixing it changes lanes).
+  How a real model behaves against these cases was not measured (`docs/redteam-results.md`).
 - Nothing has run in Gemini Enterprise; Sheets access and approved owner emails there are
   unconfirmed. Nothing is actually sent by the prototype.
 
@@ -332,6 +341,7 @@ listed, and prompts written to be portable to a no-code platform. Source: `docs/
 
 - `docs/PRD.md`: condensed spec · `docs/contracts.md`: file formats
 - `docs/results-analysis.md`: full evaluation · `docs/limits.md`: limits
+- `docs/redteam-results.md`: prompt-injection and abuse cases, guards-v2 fixes, open findings
 - `docs/demo-script.md`: 3-minute demo · `docs/agent-designer-port.md`: port guide
 - `docs/ai-and-teamwork.md`: AI use and team roles · `docs/decisions.md`: decisions with sources
 

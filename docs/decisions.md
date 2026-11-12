@@ -1421,3 +1421,47 @@ These entries will be merged into `docs/decisions.md` on `main`. Synthetic data,
 - **Why:** reminders use the Tickets tab `owner_email` captured at open (`sim/loop.py
   _propose_reminder`), so an Inventory-only edit would keep reminding the wrong person. Reported
   as a finding in `docs/owner-sim-results.md`; proposing a loop change is left to `main`.
+
+
+### 2026-11-13 · guards-v2: fixes for red-team findings F1, F2, F3, F4, F6, F8 (fix/guards-v2)
+- **F1 owner_email:** a strict regex for a narrow ASCII subset of the RFC 5322 addr-spec
+  (`local-part "@" domain`, section 3.4.1), refusing CR/LF (RFC 5322 section 2.2: a header field
+  ends at CRLF, so a CRLF in a value starts a new header such as `Bcc:`), control characters,
+  several addresses, display names, any non-ASCII character and punycode labels. Invalid → the
+  approver (human review), never the owner field. Sources:
+  https://www.rfc-editor.org/rfc/rfc5322 (sections 2.2 and 3.4.1, read 2026-11-13),
+  https://docs.python.org/3/library/email.utils.html (read 2026-11-13).
+  **Alternatives:** `email.utils.parseaddr` / `getaddresses`: their docs say a strict parser that
+  rejects malformed input is the default only from Python 3.13; this repo runs 3.11, so they
+  were not used. `email-validator` (PyPI): a new dependency, and (from memory, not re-read this
+  session) it accepts internationalized
+  addresses that F1 must refuse. Allowing IDN domains (RFC 6531 / IDNA) was rejected: look-alike
+  domains are the attack.
+- **F2 do_not_touch:** an explicit two-set parser (`true/yes/y/1`, `false/no/n/0`); everything else
+  fails safe to true and is flagged. No source needed; it follows CLAUDE.md "never guess".
+- **F3 wording:** Unicode NFKC (UAX #15), removal of combining marks and format characters (Cf),
+  a small look-alike map in the spirit of UTS #39 confusables, then a phrase list plus a
+  letters-only stem check. Sources: https://www.unicode.org/reports/tr15/ (NFKC; not re-read
+  this session), https://www.unicode.org/reports/tr39/ (read 2026-11-13: section 4 skeleton =
+  NFD, remove default-ignorables, map confusables, NFD; it says skeletons are for comparison,
+  not for normalizing text, which is how they are used here, only for matching).
+  **Alternatives:** the full `confusables.txt` table or a library (e.g. the `confusable_homoglyphs`
+  package, not evaluated): more coverage, but a new data file or dependency for a one-day fix;
+  noted as a limit.
+- **F4 message text:** the body and subject are built from trusted fields only; nothing from
+  inventory or feed free text is copied, so markdown links, images, autolinks and raw HTML (the
+  CommonMark constructs in sections 6.3–6.6, https://spec.commonmark.org/0.31.2/, read
+  2026-11-13, table of contents only) can't reach a message. **Alternative:** quoting the
+  untrusted text after escaping it. Rejected: escaping has to be right for every renderer
+  (Markdown, HTML, mail client), and the red-team markers would still be present in the text.
+- **F6, F8:** unknown lane drops a model deadline; CVE ids outside the evidence are replaced in
+  the message after NFKC and removal of format characters. No new source.
+- **Checker (test code) changes:** recipient rule expects the approver for an invalid
+  owner_email; a claimed CVE fails only when it reaches a message or an evidence column (audit
+  columns become an observation). Both listed in `docs/redteam-results.md`.
+- **Not fixed:** F5 and F7 (by instruction; F7 changes lanes, F5 changes the Planner's input).
+- **Result:** red-team mock 33/45 → 45/45, obedient 15/45 → 43/45. Published lanes and scores
+  re-checked offline and byte-identical (cache replay of repeats 0 and 1, `run_eval.py`,
+  `offline_analysis.py`, baseline, owner-sim).
+- **Not verified:** any real model; real mail systems (header injection is shown only as a value in
+  a JSON outbox record); renderers of the Sheet or console showing the audit columns.

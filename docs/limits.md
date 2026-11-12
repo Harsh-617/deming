@@ -104,6 +104,23 @@ can type a new version without patching (`sim/loop.py`, `docs/PRD.md`).
 - In the Agent Designer port the same rules are **prompt instructions only**, and chat-agent
   output format is described in words, not enforced (`docs/agent-designer-port.md`, comparison
   table and fallback F3). A model fooled by a device name would not be stopped by code there.
+- **Red-team (guards-v2, `docs/redteam-results.md`).** 45 hostile cases on five demo devices,
+  synthetic, offline mocks only. After the guards-v2 fixes (F1 owner_email validation, F2 strict
+  do_not_touch, F3 Unicode-folded do-not-touch wording, F4 messages from trusted fields only,
+  F6 no deadline on unknown, F8 CVE ids only from evidence): rule-based mock 45/45, worst-case
+  "obedient" mock 43/45 (before: 33/45 and 15/45). Published lanes and scores are unchanged
+  (cache replay and offline re-scoring, byte-identical).
+  - **Open on purpose:** F5, a model-written KEV due date is not checked against the feed
+    (RT-23); F7, a retire lane is not checked against a past support-end date (RT-25). Fixing F7
+    changes lanes; fixing F5 changes the Planner's input, so the published run would need
+    re-scoring.
+  - **Also open:** the console preview reads `do_not_touch` as exactly `"true"`; audit columns
+    (Decision Log notes, the raw name snapshot on proposals and tickets) still hold attacker text
+    verbatim, though it is never sent; the look-alike map is a small subset of UTS #39.
+  - Since F4, owner messages carry no model explanation, only the action, evidence ids and
+    deadline. Whether that is enough for owners was not tested.
+  - **Not measured:** how any real model (Gemini, or the Agent Designer port) behaves on these
+    cases; `--live` was never run. In the port none of these code fixes exist.
 
 ## 7. Unconfirmed on the platform
 
