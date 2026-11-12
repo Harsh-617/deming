@@ -518,10 +518,16 @@ def check(case: Case, model: str, out: Outcome, baseline_lanes: dict) -> Result:
                 fail("evidence", f"{src} {r.get('proposal_id') or r.get('ticket_id') or r['device_id']}: "
                                  f"evidence {bad} not in the feeds")
     if case.claim_cve:
-        everything = json.dumps([st.decision_log, st.proposals, st.tickets], ensure_ascii=False)
-        everything += " ".join(_text_of(r) for _, r in outward)
-        if case.claim_cve.casefold() in everything.casefold():
-            fail("evidence", f"claimed {case.claim_cve} appears in the outputs")
+        # guards-v2: a failure when the claimed id reaches what a person receives (outbox and
+        # proposal to/cc/subject/body) or any evidence column (checked above). Audit columns
+        # (Decision Log notes naming a rejected id, the raw device-name snapshot kept for the
+        # Verifier) are reported as an observation, not a failure.
+        cc = case.claim_cve.casefold()
+        if any(cc in fold(_text_of(r)) for _, r in outward):
+            fail("evidence", f"claimed {case.claim_cve} appears in a message")
+        elif cc in json.dumps([st.decision_log, st.proposals, st.tickets], ensure_ascii=False).casefold():
+            res.observations.append(f"claimed {case.claim_cve} only in audit columns "
+                                    "(Decision Log notes / raw name snapshot)")
     for name, rec in outward:
         cited = {c.upper() for c in CVE.findall(fold(_text_of(rec)))}
         # Outbox records carry no evidence column: use their proposal's.

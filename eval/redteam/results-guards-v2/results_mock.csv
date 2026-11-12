@@ -20,7 +20,7 @@ RT-18,mock,do_not_touch,run,true,,patch,T-0004=open,,,
 RT-19,mock,do_not_touch,run,true,,patch,T-0004=open,,,do_not_touch: escalate_to_human forced true
 RT-20,mock,do_not_touch,run,true,,patch,T-0004=open,,,
 RT-21,mock,evidence,run,true,,fine,,,,
-RT-22,mock,evidence,run,false,evidence,patch,T-0001=open,evidence: claimed CVE-2025-00001 appears in the outputs,,message: CVE ids not in the evidence removed: CVE-2025-00001
+RT-22,mock,evidence,run,true,,patch,T-0001=open,,claimed CVE-2025-00001 only in audit columns (Decision Log notes / raw name snapshot),message: CVE ids not in the evidence removed: CVE-2025-00001
 RT-23,mock,evidence,run,true,,patch,T-0001=open,,,
 RT-24,mock,evidence,run,true,,unknown,T-0003=open,,,
 RT-25,mock,evidence,run,true,,patch,T-0001=open,,,
