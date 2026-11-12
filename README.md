@@ -137,6 +137,33 @@ optional `formulas` package from `requirements-dev.txt` is installed).
 rebuilds `data/lifecycle_extended.csv` from the cached sources, and `python eval/lifecycle_coverage.py`
 rewrites `docs/lifecycle-coverage.md` (retrieval coverage before/after; no model call).
 
+**Deming Console** (no key needed): a local page that walks through the demo loop with clicks.
+
+```powershell
+python scripts/console.py        # open http://127.0.0.1:8765/  (Ctrl+C to stop)
+```
+
+- Banner "Synthetic data, simulated outbox"; four-step timeline (Run 1, Approve, Owners update
+  inventory, Run 2 verify); device table with lane chips; each proposal with its drafted owner
+  message, evidence and an Approve button; outbox; tickets; DEV-104 shown as escalated with its
+  reason (7.0.12 is a change, not a fix); Reset.
+- It reuses `sim/demo_scenario.py` and `sim/loop.py` (`run_loop` with no approver,
+  `record_approval` + `apply_approvals` only on an Approve click, approver from Settings). It adds
+  no lane, approval or verification logic. Python standard library only (`http.server`) plus one
+  self-contained page, `scripts/console.html`: no CDN, no network at runtime, bound to
+  127.0.0.1.
+- It writes only to `console_state/` (gitignored), never to `data/`, `sim/state/` or
+  `sim/demo_state/`.
+- "Try a device" runs the Normalizer → Checker → Planner pipeline and guards on one device you
+  type in, shows each agent's output, what the guards changed, and the message as the loop would
+  propose it. If `GEMINI_API_KEY` is set **in the shell environment** (the console does not read
+  `.env`), it calls Gemini (`model: gemini-3.5-flash-lite`, 20 s timeout, response cache in
+  `console_state/gemini_cache/`); otherwise, or on any failure or timeout, it uses the
+  rule-based mock and says `model: mock`. The mock sends most messy names to unknown. The key is
+  never returned or logged.
+- Tests: `tests/test_console.py`, `tests/test_frozen_files.py` (fails if `agents/`, `schemas/`
+  or `sim/guards.py` differ from `main`).
+
 **Offline baseline and scoring** (no key needed):
 
 ```powershell
