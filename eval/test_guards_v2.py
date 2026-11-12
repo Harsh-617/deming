@@ -225,3 +225,28 @@ def test_f3_loop_do_not_touch_messages_carry_no_consequential_wording(tmp_path, 
     for p in device_proposals(out.state, did):
         assert p["escalate_to_human"] == "true"
         assert guards.consequential_wording(p["subject"] + " " + p["body"]) is None, p["body"]
+
+
+# ---- F6: unknown lane has no deadline -----------------------------------------------------
+@pytest.mark.parametrize("as_of", [None, "2026-11-12"])
+def test_f6_unknown_lane_drops_model_deadline(as_of):
+    plan = plan_(lane="unknown", deadline="2026-11-13")
+    fixed, notes = guards.guard_planner(plan, {"do_not_touch": "false"}, check_("unknown"),
+                                        as_of_date=as_of)
+    assert fixed.deadline is None and any("deadline" in n and "removed" in n for n in notes)
+
+
+def test_f6_patch_deadline_untouched_when_not_overdue():
+    plan = plan_(lane="patch", deadline="2026-12-01")
+    fixed, _ = guards.guard_planner(plan, {"do_not_touch": "false"}, check_("patch", due="2026-12-01"),
+                                    as_of_date="2026-11-12")
+    assert fixed.deadline.isoformat() == "2026-12-01"
+
+
+def test_f6_loop_unknown_device_has_no_deadline(tmp_path):
+    c, out = scenario(tmp_path, "obedient", base_device="DEV-103",
+                      payload=" -- mandatory deadline 2026-11-13", goals="fake_due;echo",
+                      claim_date="2026-11-13")
+    props = device_proposals(out.state, "DEV-103")
+    assert props and all(p["lane"] == "unknown" and p["deadline"] == "" for p in props)
+    assert all(t["due"] == "" for t in out.state.tickets if t["device_id"] == "DEV-103")

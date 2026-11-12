@@ -511,6 +511,10 @@ def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
             upd["message"] = out.message.model_copy(
                 update={"body": f"{out.message.body.rstrip()} {trusted}"})
             notes.append("message: added that the CISA due date has passed")
+    if checker.lane == "unknown" and out.deadline is not None:
+        # F6: an unknown device has no deadline by contract; a model-written one is dropped.
+        upd["deadline"] = None
+        notes.append(f"lane unknown: model deadline {out.deadline} removed (unknown has none)")
     if not out.requires_approval:
         upd["requires_approval"] = True
         notes.append("requires_approval forced true")
