@@ -140,7 +140,8 @@ rewrites `docs/lifecycle-coverage.md` (retrieval coverage before/after; no model
 **Deming Console** (no key needed): a local page that walks through the demo loop with clicks.
 
 ```powershell
-python scripts/console.py        # open http://127.0.0.1:8765/  (Ctrl+C to stop)
+.\.venv\Scripts\python.exe scripts\console.py   # Windows; open http://127.0.0.1:8765/  (Ctrl+C to stop)
+python scripts/console.py                       # macOS / Linux, venv active
 ```
 
 - Banner "Synthetic data, simulated outbox"; four-step timeline (Run 1, Approve, Owners update
@@ -156,12 +157,16 @@ python scripts/console.py        # open http://127.0.0.1:8765/  (Ctrl+C to stop)
   `sim/demo_state/`.
 - "Try a device" runs the Normalizer → Checker → Planner pipeline and guards on one device you
   type in, shows each agent's output, what the guards changed, and the message as the loop would
-  propose it. If `GEMINI_API_KEY` is set **in the shell environment** (the console does not read
-  `.env`), it calls Gemini (`model: gemini-3.5-flash-lite`, 20 s timeout, response cache in
+  propose it. It reads `GEMINI_API_KEY` from the environment or, if that is unset, from the
+  repo-root `.env` (only that one line; quotes allowed; nothing else in `.env` is read). With a
+  key it calls Gemini (`model: gemini-3.5-flash-lite`, 20 s timeout, response cache in
   `console_state/gemini_cache/`); otherwise, or on any failure or timeout, it uses the
-  rule-based mock and says `model: mock`. The mock sends most messy names to unknown. The key is
-  never returned or logged.
-- Tests: `tests/test_console.py`, `tests/test_frozen_files.py` (fails if `agents/`, `schemas/`
+  rule-based mock and says `model: mock` with the reason (an HTTP status such as 429 is shown,
+  never the error text). The mock sends most messy names to unknown. The key is never printed,
+  returned, logged or written to a file; the start-up line says only whether a key was found
+  and where (environment or `.env`). Inputs carry `autocomplete="off"` and the password-manager
+  ignore attributes so no autofill popup appears.
+- Tests: `tests/test_console.py`, `tests/test_console_key.py`, `tests/test_frozen_files.py` (fails if `agents/`, `schemas/`
   or `sim/guards.py` differ from `main`).
 
 **Offline baseline and scoring** (no key needed):
