@@ -1,7 +1,8 @@
 """Build sheet/deming_template.xlsx: the Deming Google Sheet as an .xlsx to import.
 
-Tabs: Inventory, Decision Log, Settings, Tickets, Summary. Columns follow docs/contracts.md
-(Inventory) and docs/PRD.md "Data model" (the rest).
+Tabs: Inventory, Decision Log, Settings, Tickets, Summary. Columns and Settings keys follow
+docs/contracts.md (Inventory, and the loop state files of contracts 1.3+: decision_log.csv,
+tickets.csv, settings.csv), in the same order sim/loop.py writes them.
 
 Only features that map 1:1 to Google Sheets are used (see docs/decisions/feat-eval.md):
 list-type data validation with inline items, "cell is equal to" conditional formatting,
@@ -39,9 +40,14 @@ INVENTORY_INPUT = ["device_id", "device_name_raw", "location", "owner_email", "f
                    "internet_facing", "criticality", "do_not_touch", "last_updated"]
 INVENTORY_AGENT = ["vendor", "product", "version", "match_confidence"]
 INVENTORY = INVENTORY_INPUT + INVENTORY_AGENT
+# Same names and order as sim/loop.py DECISION_LOG_COLUMNS / TICKET_COLUMNS (contracts 1.3).
 DECISION_LOG = ["timestamp", "run_id", "device_id", "lane", "evidence", "confidence", "proposed_action",
-                "approver", "decision", "action_taken", "outcome", "verification_note"]
-TICKETS = ["ticket_id", "device_id", "issue", "status", "opened", "due", "last_reminder"]
+                "approver", "decision", "action_taken", "outcome", "verification_note",
+                "proposal_id", "ticket_id", "notes"]
+TICKETS = ["ticket_id", "device_id", "issue", "lane", "dedupe_key", "status", "opened", "due",
+           "last_reminder", "owner_email", "evidence", "fixed_version", "firmware_at_open",
+           "device_name_at_open", "last_updated_at_open", "proposal_id", "closed_on", "flags", "last_note"]
+# contracts settings.csv is key,value; the description column is for the human reading the Sheet.
 SETTINGS = ["key", "value", "description"]
 
 LANES = ["patch", "retire", "fine", "unknown"]
@@ -55,19 +61,26 @@ HEADER_FILL = PatternFill("solid", fgColor="FF1F3864")
 AGENT_HEADER_FILL = PatternFill("solid", fgColor="FF5B6F8F")
 HEADER_FONT = Font(bold=True, color="FFFFFFFF")
 
+# contracts.md "Settings tab" keys and defaults, in sim/loop.py SETTINGS_DEFAULTS order.
+# Integer settings are real numbers; the loop reads every value as text either way.
 SETTINGS_ROWS = [
-    ("urgent_rule", "internet_facing = TRUE AND criticality in (high, critical)",
-     "Which devices count as urgent. Default: internet-facing and high (or critical) criticality."),
-    ("reminder_after_days", 3, "Days after a ticket's due date before the owner is reminded."),
-    ("escalation_after_days", 7, "Days after a ticket's due date before it is escalated to the approver."),
-    ("tier0_read_only", "auto", "Tier 0: read inventory and feeds. Always automatic."),
-    ("tier1_draft", "auto", "Tier 1: draft messages and proposals. Automatic."),
-    ("tier2_outward", "approval_required",
-     "Tier 2: email, calendar, ticket. Needs recorded human approval (suggest-only)."),
-    ("tier3_consequential", "draft_only",
-     "Tier 3: isolate, disconnect, replace. Agent only drafts; a named human decides."),
-    ("approver_email", None, "Who approves tier 2/3 actions. Fill in before the first run."),
-    ("digest_channel", None, "Chat space for the run digest. Blank = no digest."),
+    ("approver_email", "approver@example.org",
+     "Named human who approves tier 2/3 actions; recipient for unknown devices. Replace before a real run."),
+    ("days_until_reminder", 3, "Days after opened / last_reminder before a reminder is proposed."),
+    ("days_until_escalation", 7, "Days after opened before a ticket is escalated."),
+    ("urgent", "internet_facing is true and criticality is high or critical",
+     "Which devices count as urgent."),
+    ("tier2_mode", "approval",
+     "Tier 2: email, calendar, ticket. Only 'approval' is supported: needs a recorded human approval."),
+    ("tier3_mode", "draft_only",
+     "Tier 3: isolate, disconnect, replace. Never executed; the agent only drafts, a named human decides."),
+    ("maintenance_lead_days", 2, "Calendar window = run date + this, capped at the deadline."),
+    ("kev_overdue_grace_days", 14,
+     "If the KEV dueDate has passed, the deadline is the run date + this many days."),
+    ("retire_days", 30, "Retire deadline = run date + this many days (support end date is evidence)."),
+    ("retire_isolation_days", 7,
+     "Retire messages advise isolating the device within this many days (not do_not_touch devices)."),
+    ("digest_channel", None, "Where the run digest goes. Blank = no digest."),
 ]
 
 
@@ -87,11 +100,11 @@ def col(columns: list[str], name: str) -> str:
 
 
 def add_list_validation(ws, columns: list[str], name: str, items: list[str], allow_blank=True,
-                        max_row: int = MAX_ROW) -> None:
+                        max_row: int = MAX_ROW, error: str | None = None) -> None:
     letter = col(columns, name)
     dv = DataValidation(type="list", formula1='"' + ",".join(items) + '"', allow_blank=allow_blank,
                         showErrorMessage=True, errorTitle="Invalid value",
-                        error=f"{name} must be one of: {', '.join(items)}")
+                        error=error or f"{name} must be one of: {', '.join(items)}")
     dv.add(f"{letter}2:{letter}{max_row}")
     ws.add_data_validation(dv)
 
@@ -134,13 +147,16 @@ def build_inventory(wb: Workbook):
 def build_decision_log(wb: Workbook):
     ws = wb.create_sheet("Decision Log")
     style_header(ws, DECISION_LOG)
-    add_list_validation(ws, DECISION_LOG, "lane", LANES, allow_blank=False, max_row=LOG_MAX_ROW)
+    # Blank allowed: contracts 1.3 writes a blank lane on the verify row of a removed device.
+    add_list_validation(ws, DECISION_LOG, "lane", LANES, allow_blank=True, max_row=LOG_MAX_ROW,
+                        error="lane must be one of: patch, retire, fine, unknown "
+                              "(blank only on the verify row of a removed device)")
     lane = col(DECISION_LOG, "lane")
     rng = f"{lane}1:{lane}1048576"  # whole column; the header text 'lane' matches no rule
     for name, colour in LANE_COLOURS.items():
         fill = PatternFill("solid", start_color=colour, end_color=colour)
         ws.conditional_formatting.add(rng, CellIsRule(operator="equal", formula=[f'"{name}"'], fill=fill))
-    text_format(ws, DECISION_LOG, ["run_id", "device_id", "evidence"])
+    text_format(ws, DECISION_LOG, ["run_id", "device_id", "evidence", "proposal_id", "ticket_id", "notes"])
     return ws
 
 
@@ -159,8 +175,9 @@ def build_tickets(wb: Workbook):
     ws = wb.create_sheet("Tickets")
     style_header(ws, TICKETS)
     add_list_validation(ws, TICKETS, "status", TICKET_STATUS, allow_blank=False)
-    text_format(ws, TICKETS, ["ticket_id", "device_id"])
-    date_format(ws, TICKETS, ["opened", "due", "last_reminder"])
+    text_format(ws, TICKETS, ["ticket_id", "device_id", "dedupe_key", "evidence", "fixed_version",
+                              "firmware_at_open", "proposal_id", "flags"])
+    date_format(ws, TICKETS, ["opened", "due", "last_reminder", "last_updated_at_open", "closed_on"])
     return ws
 
 
@@ -205,7 +222,7 @@ def build_summary(wb: Workbook):
         ("urgent_devices",
          f'=COUNTIFS(Inventory!{inet_c}:{inet_c},TRUE,Inventory!{crit_c}:{crit_c},"high")'
          f'+COUNTIFS(Inventory!{inet_c}:{inet_c},TRUE,Inventory!{crit_c}:{crit_c},"critical")',
-         "Settings urgent_rule default: internet-facing and high/critical"),
+         "Settings urgent default: internet-facing and high/critical"),
     ]
     for r in rows:
         ws.append(list(r))

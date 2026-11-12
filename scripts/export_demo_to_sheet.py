@@ -16,8 +16,9 @@ split changes nothing, the script also runs sim.demo_scenario.run_demo() in a te
 stops if its final state differs from stage 3 (run durations excepted).
 
 Each workbook starts from the template (scripts/make_sheet_template.py), so validation,
-conditional formatting, frozen headers and Summary formulas are the template's. Simulator
-columns the template lacks go in extra columns at the right; the Summary tab says which.
+conditional formatting, frozen headers and Summary formulas are the template's. Since contracts
+1.3 the template has every simulator column and Settings key; if the simulator ever writes a
+column the template lacks, it goes in an extra column at the right and the Summary tab says which.
 Values are typed: dates are real dates, timestamps real date-times (UTC), booleans TRUE/FALSE,
 confidences numbers, and every other value (versions, ids, free text) a text cell, never a
 formula. All devices and data are synthetic.
@@ -220,9 +221,11 @@ def fill_summary(ws, title: str, snap: dict, extras: dict[str, list[str]]) -> No
             first = get_column_letter(len(TABS[tab][0]) + 1)
             last = get_column_letter(len(TABS[tab][0]) + len(cols))
             note.append(f"{tab} {first}:{last} = {', '.join(cols)}.")
+    if not any(extras.values()):
+        note = ["Every simulator column is a template column (contracts 1.3); no extra columns."]
     ws["A24"] = " ".join(note)
-    ws["A25"] = ("Settings tab: the template's keys, not the simulator's settings.csv (listed below). "
-                 "Timestamps are UTC.")
+    ws["A25"] = ("Settings tab: the template's keys (contracts settings.csv) with this demo's values; "
+                 "the simulator's settings.csv is also listed below. Timestamps are UTC.")
     for a in ("A23", "A24", "A25"):
         ws[a].alignment = Alignment(wrap_text=False)
 
@@ -254,11 +257,19 @@ def fill_summary(ws, title: str, snap: dict, extras: dict[str, list[str]]) -> No
 def build_workbook(snap: dict, title: str):
     wb = mst.new_workbook()
     extras = {tab: fill_tab(wb[tab], tcols, scols, snap[tab]) for tab, (tcols, scols) in TABS.items()}
-    approver = next((s["value"] for s in snap["settings"] if s["key"] == "approver_email"), "")
+    sim_settings = {s["key"]: s["value"] for s in snap["settings"]}
     settings = wb["Settings"]
+    template_keys = [row[0].value for row in settings.iter_rows(min_row=2)]
+    unknown = sorted(set(sim_settings) - set(template_keys))
+    if unknown:
+        raise ValueError(f"Settings: simulator keys the template lacks: {unknown}")
     for row in settings.iter_rows(min_row=2):
-        if row[0].value == "approver_email" and approver:
-            row[1].value = approver
+        sim = sim_settings.get(row[0].value)
+        if sim is None or sim == ("" if row[1].value is None else str(row[1].value)):
+            continue  # same as the template default (ints stay numbers)
+        row[1].value = sim or None
+        if sim:
+            row[1].data_type = "s"
     fill_summary(wb["Summary"], title, snap, extras)
     wb.properties.created = wb.properties.modified = FIXED_PROPERTIES_TIME
     return wb

@@ -377,9 +377,73 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
   venv). Alternatives: pinning in place in `requirements.txt` (loses the direct-vs-transitive
   split); pip-tools / uv lock files (another tool to install for a 2-day deadline).
   Note: the lock has google-genai 3.0.0; the published run used 2.4.0 (`docs/prompts-freeze.md`).
-- **Source:** https://pip.pypa.io/en/stable/topics/repeatable-installs/ (pip freeze for
-  repeatable installs); https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_execution_policies
-  (CurrentUser RemoteSigned / Process Bypass). Both URLs cited from prior knowledge, not
-  re-opened this session.
+- **Source:** https://pip.pypa.io/en/stable/topics/repeatable-installs/ ("Repeatable Installs":
+  "A requirements file, containing pinned package versions can be generated using pip freeze");
+  https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies?view=powershell-5.1
+  (`Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`; the `Process` scope
+  affects only the current session). Both pages were opened and checked on 2026-11-12
+  (fix/final-polish). The PowerShell link now pins the 5.1 view, which is the Windows PowerShell
+  the README targets. Its content was read from the 7.6 view, which the unpinned link served.
 - **Not verified:** the lock file installing on Linux/macOS or another Python version (colorama
   is a Windows-only pytest dependency but installs anywhere).
+
+### 2026-11-12 · Source URLs that were cited from memory (fix/final-polish)
+- **Choice:** keep both URLs from the fresh-clone entry. Both were opened and checked against what
+  the entry claims: the pip "Repeatable Installs" page (pip freeze makes a pinned requirements file)
+  and Microsoft's `about_Execution_Policies` (CurrentUser RemoteSigned, Process scope). The PowerShell
+  link is pinned to `?view=powershell-5.1` because the README targets Windows PowerShell 5.1.
+- **Alternatives:** delete them (they were correct, so nothing gained); cite a blog or Stack Overflow
+  (secondary).
+- **Not verified:** the 5.1 view was not opened. The 7.6 view was read, and it gives the same
+  commands and scopes. The page lists 5.1 as a supported version.
+- **Also open:** the hooksPath entry (2026-11-11) still says its relative-path statement is from
+  memory. The task named only the pip and PowerShell URLs, so that one is unchanged.
+
+### 2026-11-12 · Sheet template brought up to contracts 1.3 (Decision Log, Tickets, Settings)
+- **Choice:** `scripts/make_sheet_template.py` now has the exact `decision_log.csv` and
+  `tickets.csv` column lines from `docs/contracts.md`, in `sim/loop.py` order. The Settings tab uses
+  the contract's keys and defaults (`approver_email` … `digest_channel`, including the 1.4 keys
+  `retire_days` and `retire_isolation_days`, because the file is now at 1.4). It also keeps a
+  human-only `description` column. New Tickets columns get the same treatment as the old ones: ids,
+  versions, evidence and flags are text (`@`), and `last_updated_at_open` and `closed_on` are dates.
+  The demo exporter therefore writes no grey extra columns. It still supports them if the simulator
+  ever adds one, and it now stops if the simulator has a Settings key the template lacks. Summary
+  formulas find columns by name, so the moved Tickets `status` column (D → F) needed no formula edit.
+- **Tests:** template headers equal `loop.DECISION_LOG_COLUMNS` / `TICKET_COLUMNS` and the contract's
+  column lines; the Settings tab equals `loop.SETTINGS_DEFAULTS`; the demo workbooks have no extras,
+  and their Settings match the simulator's. The optional `formulas` check (Summary column B evaluated
+  = loop values, all three stages) was run with `formulas==1.3.4` installed in the scratchpad only,
+  and it passed.
+- **Alternatives:** keep the extras at the right (rejected: the user asked for normal template
+  columns); import `sim.loop` from the template script (rejected: it keeps the template script
+  free of the simulator; a test pins the two together instead).
+- **Source:** `docs/contracts.md` (Loop state files); `docs/decisions/feat-demo-sheet.md` ("Proposed
+  for main").
+
+### 2026-11-12 · Decision Log lane dropdown: allow blank (not "removed")
+- **Choice:** the lane validation now has `allow_blank=True`, and its error text says blank is only
+  for the verify row of a removed device. Any value outside the four lanes is still rejected.
+- **Why this is the safer fix:** contracts 1.3 already defines a blank lane on that row, and
+  `sim/loop.py` writes it (DEV-102 in demo stage 3). Writing `removed` would add a fifth lane value
+  that the Lane enum, `guards`, the Summary `COUNTIFS` and the conditional formatting don't know.
+  It would also change loop output and contracts. Allowing blank changes only the Sheet rule.
+- **Cost:** a blank lane on a device row (not a verify row) is no longer rejected by the dropdown.
+  The loop never writes one, and a dropdown can't tell row types apart without a custom formula.
+  A custom-formula rule (`=OR(D2<>"",G2="verify")`) was considered and rejected: it is more
+  fragile to port, and the 1:1 Sheets mapping hasn't been checked.
+- **Tests:** `test_decision_log_lane_allows_blank` and `test_removed_device_verify_row_fits_the_lane_rule`
+  (`scripts/test_make_sheet_template.py`); `test_removed_device_has_blank_lane_in_stage_3`
+  (`scripts/test_export_demo_to_sheet.py`).
+- **Source:** https://openpyxl.readthedocs.io/en/stable/validation.html (shows `allow_blank` but
+  does not define it); https://support.google.com/docs/answer/186103 (non-list entries are
+  rejected; nothing about blanks).
+- **Not verified:** neither page says how a blank cell is treated. That `allowBlank` maps to
+  Excel's "Ignore blank" and survives a Google Sheets import is from memory, untested. It is on
+  the Sheets import test in `docs/submission-checklist.md`.
+
+### 2026-11-12 · Submission checklist brought up to date
+- **Choice:** a new "Open items for a human" section lists the T35 EOL check (DEV-052, DEV-025),
+  human label review, the Sheets import test, the coordinator message and the backup video, all
+  unticked. Stale facts were updated: repo still private, no LICENSE, test count 463 passed /
+  1 skipped, all branches merged. No research needed (repo facts only, from `gh repo view` and
+  `git branch --no-merged`).

@@ -237,6 +237,14 @@ firmware or `fixed_version` doesn't parse goes to `unknown`.
 These stand in for the Sheet tabs and the approval Inbox. Same general CSV rules as above;
 `sim/loop.py` writes exactly these columns in this order. Blank means unknown or not yet set.
 
+**Sheet template** (`scripts/make_sheet_template.py` → `sheet/deming_template.xlsx`): the
+Decision Log and Tickets tabs have exactly the columns below, in the same order; the Settings tab
+has the keys below with their defaults, plus a third `description` column for the human reading
+the Sheet (the loop reads only `key` and `value`). The Decision Log `lane` dropdown accepts the
+four lanes **or blank**, because the verify row of a removed device has a blank lane; no other
+value (e.g. `removed`) is a lane. `scripts/test_make_sheet_template.py` checks the template
+against the column lines in this file.
+
 ### Settings tab: `settings.csv`
 
 ```

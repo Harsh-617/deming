@@ -22,9 +22,37 @@ demo link optional (`docs/PRD.md`).
 - [ ] **PDF deck** attached, **under 10 MB** (check the file size before upload)
 - [ ] **Demo link** (optional): the backup video (`docs/demo-script.md`), tested while logged out
 
+## Open items for a human (not done; nobody may tick these for you)
+
+State on 2026-11-12, after `fix/final-polish`. None of these can be done by the code or by an AI
+session. Each needs a named person.
+
+- [ ] **T35 end-of-life check for DEV-052 and DEV-025.** The blind AI cross-check called both
+      `retire` (WatchGuard Firebox T35 end of life 31 Dec 2025); the draft labels say `fine`
+      (DEV-052, 12.5.15) and `patch` (DEV-025, 12.5.9). The AI also notes that a T35-R / T35-DW
+      has a later EOL (01 Mar 2027), which would change the lane (`docs/ai-cross-check.md`, B07/B08).
+      A person opens WatchGuard's own lifecycle page and decides. Any label change is logged with
+      old/new values and evidence, and numbers reported before and after
+      (`docs/results-analysis.md`, "Ground-truth corrections"). Not done.
+- [ ] **Human review of the labels.** `data/ground_truth_meta.json` says
+      `label_status: ai_drafted_unverified`, and `verified_by_a` / `verified_by_b` are blank on
+      all 60 rows. Two people other than the author follow `docs/review-instructions.md` (blind
+      page first, then the review page). The AI cross-check is **not** a human review. Not done.
+- [ ] **Sheets import test.** No .xlsx has been imported into a real Google Sheet yet. Import
+      `sheet/deming_template.xlsx` and the three `sheet/deming_demo_*.xlsx` (File > Import >
+      Upload > Create new spreadsheet). Check that the dropdowns, lane colours, frozen headers,
+      text versions (`7.0` stays `7.0`) and the Summary formulas survive, and that Summary
+      column B equals column D. Also check that the blank lane on DEV-102's verify row (stage 3)
+      is not flagged as invalid. Not done.
+- [ ] **Coordinator message.** Write and send it (the team decides the content; the open topics in
+      `docs/reference/full-report.md` are Gemini Enterprise license status for the 17 Nov final
+      and how judges get access to the repo). Not done.
+- [ ] **Backup video.** Record it using the checklist in `docs/demo-script.md` ("Backup-video
+      checklist"), upload it, and test the link while logged out. Not done.
+
 ## Repo visibility and judge access (decide)
 
-On 2026-11-11 the repo is **PRIVATE** (`gh repo view`). Judges can't open a private link.
+On 2026-11-12 the repo is still **PRIVATE** (`gh repo view`). Judges can't open a private link.
 Choose one:
 - [ ] **Make it public** before submitting. Then re-run the secret checks below first, because
       the whole history becomes visible, not just the last commit.
@@ -35,13 +63,15 @@ Other access notes:
 - [ ] The briefing said reviewers will be invited into each team's Gemini Enterprise app
       (`docs/reference/full-report.md`). That applies to the 17 Nov final, once the Agent Designer
       build exists.
-- [ ] No LICENSE file exists. Decide whether to add one before making the repo public.
+- [ ] No LICENSE file exists (still true on 2026-11-12). Decide whether to add one before making
+      the repo public.
 
 ## Last-minute checks (run on the commit you submit)
 
-- [ ] `main` has every branch merged (feat/docs included) and is pushed.
-- [ ] **Tests pass:** `python -m pytest -q` (396 passed on feat/docs, 2026-11-11; the count
-      grows once feat/review's tests are on the same branch).
+- [ ] `main` has every branch merged and is pushed (`git branch --no-merged main` prints nothing;
+      true on 2026-11-12 after `fix/final-polish`, re-check on the day).
+- [ ] **Tests pass:** `python -m pytest -q` (463 passed, 1 skipped on `fix/final-polish`,
+      2026-11-12; the skip is the optional `formulas` check, which passes when `formulas` is installed).
 - [ ] **README commands tested** on a fresh clone with a fresh venv: install, tests,
       `python eval/baseline.py`, the `run_eval` command, `python -m sim.demo_scenario`.
 - [ ] **No secrets:**
