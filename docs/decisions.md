@@ -447,3 +447,28 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
   unticked. Stale facts were updated: repo still private, no LICENSE, test count 463 passed /
   1 skipped, all branches merged. No research needed (repo facts only, from `gh repo view` and
   `git branch --no-merged`).
+
+### 2026-11-12 · T35 labels corrected to retire (fix/t35-labels)
+- **Choice:** DEV-025 (patch → retire) and DEV-052 (fine → retire). Both raw names say plain
+  "T35" (Firebox T35). The source is WatchGuard's End of Life Policy page,
+  https://www.watchguard.com/node/111406, opened 2026-11-12. It gives Firebox T35 EOS 17 Jul 2021 /
+  EOL 31 Dec 2025, T35-W EOL 31 Dec 2025, and T35-R and T35-DW EOL 01 Mar 2027. 31 Dec 2025 is
+  before `as_of_date` 2026-11-12. Only the lane changed. Vendor, product, version, evidence ids
+  and group were kept; `verified_by_*` stay blank; `label_status` stays `ai_drafted_unverified`.
+  The change was made in `scripts/build_inventory.py` and regenerated (only these two rows
+  changed).
+- **Alternatives:** (a) add a T35 hardware row to `data/lifecycle.csv` and cite it. Rejected for
+  now: the published Deming run used the old file, and changing it would mix data and label
+  fixes. The gap is listed as candidate fix 5. (b) Leave the labels and keep only the doubt.
+  Rejected: the vendor page is primary and unambiguous for a plain T35.
+- **Consequence:** the two rows fail three lifecycle-derived label tests (retire needs a
+  lifecycle cite past support; supported_fine must be fine). They are exempted by id in
+  `tests/test_inventory.py` (`VENDOR_EOL_OVERRIDES`), and a new test checks that each exempt row
+  is a plain T35, cites the WatchGuard URL and is still unverified. `scripts/check_labels.py`
+  now flags both rows (recomputed lane differs), as expected.
+- **Re-scoring:** offline only, on the published prediction CSVs, with no API calls. The new
+  results are in `eval/results/20261112T152247Z/`, and the old directory is kept.
+  `eval/offline_analysis.py` gained `--ground-truth` (default unchanged) so the old labels can be
+  re-scored. Old labels reproduce the published `offline_analysis.md` byte-for-byte.
+- **Not verified:** that the synthetic names mean a plain T35 and not a T35-R / T35-DW recorded
+  without a suffix. A human reviewer must confirm.

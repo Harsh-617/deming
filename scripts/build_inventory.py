@@ -83,6 +83,8 @@ WG = ("WatchGuard", "Firebox")
 #               do_not_touch, last_updated, (vendor, product), version, lane, cves, lc,
 #               note, source_url, review_reason)   review_reason "" = no extra review needed
 D = []
+# WatchGuard End of Life Policy (hardware EOL dates), checked 2026-11-12 for the T35 label fix.
+WG_EOL = "https://www.watchguard.com/node/111406"
 
 
 def dev(group, name, loc, owner, fw, inet, crit, dnt, upd, ident, version, lane, cves, lc,
@@ -244,9 +246,9 @@ for name, loc, owner, inet, crit, upd in [
         "LC-029 Fireware 12.x. 12.11.6 is the fix for CVE-2025-14733 and above the CVE-2025-9242 fix (12.11.4). Not T15/T35 or FIPS. 2022 WatchGuard KEV CVEs (Firebox and XTM) not re-checked.",
         f"{WG_9242};{WG_14733}", "fine for a KEV product: 2022 WatchGuard KEV advisories not re-opened")
 dev("supported_fine", "WatchGuard Firebox T35 (sports complex)", "Sports complex", "facilities", "12.5.15", False, "low", False, "2026-10-17",
-    WG, "12.5.15", "fine", "", "",
-    "LC-029. TRICKY: T15/T35 have their own fixed builds: CVE-2025-9242 fixed in 12.5.13, CVE-2025-14733 fixed in 12.5.15. 12.5.15 is below the generic fixed_version 12.11.4 but is fixed for this model.",
-    f"{WG_9242};{WG_14733}", "fine depends on the T35 model exception, not on lifecycle fixed_version")
+    WG, "12.5.15", "retire", "", "",
+    "LC-029. TRICKY: T15/T35 have their own fixed builds: CVE-2025-9242 fixed in 12.5.13, CVE-2025-14733 fixed in 12.5.15. 12.5.15 is below the generic fixed_version 12.11.4 but is fixed for this model. LABEL FIX 2026-11-12: lane changed to retire. WatchGuard End of Life Policy lists Firebox T35 EOL 31 Dec 2025 (https://www.watchguard.com/node/111406, checked 2026-11-12), before as_of 2026-11-12. data/lifecycle.csv has no T35 hardware row (known gap), so evidence fields are unchanged.",
+    f"{WG_9242};{WG_14733};{WG_EOL}", "retire rests on the WatchGuard EOL page (T35 EOL 2025-12-31); no T35 lifecycle row; group left as supported_fine")
 
 # =========================== messy_name (10) ===================================================
 dev("messy_name", "Cisco RV042G VPN rtr", "Branch Penang", "branch-penang", "", True, "medium", False, "2025-11-03",
@@ -274,9 +276,9 @@ dev("messy_name", "sonicwal sma410", "Branch Johor", "branch-johor", "", True, "
     "Vendor typo, model run together, no firmware. SMA 410 is named in LC-012 (End of Support 2025-11-01). Not SMA1000.",
     SONICWALL_SMA100)
 dev("messy_name", "wtchgrd firebox T35", "Hostel block C", "facilities", "12.5.9", False, "low", False, "2026-07-07",
-    WG, "12.5.9", "patch", "CVE-2025-9242;CVE-2025-14733", "LC-029",
-    "Vendor abbreviated. T35 model: affected < 12.5.13 (CVE-2025-9242) and < 12.5.15 (CVE-2025-14733); 12.5.9 is below both.",
-    f"{WG_9242};{WG_14733}", "LC-029 support end dates not verified")
+    WG, "12.5.9", "retire", "CVE-2025-9242;CVE-2025-14733", "LC-029",
+    "Vendor abbreviated. T35 model: affected < 12.5.13 (CVE-2025-9242) and < 12.5.15 (CVE-2025-14733); 12.5.9 is below both. LABEL FIX 2026-11-12: lane changed to retire. WatchGuard End of Life Policy lists Firebox T35 EOL 31 Dec 2025 (https://www.watchguard.com/node/111406, checked 2026-11-12), before as_of 2026-11-12. data/lifecycle.csv has no T35 hardware row (known gap), so evidence fields are unchanged.",
+    f"{WG_9242};{WG_14733};{WG_EOL}", "retire rests on the WatchGuard EOL page (T35 EOL 2025-12-31); cited LC-029 is the Fireware train row, not hardware EOL")
 dev("messy_name", "ASA fw dc1", "Data centre rack A1", "netops", "", False, "high", False, "2026-04-18",
     ("Cisco", ""), "", "unknown", "", "",
     "No model and no version. Could be ASA 5506-X hardware (LC-019, past support) or a supported box on a fixed or unfixed 9.2x train (LC-026). A human can't decide.",

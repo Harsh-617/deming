@@ -27,13 +27,12 @@ demo link optional (`docs/PRD.md`).
 State on 2026-11-12, after `fix/final-polish`. None of these can be done by the code or by an AI
 session. Each needs a named person.
 
-- [ ] **T35 end-of-life check for DEV-052 and DEV-025.** The blind AI cross-check called both
-      `retire` (WatchGuard Firebox T35 end of life 31 Dec 2025); the draft labels say `fine`
-      (DEV-052, 12.5.15) and `patch` (DEV-025, 12.5.9). The AI also notes that a T35-R / T35-DW
-      has a later EOL (01 Mar 2027), which would change the lane (`docs/ai-cross-check.md`, B07/B08).
-      A person opens WatchGuard's own lifecycle page and decides. Any label change is logged with
-      old/new values and evidence, and numbers reported before and after
-      (`docs/results-analysis.md`, "Ground-truth corrections"). Not done.
+- [ ] **T35 end-of-life check for DEV-052 and DEV-025.** On 2026-11-12 an AI session
+      (fix/t35-labels) opened https://www.watchguard.com/node/111406 (Firebox T35 EOL 31 Dec
+      2025; T35-R / T35-DW 01 Mar 2027) and changed both draft lanes to `retire`. The change is
+      logged with before/after numbers in `docs/results-analysis.md`, "Ground-truth corrections".
+      **Still for a person:** confirm the page and that both raw names mean a plain T35, not a
+      T35-R or T35-DW. The labels stay `ai_drafted_unverified`. Not done by a human.
 - [ ] **Human review of the labels.** `data/ground_truth_meta.json` says
       `label_status: ai_drafted_unverified`, and `verified_by_a` / `verified_by_b` are blank on
       all 60 rows. Two people other than the author follow `docs/review-instructions.md` (blind
@@ -70,7 +69,7 @@ Other access notes:
 
 - [ ] `main` has every branch merged and is pushed (`git branch --no-merged main` prints nothing;
       true on 2026-11-12 after `fix/final-polish`, re-check on the day).
-- [ ] **Tests pass:** `python -m pytest -q` (463 passed, 1 skipped on `fix/final-polish`,
+- [ ] **Tests pass:** `python -m pytest -q` (464 passed, 1 skipped on `fix/t35-labels`,
       2026-11-12; the skip is the optional `formulas` check, which passes when `formulas` is installed).
 - [ ] **README commands tested** on a fresh clone with a fresh venv: install, tests,
       `python eval/baseline.py`, the `run_eval` command, `python -m sim.demo_scenario`.

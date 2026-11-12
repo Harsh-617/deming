@@ -31,7 +31,7 @@ Each run of `python -m sim.demo_scenario` resets the demo folder and replays bot
 | 1:00 | Run the agent; show lane, evidence and confidence for each device | `python -m sim.demo_scenario` → Run 1: DEV-101 patch, DEV-102 retire, DEV-103 unknown, DEV-104 patch, DEV-105 fine. Show `proposals.csv` |
 | 1:25 | Approve; show the email, maintenance window and ticket | The scripted approver approves; show `outbox/P-001-DEV-101.email.json`, `.calendar.json`, `.ticket.json`. Say: recorded, **not sent** |
 | 1:50 | Mark the device replaced, run again; ticket closes and the log updates | Same output, Run 2: T-0001 (DEV-101 → 7.0.14) closed, T-0002 (DEV-102 removed) closed, T-0004 (DEV-104 → 7.0.12) **escalated: a change is not a fix**. Show `tickets.csv`, `decision_log.csv` |
-| 2:20 | Evaluation summary, one failure, honest limits | Lane accuracy 0.88 vs 0.32 for the naive baseline on 60 **synthetic** devices with **unverified** labels; the baseline wins exposure recall (0.95 vs 0.88). One failure: DEV-011, a retire device called fine because the Checker misread a past date. Limits: `docs/limits.md` |
+| 2:20 | Evaluation summary, one failure, honest limits | Lane accuracy 0.87 vs 0.30 for the naive baseline on 60 **synthetic** devices with **unverified** labels (two T35 labels corrected to retire on 12 Nov; it was 0.88 vs 0.32 before); the baseline wins exposure recall (0.95 vs 0.85). One failure: DEV-011, a retire device called fine because the Checker misread a past date. Limits: `docs/limits.md` |
 | 2:45 | Portability close | The prompts and schemas in `agents/` and `schemas/` are plain text for Agent Designer; port guide in `docs/agent-designer-port.md`. Say what has and hasn't been run there |
 
 Words to keep exact:

@@ -41,6 +41,12 @@ GROUP_COUNTS = {"clear_patch": 15, "clear_retire": 12, "supported_fine": 15,
                 "messy_name": 10, "name_collision": 4, "critical_dnt": 4}
 LANES = {"patch", "retire", "fine", "unknown"}
 FORBIDDEN = {"n/a", "na", "none", "null", "-"}
+# Retire labels whose source is a vendor EOL page, not a data/lifecycle.csv row (fix/t35-labels,
+# 2026-11-12). lifecycle.csv has no WatchGuard T35 hardware row and was deliberately left unchanged
+# (the published Deming run used it), so these rows are exempt from the lifecycle-derived checks.
+# test_vendor_eol_overrides_are_sourced pins down why each one is exempt.
+VENDOR_EOL_OVERRIDES = {"DEV-025", "DEV-052"}
+WATCHGUARD_EOL = "https://www.watchguard.com/node/111406"
 
 
 def _read(path: Path) -> tuple[list[str], list[dict]]:
@@ -117,7 +123,7 @@ def test_ground_truth_schema(gt, lifecycle, kev_ids):
                 assert cve in kev_ids, f"{did}: {cve} not in kev.json"
         if r["evidence_lifecycle_id"]:
             assert r["evidence_lifecycle_id"] in lifecycle, did
-        if r["lane"] in ("patch", "retire"):
+        if r["lane"] in ("patch", "retire") and did not in VENDOR_EOL_OVERRIDES:
             assert r["evidence_cve"] or r["evidence_lifecycle_id"], f"{did}: {r['lane']} needs evidence"
         if r["lane"] in ("fine", "unknown"):
             assert not r["evidence_cve"] and not r["evidence_lifecycle_id"], did
@@ -151,7 +157,7 @@ def test_lanes_follow_lifecycle_dates(gt, lifecycle):
     as_of = _as_of()
     for r in gt:
         lc = lifecycle.get(r["evidence_lifecycle_id"])
-        if not lc:
+        if not lc or r["device_id"] in VENDOR_EOL_OVERRIDES:
             continue
         cutoff = lc["last_security_support_date"] or lc["eol_date"]
         past = (bool(cutoff) and date.fromisoformat(cutoff) <= as_of) or lc["patch_available"].lower() == "false"
@@ -186,7 +192,7 @@ def test_clear_patch_below_fixed_version(gt, lifecycle):
 def test_supported_fine_at_or_above_fixed_version(gt, lifecycle):
     """Fine rows come from a supported row's train; except the documented T35 case, at/above the fix."""
     for r in gt:
-        if r["group"] != "supported_fine":
+        if r["group"] != "supported_fine" or r["device_id"] in VENDOR_EOL_OVERRIDES:
             continue
         assert r["lane"] == "fine"
         if "T35" in r["source_row_note"]:
@@ -244,3 +250,18 @@ def test_agreement_script(tmp_path, gt):
     assert s["n"] == 15 and all(v == 1.0 for v in s["fields"].values()) and not s["disagreements"]
     assert mod.cohen_kappa(["a", "b"], ["a", "b"]) == 1.0
     assert mod.main([str(perfect)]) == 0
+
+
+def test_vendor_eol_overrides_are_sourced(gt, inv):
+    """Each exempt row is a plain Firebox T35 (not T35-R/T35-DW/T35-W, which have other dates),
+    is labelled retire, cites the WatchGuard EOL page, and is still marked AI-drafted."""
+    review = {r["device_id"]: r for r in _read(REVIEW)[1]}
+    names = {r["device_id"]: r["device_name_raw"] for r in inv}
+    for did in VENDOR_EOL_OVERRIDES:
+        row = next(r for r in gt if r["device_id"] == did)
+        assert row["lane"] == "retire", did
+        assert re.search(r"\bT35\b(?!-)", names[did], re.I), (did, names[did])
+        assert WATCHGUARD_EOL in review[did]["source_url"].split(";"), did
+        assert "LABEL FIX 2026-11-12" in row["source_row_note"], did
+        assert row["verified_by_a"] == "" and row["verified_by_b"] == "", did
+    assert json.loads(GT_META.read_text(encoding="utf-8"))["label_status"] == "ai_drafted_unverified"

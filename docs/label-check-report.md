@@ -1,17 +1,17 @@
 # Label check report (mechanical)
 
-Generated 2026-11-11T14:32:52Z by `scripts/check_labels.py`, as of `2026-11-12` (data/ground_truth_meta.json). No LLM was used. This report checks the labels against the repo's own data and the public source pages; it does **not** replace the two human reviewers, and a `pass` here only means no mechanical rule disagreed.
+Generated 2026-11-12T15:23:19Z by `scripts/check_labels.py`, as of `2026-11-12` (data/ground_truth_meta.json). No LLM was used. This report checks the labels against the repo's own data and the public source pages; it does **not** replace the two human reviewers, and a `pass` here only means no mechanical rule disagreed.
 
 ## Summary
 
-- Devices: 60. Mechanical **flag**: 10; pass: 50.
-- Source check **needs human**: 19 devices; ok: 41.
-- URLs: 34 unique; 6 could not be text-checked by script.
+- Devices: 60. Mechanical **flag**: 11; pass: 49.
+- Source check **needs human**: 21 devices; ok: 39.
+- URLs: 35 unique; 7 could not be text-checked by script.
 
 Flags by kind (a device can have several):
 
-- recomputed lane differs from the label: 2 (DEV-023, DEV-052)
-- evidence id missing or vendor/product mismatch: 1 (DEV-002)
+- recomputed lane differs from the label: 3 (DEV-023, DEV-025, DEV-052)
+- evidence id missing or vendor/product mismatch: 2 (DEV-002, DEV-052)
 - raw firmware changes the lane (version guard would differ): 2 (DEV-027, DEV-045)
 - raw firmware doesn't parse (sim.guards grammar): 6 (DEV-002, DEV-027, DEV-042, DEV-045, DEV-058, DEV-059)
 - cited lifecycle pattern doesn't fit the raw name: 2 (DEV-016, DEV-032)
@@ -24,6 +24,7 @@ URLs that need a human (open them in a browser):
 - https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html: HTTP 403: the site blocks scripts; needs human check in a browser
 - https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html: HTTP 403: the site blocks scripts; needs human check in a browser
 - https://www.cisco.com/c/en/us/products/collateral/security/asa-5500-series-next-generation-firewalls/eos-eol-notice-c51-744797.html: HTTP 403: the site blocks scripts; needs human check in a browser
+- https://www.watchguard.com/node/111406: not fetched (offline run); needs human check in a browser
 
 Strings not found on any of the device's text pages: 8 distinct (the page may render with JavaScript, use other wording, or the value may come from another page).
 
@@ -40,62 +41,62 @@ Strings not found on any of the device's text pages: 8 distinct (the page may re
 |---|---|---|---|---|---|---|
 | 1 | DEV-002 | retire | retire | **flag** | ok | evidence CVE-2025-22457 is KEV 'Ivanti / Connect Secure, Policy Secure, and ZTA Gateways', but the label says 'Ivanti / Pulse Connect Secure'; firmware '9.1R18' does not parse (sim.guards grammar); label version is '9.1R18' |
 | 2 | DEV-023 | unknown | fine | **flag** | ok | label lane unknown, recomputed fine: no KEV entry for this vendor/product and not past support |
-| 3 | DEV-052 | fine | patch | **flag** | ok | label lane fine, recomputed patch: 12.5.15 is below fixed 12.11.4 (LC-029) |
-| 4 | DEV-045 | patch | patch | **flag** | ok | firmware 'NS14.1 38.53' does not parse (sim.guards grammar); label version is '14.1-38.53'; with the raw firmware 'NS14.1 38.53' the lane would be unknown (version 'NS14.1 38.53' does not parse (sim.guards grammar)), not patch: the Checker's version guard reads the raw firmware |
-| 5 | DEV-027 | patch | patch | **flag** | ok | firmware 'ROS 7.24.1' does not parse (sim.guards grammar); label version is '7.24.1'; with the raw firmware 'ROS 7.24.1' the lane would be unknown (firmware 'ROS 7.24.1' does not parse, so its release train among fixed versions 7.24.3;7.23.6 can't be identified), not patch: the Checker's version guard reads the raw firmware |
-| 6 | DEV-039 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2026-08-31' unchecked; eol_date '2021-08-02' unchecked; quote 'Last Date of Support: HW' unchecked; www.cisco.com needs human |
-| 7 | DEV-059 | retire | retire | **flag** | ok | firmware '1.06B01' does not parse (sim.guards grammar); label version is '1.06B01' |
-| 8 | DEV-030 | unknown | unknown | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
-| 9 | DEV-040 | unknown | unknown | **pass** | needs human | -<br>Source: www.cisco.com needs human |
-| 10 | DEV-046 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
-| 11 | DEV-005 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
-| 12 | DEV-011 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2024-07-15' not found; eol_date '2023-07-15' not found |
-| 13 | DEV-016 | retire | retire | **flag** | needs human | LC-010 model_pattern 'Vigor300B*' does not match the raw device name; the identity is a human reading of a messy name, check it<br>Source: last_security_support_date '2026-04-22' not found |
-| 14 | DEV-019 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2025-01-31' unchecked; eol_date '2020-01-30' unchecked; quote 'Last Date of Support: HW' unchecked; quote 'has not released and will not release software updates' unchecked; www.cisco.com needs human |
-| 15 | DEV-020 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2025-01-31' unchecked; eol_date '2020-01-30' unchecked; quote 'Last Date of Support: HW' unchecked; www.cisco.com needs human |
-| 16 | DEV-028 | fine | fine | **pass** | needs human | -<br>Source: nuuo.com needs human; www.cisa.gov needs human |
-| 17 | DEV-041 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2022-01-01' unchecked; eol_date '2020-03-15' unchecked; nuuo.com needs human |
-| 18 | DEV-042 | retire | retire | **flag** | ok | firmware '1.05b03' does not parse (sim.guards grammar); label version is '1.05b03' |
-| 19 | DEV-054 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2022-12-31' not found; eol_date '2024-05-16' not found |
-| 20 | DEV-055 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
-| 21 | DEV-057 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2025-03-31' not found; eol_date '2025-03-31' not found; quote 'Sophos will not provide patches or fixes' not found |
-| 22 | DEV-026 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
-| 23 | DEV-029 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
-| 24 | DEV-032 | retire | retire | **flag** | ok | LC-006 model_pattern 'DNS-320L*' does not match the raw device name; the identity is a human reading of a messy name, check it |
-| 25 | DEV-044 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2022-10-28' unchecked; eol_date '2021-10-28' unchecked; www.cisco.com needs human |
-| 26 | DEV-053 | unknown | unknown | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
-| 27 | DEV-058 | retire | retire | **flag** | ok | firmware '1.05B03' does not parse (sim.guards grammar); label version is '1.05B03' |
-| 28 | DEV-060 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
-| 29 | DEV-004 | patch | patch | **pass** | ok | - |
-| 30 | DEV-010 | retire | retire | **pass** | ok | - |
-| 31 | DEV-008 | fine | fine | **pass** | ok | - |
-| 32 | DEV-049 | patch | patch | **pass** | ok | - |
-| 33 | DEV-001 | patch | patch | **pass** | ok | - |
-| 34 | DEV-014 | patch | patch | **pass** | ok | - |
-| 35 | DEV-021 | patch | patch | **pass** | ok | - |
-| 36 | DEV-031 | retire | retire | **pass** | ok | - |
-| 37 | DEV-033 | patch | patch | **pass** | ok | - |
-| 38 | DEV-034 | patch | patch | **pass** | ok | - |
-| 39 | DEV-037 | patch | patch | **pass** | ok | - |
-| 40 | DEV-050 | patch | patch | **pass** | ok | - |
-| 41 | DEV-047 | patch | patch | **pass** | ok | - |
-| 42 | DEV-006 | fine | fine | **pass** | ok | - |
-| 43 | DEV-022 | fine | fine | **pass** | ok | - |
-| 44 | DEV-007 | patch | patch | **pass** | ok | - |
-| 45 | DEV-009 | patch | patch | **pass** | ok | - |
-| 46 | DEV-012 | retire | retire | **pass** | ok | - |
-| 47 | DEV-015 | retire | retire | **pass** | ok | - |
-| 48 | DEV-017 | fine | fine | **pass** | ok | - |
-| 49 | DEV-018 | patch | patch | **pass** | ok | - |
-| 50 | DEV-024 | patch | patch | **pass** | ok | - |
-| 51 | DEV-035 | fine | fine | **pass** | ok | - |
-| 52 | DEV-036 | retire | retire | **pass** | ok | - |
-| 53 | DEV-038 | fine | fine | **pass** | ok | - |
-| 54 | DEV-043 | patch | patch | **pass** | ok | - |
-| 55 | DEV-051 | fine | fine | **pass** | ok | - |
-| 56 | DEV-003 | retire | retire | **pass** | ok | - |
-| 57 | DEV-013 | fine | fine | **pass** | ok | - |
-| 58 | DEV-025 | patch | patch | **pass** | ok | - |
+| 3 | DEV-025 | retire | patch | **flag** | needs human | label lane retire, recomputed patch: 12.5.9 is below fixed 12.11.4 (LC-029)<br>Source: www.watchguard.com not fetched |
+| 4 | DEV-052 | retire | patch | **flag** | needs human | lane retire cites no lifecycle row; LC-029 fits; label lane retire, recomputed patch: 12.5.15 is below fixed 12.11.4 (LC-029); lane retire has no evidence<br>Source: www.watchguard.com not fetched |
+| 5 | DEV-045 | patch | patch | **flag** | ok | firmware 'NS14.1 38.53' does not parse (sim.guards grammar); label version is '14.1-38.53'; with the raw firmware 'NS14.1 38.53' the lane would be unknown (version 'NS14.1 38.53' does not parse (sim.guards grammar)), not patch: the Checker's version guard reads the raw firmware |
+| 6 | DEV-027 | patch | patch | **flag** | ok | firmware 'ROS 7.24.1' does not parse (sim.guards grammar); label version is '7.24.1'; with the raw firmware 'ROS 7.24.1' the lane would be unknown (firmware 'ROS 7.24.1' does not parse, so its release train among fixed versions 7.24.3;7.23.6 can't be identified), not patch: the Checker's version guard reads the raw firmware |
+| 7 | DEV-039 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2026-08-31' unchecked; eol_date '2021-08-02' unchecked; quote 'Last Date of Support: HW' unchecked; www.cisco.com needs human |
+| 8 | DEV-059 | retire | retire | **flag** | ok | firmware '1.06B01' does not parse (sim.guards grammar); label version is '1.06B01' |
+| 9 | DEV-030 | unknown | unknown | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
+| 10 | DEV-040 | unknown | unknown | **pass** | needs human | -<br>Source: www.cisco.com needs human |
+| 11 | DEV-046 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
+| 12 | DEV-005 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
+| 13 | DEV-011 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2024-07-15' not found; eol_date '2023-07-15' not found |
+| 14 | DEV-016 | retire | retire | **flag** | needs human | LC-010 model_pattern 'Vigor300B*' does not match the raw device name; the identity is a human reading of a messy name, check it<br>Source: last_security_support_date '2026-04-22' not found |
+| 15 | DEV-019 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2025-01-31' unchecked; eol_date '2020-01-30' unchecked; quote 'Last Date of Support: HW' unchecked; quote 'has not released and will not release software updates' unchecked; www.cisco.com needs human |
+| 16 | DEV-020 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2025-01-31' unchecked; eol_date '2020-01-30' unchecked; quote 'Last Date of Support: HW' unchecked; www.cisco.com needs human |
+| 17 | DEV-028 | fine | fine | **pass** | needs human | -<br>Source: nuuo.com needs human; www.cisa.gov needs human |
+| 18 | DEV-041 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2022-01-01' unchecked; eol_date '2020-03-15' unchecked; nuuo.com needs human |
+| 19 | DEV-042 | retire | retire | **flag** | ok | firmware '1.05b03' does not parse (sim.guards grammar); label version is '1.05b03' |
+| 20 | DEV-054 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2022-12-31' not found; eol_date '2024-05-16' not found |
+| 21 | DEV-055 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
+| 22 | DEV-057 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2025-03-31' not found; eol_date '2025-03-31' not found; quote 'Sophos will not provide patches or fixes' not found |
+| 23 | DEV-026 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
+| 24 | DEV-029 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
+| 25 | DEV-032 | retire | retire | **flag** | ok | LC-006 model_pattern 'DNS-320L*' does not match the raw device name; the identity is a human reading of a messy name, check it |
+| 26 | DEV-044 | retire | retire | **pass** | needs human | -<br>Source: last_security_support_date '2022-10-28' unchecked; eol_date '2021-10-28' unchecked; www.cisco.com needs human |
+| 27 | DEV-053 | unknown | unknown | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
+| 28 | DEV-058 | retire | retire | **flag** | ok | firmware '1.05B03' does not parse (sim.guards grammar); label version is '1.05B03' |
+| 29 | DEV-060 | fine | fine | **pass** | needs human | -<br>Source: www.cisa.gov needs human |
+| 30 | DEV-004 | patch | patch | **pass** | ok | - |
+| 31 | DEV-010 | retire | retire | **pass** | ok | - |
+| 32 | DEV-008 | fine | fine | **pass** | ok | - |
+| 33 | DEV-049 | patch | patch | **pass** | ok | - |
+| 34 | DEV-001 | patch | patch | **pass** | ok | - |
+| 35 | DEV-014 | patch | patch | **pass** | ok | - |
+| 36 | DEV-021 | patch | patch | **pass** | ok | - |
+| 37 | DEV-031 | retire | retire | **pass** | ok | - |
+| 38 | DEV-033 | patch | patch | **pass** | ok | - |
+| 39 | DEV-034 | patch | patch | **pass** | ok | - |
+| 40 | DEV-037 | patch | patch | **pass** | ok | - |
+| 41 | DEV-050 | patch | patch | **pass** | ok | - |
+| 42 | DEV-047 | patch | patch | **pass** | ok | - |
+| 43 | DEV-006 | fine | fine | **pass** | ok | - |
+| 44 | DEV-022 | fine | fine | **pass** | ok | - |
+| 45 | DEV-007 | patch | patch | **pass** | ok | - |
+| 46 | DEV-009 | patch | patch | **pass** | ok | - |
+| 47 | DEV-012 | retire | retire | **pass** | ok | - |
+| 48 | DEV-015 | retire | retire | **pass** | ok | - |
+| 49 | DEV-017 | fine | fine | **pass** | ok | - |
+| 50 | DEV-018 | patch | patch | **pass** | ok | - |
+| 51 | DEV-024 | patch | patch | **pass** | ok | - |
+| 52 | DEV-035 | fine | fine | **pass** | ok | - |
+| 53 | DEV-036 | retire | retire | **pass** | ok | - |
+| 54 | DEV-038 | fine | fine | **pass** | ok | - |
+| 55 | DEV-043 | patch | patch | **pass** | ok | - |
+| 56 | DEV-051 | fine | fine | **pass** | ok | - |
+| 57 | DEV-003 | retire | retire | **pass** | ok | - |
+| 58 | DEV-013 | fine | fine | **pass** | ok | - |
 | 59 | DEV-048 | patch | patch | **pass** | ok | - |
 | 60 | DEV-056 | patch | patch | **pass** | ok | - |
 
@@ -136,6 +137,7 @@ Strings not found on any of the device's text pages: 8 distinct (the page may re
 | https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways | 200 | text | HTTP 200, text page |
 | https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary | 200 | text | HTTP 200, text page |
 | https://www.sonicwall.com/support/product-lifecycle-tables/Secure-Mobile-Access-100-Series/Hardware | 200 | text | HTTP 200, text page |
+| https://www.watchguard.com/node/111406 | None | not_fetched | not fetched (offline run); needs human check in a browser |
 | https://www.zyxel.com/global/en/support/end-of-life | 200 | text | HTTP 200, text page |
 
 ## What this cannot verify

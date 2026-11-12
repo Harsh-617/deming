@@ -23,13 +23,18 @@ item points at the file it comes from.
   blank on all 60 rows**, so every reported number is an "unverified" number and the verified
   slice is empty (n=0) (`docs/results-analysis.md`). Review tooling exists on `main`
   (`docs/review-instructions.md` there); its results aren't in these numbers.
-- Open label doubts from the run: DEV-028 (lane), DEV-040 (product left blank), DEV-052 (depends
-  on LC-029's train data). Any later correction must be logged and reported before and after
-  (`docs/results-analysis.md`, "Ground-truth corrections").
+- Open label doubts from the run: DEV-028 (lane), DEV-040 (product left blank). Any later
+  correction must be logged and reported before and after (`docs/results-analysis.md`,
+  "Ground-truth corrections").
+- **Corrected on 2026-11-12:** DEV-025 (patch → retire) and DEV-052 (fine → retire). Both are
+  WatchGuard Firebox T35, EOL 31 Dec 2025 per https://www.watchguard.com/node/111406. Both labels
+  are still AI-drafted and unverified. The numbers below use the corrected labels; the
+  original ones are in `eval/results/20261111T141730Z/`.
 
 ## 3. Known misses on the test set (prompts-v1)
 
-From `docs/results-analysis.md`, "Every wrong case". 7 wrong lanes per repeat, 8 distinct devices.
+From `docs/results-analysis.md`, "Every wrong case". 8 wrong lanes per repeat, 9 distinct devices
+(corrected labels; it was 7 and 8 before the T35 correction).
 
 **Unparseable firmware → `unknown`** (a known miss, by design: the version guard reads the raw
 firmware field and won't compare what it can't parse)
@@ -49,8 +54,12 @@ firmware field and won't compare what it can't parse)
 **Missing or thin lifecycle data** (`data/lifecycle.csv` is a hand-curated 30-row file)
 - **DEV-028** NUUO NVRmini 3: truth fine, Deming unknown (both). LC-015 (NVRmini2) has a blank
   `model_pattern`, so it is retrieved for NVRmini 3 too. A careful human could also say unknown.
-- **DEV-052** WatchGuard Firebox T35 on 12.5.15: truth fine; rep 0 unknown, rep 1 **patch** (the
-  one false alarm). LC-029's `fixed_version` holds only `12.11.4`, with no T35 train.
+- **DEV-025** "wtchgrd firebox T35" on 12.5.9 and **DEV-052** WatchGuard Firebox T35 on 12.5.15:
+  truth retire (T35 EOL 31 Dec 2025). Deming said patch / patch (DEV-025) and unknown / patch
+  (DEV-052). **The data gap remains:** `data/lifecycle.csv` has no T35 hardware EOL row, and the
+  Deming run used that file unchanged, so it could not have known the EOL date. LC-029's
+  `fixed_version` also holds only `12.11.4`, with no T35 train. Before the correction, DEV-052
+  rep 1 counted as a false alarm; now there is none.
 - DEV-012 and DEV-016 above also trace partly to blank `fixed_version` cells.
 - `endoflife.date` was not used: its API covers network software trains only, not consumer
   routers, cameras, NAS or most VPN appliances (`docs/feeds.md`).
@@ -63,8 +72,8 @@ firmware field and won't compare what it can't parse)
 mostly spelling-only aliases ("Firebox" → "Fireware"), because the Normalizer never sees the
 KEV/lifecycle product names. The alias view that shows this is **post-hoc**.
 
-**Where the naive baseline wins:** exposure recall overall (0.95 vs 0.88), in clear_retire and in
-messy_name; strict product match in critical_dnt.
+**Where the naive baseline wins:** exposure recall overall (0.95 vs 0.85 / 0.88), in clear_retire,
+in messy_name and (rep 0) in supported_fine; strict product match in critical_dnt.
 
 **Stability:** lane agreement between the two complete repeats is 0.95; evidence ids agree on
 0.87, because evidence follows the product string. The third repeat stopped at 40/60 devices

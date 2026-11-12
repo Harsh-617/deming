@@ -141,7 +141,9 @@ python eval/run_eval.py --inventory data/inventory.csv --pred `
 
 **This `run_eval.py` command scores the published files**, including the published baseline
 `baseline-20261111T075945Z`, not the baseline you just generated. It reproduces the published
-report `eval/results/20261111T141730Z/report.md` (Deming primary metrics = repeat 0). To score
+report `eval/results/20261112T152247Z/report.md` (Deming primary metrics = repeat 0), which is scored on the
+labels as corrected on 2026-11-12. The report on the original labels,
+`eval/results/20261111T141730Z/report.md`, is kept unchanged. To score
 your own baseline, replace the first `--pred` path with the path `baseline.py` printed; the
 baseline is deterministic, so the numbers should match. Running `run_eval.py` with no `--pred`
 scores every CSV under `eval/runs/`; if you generated a baseline, there are then two baseline
@@ -153,8 +155,9 @@ local response cache (`.cache/`, gitignored), which is not in the repo. Without 
   **repeat 1 column** of the evaluation table below (strict product match, exposure precision
   and recall), the per-group tables per repeat, the three-repeat stability footnote and the
   **post-hoc alias numbers** (0.30 / 0.90 / 0.95) can't be regenerated from a clone.
-  Published output: `eval/results/20261111T141730Z/offline_analysis.md` and `.json`.
-- Repeat 1's lane accuracy (0.88), all-three match (0.52) and unknown rate (0.17) are
+  Published output: `eval/results/20261112T152247Z/offline_analysis.md` and `.json` (corrected labels) and
+  `eval/results/20261111T141730Z/` (original labels).
+- Repeat 1's lane accuracy (0.87), all-three match (0.52) and unknown rate (0.17) are
   reproducible: they are in the per-run table of the `run_eval.py` report above.
 - A new `eval/full_run.py` with a key makes new model calls, so its numbers can differ from the
   published run (the model isn't deterministic across calls, and google-genai in the lock file
@@ -205,20 +208,28 @@ caveats first:** the 60-device inventory is synthetic and was built with hard ca
 **all 60 ground-truth labels are unverified drafts** (no row has a human reviewer yet). No claim
 is made about real-world accuracy or time saved.
 
+**Labels corrected on 2026-11-12.** DEV-025 and DEV-052 (WatchGuard Firebox T35) changed to
+`retire`, because WatchGuard's End of Life Policy (https://www.watchguard.com/node/111406)
+gives the T35 an EOL of 31 Dec 2025. The predictions weren't re-run; the same CSVs were
+re-scored offline. The table shows the corrected numbers, with the old ones in brackets.
+`data/lifecycle.csv` still has no T35 row, so the Deming run didn't have that EOL date.
+Before/after per group: `docs/results-analysis.md`, "Ground-truth corrections".
+
 | Metric (all 60) | Naive baseline | Deming rep 0 | Deming rep 1 |
 |---|---|---|---|
 | Product match, strict (headline) | 0.18 | 0.47 | 0.52 |
-| Lane accuracy | 0.32 | 0.88 | 0.88 |
-| Exposure precision | 0.70 | 1.00 | 0.97 |
-| Exposure recall | **0.95** | 0.88 | 0.88 |
+| Lane accuracy | 0.30 (was 0.32) | 0.87 (was 0.88) | 0.87 (was 0.88) |
+| Exposure precision | 0.72 (was 0.70) | 1.00 | 1.00 (was 0.97) |
+| Exposure recall | **0.95** | 0.85 (was 0.88) | 0.88 |
 | Unknown rate | 0.00 | 0.17 | 0.17 |
 
 - Deming sent 10 devices to `unknown` per repeat: all 4 true unknowns, plus 6 that a human would
   have to look at but didn't need to.
 - One unsafe miss: DEV-011 (rep 0), a retire device called `fine` after the Checker misread a
-  past support date. One false alarm: DEV-052 (rep 1), a fine device called `patch`.
+  past support date. No false alarm on the corrected labels. DEV-052 (rep 1), the false alarm
+  before the correction, is now a retire device called `patch`.
 - Lane agreement between the two complete repeats: 0.95 (57/60).
-- **Where the baseline wins:** exposure recall overall (0.95 vs 0.88), in clear_retire (1.00 vs
+- **Where the baseline wins:** exposure recall overall (0.95 vs 0.85 / 0.88), in clear_retire (1.00 vs
   0.83 / 0.92) and in messy_name (0.88 vs 0.62 / 0.50), because it calls almost everything
   `patch`; strict product match in critical_dnt (0.50 vs 0.25). Version match is close to a tie
   (0.97 vs 0.98).
@@ -231,14 +242,17 @@ listed there and **not applied**.
 
 Fifteen of the draft labels were cross-checked blind by a separate AI session (Claude, the same
 model family; not human verification): lane agreement 12/15, Cohen's kappa 0.68, with the three
-disagreements triaged for a human in `docs/ai-cross-check.md`.
+disagreements triaged for a human in `docs/ai-cross-check.md`. Two of the three were the T35
+devices. Against the corrected labels, agreement is 14/15 and kappa is 0.88. That rise is partly
+circular: the correction followed the AI's own finding, after the vendor page was checked.
 
 ## Limits and honest caveats
 
 - Synthetic inventory; ground-truth labels drafted by an AI from cited sources and not yet
   verified by people.
 - Known misses: unparseable firmware strings (DEV-027, DEV-045), past support dates misread
-  (DEV-011, DEV-012, DEV-016), gaps in the hand-curated lifecycle data (DEV-028, DEV-052).
+  (DEV-011, DEV-012, DEV-016), gaps in the hand-curated lifecycle data (DEV-028, and DEV-025 /
+  DEV-052, which have no T35 hardware EOL row).
 - KEV covers only part of what is exploited. Lifecycle data is a hand-curated 30-row file.
 - The Verifier confirms the inventory record changed, not that a device is secure.
 - In the prototype the rules are enforced by code; in an Agent Designer port they would only be
