@@ -583,15 +583,13 @@ def _expected_to(lane: str, owner: str, settings: dict) -> str:
 
 
 def _safe_body(body: str, did: str, lane: str, evidence: str, deadline: str, dnt: bool,
-               passed: str = "") -> tuple[str, str]:
-    """Rebuild the message body when it carries injected text or (do_not_touch) disconnect words."""
-    if INJECTION.search(body) or (dnt and guards.consequential_wording(body)):
-        ask = ("a named person must decide the next step; Deming proposes no change"
-               if dnt else "please review and act by the deadline")
-        return (f"Device {did}: lane {lane}. Evidence: {evidence or 'none'}. Deadline: "
-                f"{deadline or 'none'}. {ask[0].upper() + ask[1:]}." + (f" {passed}" if passed else "")
-                ), "message body rebuilt by loop guard"
-    return body, ""
+               passed: str = "", fixed_version: str = "") -> tuple[str, str]:
+    """The body that goes into a proposal (F4, guards-v2): always built from trusted fields
+    (guards.trusted_body); the model's draft `body` is never copied. Returns (body, note)."""
+    trusted = guards.trusted_body(did, lane, evidence, deadline, dnt, passed, fixed_version)
+    note = "" if (body or "").strip() in ("", "-", trusted) else \
+        "message body built from trusted fields; model draft not sent"
+    return trusted, note
 
 
 def _propose_device(state, d, r, evidence, run_id, run_seq, as_of, settings, lifecycle_rows):
@@ -617,29 +615,29 @@ def _propose_device(state, d, r, evidence, run_id, run_seq, as_of, settings, lif
     bad_owner = guards.owner_email_problem(d["owner_email"]) if lane != "unknown" else None
     drafted_to = ""  # the Planner no longer drafts a recipient (contracts v1.4); code routes by rule
     deadline = plan.deadline.isoformat() if plan.deadline else ""
-    body = plan.message.body if plan.message else ""
-    subject = plan.message.subject if plan.message else f"[Deming] {lane}: {did}"
-    # The deadline sentence (CISA date passed; retire support end + isolation) is rebuilt from
-    # trusted fields if the body is rebuilt.
+    # fixed_version comes from the governing lifecycle row, used later to judge a version change.
+    row = guards._governing_row(r.check, {**d, **r.normalized.model_dump()}, r.lifecycle_candidates)
+    fixed = (row or {}).get("fixed_version", "") if lane == "patch" else ""
+    # F4: subject and body are built from trusted fields only (guards.trusted_body), including
+    # the deadline sentence (CISA date passed; retire support end + isolation). The model's
+    # draft, and any inventory or feed free text, is not copied into the message.
     passed = guards.deadline_sentence(r.check, as_of, settings, dnt)
-    body, guard_note = _safe_body(body or "-", did, lane, evidence, deadline, dnt, passed)
+    body, guard_note = _safe_body(plan.message.body if plan.message else "", did, lane, evidence,
+                                  deadline, dnt, passed, fixed)
+    subject = guards.trusted_subject(lane, did)
     if not plan.message:
         guard_note = "planner drafted no message; loop wrote a minimal one"
-    if bad_owner:
-        guard_note = "; ".join(filter(None, [guard_note, f"{bad_owner}: sent to the approver for review"]))
-    if INJECTION.search(subject) or (dnt and guards.consequential_wording(subject)):
-        subject = f"[Deming] {lane}: {did}"
-    # F8: CVE ids in the text must be the proposal's own evidence.
+    # F8: CVE ids in the text must be the proposal's own evidence (a second check: the trusted
+    # body only names evidence ids).
     allowed = [e for e in evidence.split(";") if e.upper().startswith("CVE-")]
     body, gone_b = guards.strip_unlisted_cves(body, allowed)
     subject, gone_s = guards.strip_unlisted_cves(subject, allowed)
     if gone_b or gone_s:
         guard_note = "; ".join(filter(None, [guard_note, "CVE ids not in the evidence removed: "
                                              + ";".join(sorted(set(gone_b + gone_s)))]))
+    if bad_owner:
+        guard_note = "; ".join(filter(None, [guard_note, f"{bad_owner}: sent to the approver for review"]))
     actions = ["email", "ticket"] + (["calendar"] if lane == "patch" and not dnt else [])
-    # fixed_version comes from the governing lifecycle row, used later to judge a version change.
-    row = guards._governing_row(r.check, {**d, **r.normalized.model_dump()}, r.lifecycle_candidates)
-    fixed = (row or {}).get("fixed_version", "") if lane == "patch" else ""
     pid = f"P-{run_seq:03d}-{did}"
     state.proposals.append(dict(
         proposal_id=pid, run_id=run_id, created_on=as_of, kind="device", device_id=did,

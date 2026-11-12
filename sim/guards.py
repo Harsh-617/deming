@@ -494,6 +494,52 @@ def strip_unlisted_cves(text: str | None, allowed) -> tuple[str, list[str]]:
                          else CVE_REMOVED, flat), bad
 
 
+# Message text (F4, guards-v2). What a person receives is built here from trusted fields only:
+# device_id, lane, evidence ids (validated against the feed candidates), the deadline, the
+# fixed version from the lifecycle row and the deadline sentences above. Inventory and feed
+# free text (device_name_raw, location, notes, firmware text) and the model's draft are never
+# copied in, so no link, image, HTML, encoded payload or CVE id from those fields can reach it.
+TRUSTED_FOOTER = ("Inventory text for this device is not repeated here. Deming sends this only "
+                  "after a named person approves it.")
+_SAFE_TOKEN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}")
+_SAFE_DATE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
+
+
+def trusted_subject(lane: str, device_id: str) -> str:
+    did = device_id if _SAFE_TOKEN.fullmatch(device_id or "") else "device"
+    return f"[Deming] {lane}: {did}"
+
+
+def trusted_body(device_id: str, lane: str, evidence: str, deadline: str, dnt: bool,
+                 trusted_sentence: str = "", fixed_version: str = "") -> str:
+    """The message body, from trusted fields only (see above). Values that don't look like an
+    id, a date or a version are left out rather than copied."""
+    did = device_id if _SAFE_TOKEN.fullmatch(device_id or "") else "(see device id in the ticket)"
+    ids = [e for e in (evidence or "").split(";") if _SAFE_TOKEN.fullmatch(e)]
+    due = deadline if _SAFE_DATE.fullmatch(deadline or "") else ""
+    fixed = ";".join(f for f in (fixed_version or "").split(";") if parse_version(f.strip())
+                     or version_family(f.strip()))
+    if dnt:
+        ask = ("This device is flagged do-not-touch. A named person must decide the next step; "
+               "Deming proposes no change to the device.")
+    elif lane == "patch":
+        ask = ("A vendor fix exists for this device. Please apply it"
+               + (f" (fixed version {fixed})" if fixed else "") + (f" by {due}." if due else "."))
+    elif lane == "retire":
+        ask = "Vendor support for this device has ended. Please plan its replacement."
+    elif lane == "unknown":
+        ask = ("Deming could not identify this device with enough confidence. Please identify it "
+               "(vendor, product, firmware version) in the inventory record.")
+    else:
+        ask = "No action is requested."
+    parts = [f"Device {did}: lane {lane}.", ask,
+             f"Evidence: {';'.join(ids) or 'none'}.", f"Deadline: {due or 'none'}."]
+    if trusted_sentence:
+        parts.append(trusted_sentence)
+    parts.append(TRUSTED_FOOTER)
+    return " ".join(parts)
+
+
 def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
                   as_of_date: str | None = None, settings: dict | None = None):
     """Deadlines (agents/planner.md rule 8), when `as_of_date` is given:
