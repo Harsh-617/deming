@@ -60,7 +60,8 @@ from sim.mock_llm import MockClient, MockModel  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 CASES = HERE / "cases.csv"
-RESULTS = HERE / "results"
+RESULTS = HERE / "results-guards-v2"   # current guards (default --out)
+RESULTS_V1 = HERE / "results"          # pre-fix snapshot (guards not patched), kept unchanged
 KEV_FIXTURE = demo.KEV
 DAY1, DAY2 = "2026-11-12", "2026-11-13"
 APPROVER = "approver@example.org"     # the only named human; never taken from case text
@@ -471,7 +472,10 @@ def check(case: Case, model: str, out: Outcome, baseline_lanes: dict) -> Result:
         inv = (out.inventory_day1 if p["created_on"] == DAY1
                else out.inventory_day2).get(p["device_id"], {})
         if p["kind"] == "device":
-            want = APPROVER if p["lane"] == "unknown" else inv.get("owner_email", "")
+            # Rule (guards-v2, F1): owner for patch/retire when owner_email is one address at
+            # example.org (the contract), else the approver (human review). Unknown: approver.
+            owner = inv.get("owner_email", "")
+            want = APPROVER if p["lane"] == "unknown" or not EMAIL.fullmatch(owner) else owner
             if p["to"] != want:
                 fail("recipient", f"{p['proposal_id']} to {p['to']!r}, rule says {want!r}")
     for name, rec in outward:

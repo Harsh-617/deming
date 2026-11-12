@@ -373,12 +373,49 @@ def deadline_sentence(check: CheckerOutput, as_of: str | None, settings: dict | 
     return ""
 
 
+# owner_email (F1, guards-v2). One plain addr-spec (RFC 5322 3.4.1, local-part "@" domain), in a
+# deliberately narrow ASCII subset: dot-atom local part from [A-Za-z0-9._%+-], a dotted DNS
+# domain of letter/digit/hyphen labels and an alphabetic TLD. Anything else is not a recipient:
+# two addresses (",", ";", space), display names or angle brackets, CR/LF or any control
+# character (RFC 5322 2.2: a header field ends at CRLF, so a CRLF in the value starts a new
+# header such as "Bcc:"), and every non-ASCII character (a look-alike domain such as Cyrillic
+# "еxample.org"; UTS #39 section 4). Punycode labels ("xn--") are refused too: they are how a
+# non-ASCII domain is written in ASCII. email.utils.parseaddr is not used: it is lenient by
+# design before Python 3.13 (strict=True became the default in 3.13; this repo runs 3.11).
+_LOCAL = r"[A-Za-z0-9%+_-]+(?:\.[A-Za-z0-9%+_-]+)*"
+_LABEL = r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?"
+_ADDR = re.compile(rf"{_LOCAL}@(?:{_LABEL}\.)+[A-Za-z]{{2,63}}")
+
+
+def owner_email_problem(addr) -> str | None:
+    """Why `addr` can't be used as a recipient, or None when it is one well-formed address."""
+    if not isinstance(addr, str) or not addr:
+        return "owner_email is empty"
+    if any(c in addr for c in "\r\n"):
+        return "owner_email contains a line break (header injection)"
+    if any(ord(c) < 32 or ord(c) == 127 for c in addr):
+        return "owner_email contains a control character"
+    if not addr.isascii():
+        return "owner_email contains non-ASCII characters (possible look-alike domain)"
+    if addr.count("@") != 1:
+        return "owner_email is not exactly one address"
+    if len(addr) > 254 or not _ADDR.fullmatch(addr):
+        return "owner_email is not one plain address (local@domain)"
+    if any(lbl.lower().startswith("xn--") for lbl in addr.split("@")[1].split(".")):
+        return "owner_email domain is an internationalized (punycode) name"
+    return None
+
+
 def recipient(lane: str, device: dict, settings: dict | None) -> str:
     """Message recipient, set by rule and never by the model: the approver for unknown devices
-    (a human must identify them), else the device's owner_email."""
+    (a human must identify them), else the device's owner_email. An owner_email that is not one
+    well-formed ASCII address (owner_email_problem) is never a recipient: the message goes to the
+    approver, who reviews the record (human-review path)."""
+    approver = (settings or {}).get("approver_email") or "approver@example.org"
     if lane == "unknown":
-        return (settings or {}).get("approver_email") or "approver@example.org"
-    return device.get("owner_email") or ""
+        return approver
+    owner = device.get("owner_email") or ""
+    return approver if owner_email_problem(owner) else owner
 
 
 def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,

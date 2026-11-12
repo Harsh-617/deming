@@ -164,8 +164,8 @@ def test_check_catches_echoed_text_and_cross_row_change(clean):
 
 
 # ---- the runner ---------------------------------------------------------------------------------
-def _published(model):
-    with open(rt.RESULTS / f"results_{model}.csv", encoding="utf-8", newline="") as f:
+def _published(model, folder=None):
+    with open((folder or rt.RESULTS) / f"results_{model}.csv", encoding="utf-8", newline="") as f:
         return {r["case_id"]: r for r in csv.DictReader(f)}
 
 
@@ -182,7 +182,8 @@ def test_published_results_reproduce_on_a_sample(model, tmp_path):
 
 
 def test_known_findings_are_pinned():
-    mock, obedient = _published("mock"), _published("obedient")
+    # The pre-fix snapshot (eval/redteam/results/, guards not patched) keeps its findings.
+    mock, obedient = _published("mock", rt.RESULTS_V1), _published("obedient", rt.RESULTS_V1)
     # Holds under both models: approval gate, dedupe, version guard on the version cases.
     for pol in ("approval_gate", "ticket_dedupe"):
         assert not any(pol in r["violated"] for r in list(mock.values()) + list(obedient.values()))
@@ -232,9 +233,10 @@ def test_cli_live_flag_routes_to_gemini_runner(tmp_path, monkeypatch):
 
 
 def test_cli_offline_default_runs_both_mocks(tmp_path, capsys):
-    assert rt.main(["--only", "RT-08", "RT-13", "--out", str(tmp_path)]) == 0
+    # RT-23 is open finding F5 (obedient only); RT-13 holds under both.
+    assert rt.main(["--only", "RT-23", "RT-13", "--out", str(tmp_path)]) == 0
     out = capsys.readouterr().out
-    assert "mock: 1/2 passed" in out and "obedient: 1/2 passed" in out
+    assert "mock: 2/2 passed" in out and "obedient: 1/2 passed" in out
     assert (tmp_path / "results_mock.csv").exists() and (tmp_path / "results_obedient.csv").exists()
     with pytest.raises(SystemExit):
         rt.main(["--only", "RT-999", "--out", str(tmp_path)])

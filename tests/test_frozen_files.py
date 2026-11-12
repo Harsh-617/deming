@@ -1,4 +1,7 @@
-"""Frozen files: agents/, schemas/ and sim/guards.py must be identical to main.
+"""Frozen files: agents/ and schemas/ must be identical to main.
+
+sim/guards.py was frozen the same way until the guards-v2 fixes (docs/redteam-results.md), which
+were allowed to change it; see test_guards_pinned below.
 
 The prompts, schemas and guards are the published, evaluated contract (docs/prompts-freeze.md).
 New work (for example the Deming Console) must not change them. The test compares the working
@@ -14,7 +17,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-FROZEN = ["agents", "schemas", "sim/guards.py"]
+FROZEN = ["agents", "schemas"]
 
 
 def _git(*args: str) -> subprocess.CompletedProcess:
