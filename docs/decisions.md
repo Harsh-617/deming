@@ -491,3 +491,52 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Alternative:** keep it private and add judges as collaborators. Rejected: no judge usernames.
 - **Precondition:** a full-history secret scan (all 53 commits, working tree, every .xlsx blob)
   found no key, token or private key before the switch.
+
+### 2026-11-12 · Extended lifecycle data, optional and off by default (feat/lifecycle-coverage)
+- **Goal:** widen end-of-life coverage with sourced rows and measure the retrieval gain with no
+  model call. `data/lifecycle.csv` (the 30 rows the published run used), prompts, schemas, guards,
+  labels and published results are unchanged.
+- **Inventory vendors/products checked:** Fortinet FortiOS; Ivanti Connect Secure 22.x and Pulse
+  Connect Secure 9.1x; D-Link DIR-600/820L/859, DNS-320L/325; MikroTik RouterOS; Palo Alto PAN-OS;
+  Edimax IC-7100; Citrix NetScaler ADC 13.0/14.1; WatchGuard Firebox (incl. T35) / Fireware 12.x;
+  Cisco RV320/RV042G/RV345, ASA 5506-X, ASA software 9.16/9.20/9.22; Sophos XG 210, XGS 2100; NUUO
+  NVRmini2, NVRmini 3; SonicWall SMA 210/410 (SMA100), SMA 1000; Zyxel USG60; DrayTek Vigor 300B.
+- **endoflife.date:** API v1 (`https://endoflife.date/api/v1/products`, schema 1.2.1, 489
+  products, read 2026-11-12). Slugs that exist for these vendors: `fortios`, `panos`, `routeros`
+  (also `cisco-ios-xe`, not in the inventory). No slug for Ivanti, NetScaler ADC, Cisco ASA,
+  WatchGuard, Sophos, SonicWall, Zyxel, D-Link, DrayTek, NUUO or Edimax. Docs:
+  https://endoflife.date/docs/api/v1/
+- **Choice per source:**
+  - WatchGuard Firebox T35, T35-W, T35-R, T35-DW: vendor page https://www.watchguard.com/node/111406,
+    opened 2026-11-12. EOL 31 Dec 2025 (T35, T35-W) and 01 Mar 2027 (T35-R, T35-DW). Rows LC-101..104.
+    The other Firebox models on the page were left out: no inventory device uses them, and more
+    name-only rows would crowd the top-5 Firebox candidates.
+  - Cisco ASA 9.16(x) software: Cisco EoL notice
+    https://www.cisco.com/c/en/us/products/collateral/security/asa-firepower-services/asa-9-16-asav-asdm-release-7-16-eol.html
+    (End of SW Maintenance and End of Vulnerability/Security Support both 2026-11-18; LDoS
+    2027-11-30). Row LC-105.
+  - Citrix NetScaler ADC 13.1: CTX241500
+    https://support.citrix.com/external/article/CTX241500/netscaler-adc-firmware-release-cycle.html
+    ("13.1 will reach EOM on 15-Sep-26 and EOL on 15-Sep-27"). Row LC-106. 14.1 gives quarters
+    only ("EOM during Q3/29", "EOL during Q3/30"), so it is skipped.
+  - FortiOS 8.0, 7.6, 7.2, 6.4, 6.2, 6.0: endoflife.date `fortios` (End of Engineering Support /
+    End of Support), cached byte-for-byte in `data/feeds/endoflife/fortios.json` with a sha256 in
+    `fortios_meta.json`. A test checks that its 7.0 and 7.4 dates equal the curated LC-016/LC-020.
+    Rows LC-107..112. 7.0 and 7.4 are not duplicated.
+- **Skipped (no explicit date from an authoritative source):** Ivanti Connect Secure 22.x (the
+  Ivanti EOL policy page at hub.ivanti.com shows no release table without login; only third-party
+  trackers give 2027-01-31). NetScaler 14.1 (quarters only). MikroTik RouterOS (endoflife.date
+  `routeros` dates are derived from the next release, MikroTik publishes none, and they would
+  contradict LC-025's fixed 7.24.3). PAN-OS other trains (endoflife.date `panos` gives standard
+  EOL only, not Extended Support+, and no inventory device needs them). WatchGuard Fireware 12.x.
+  Sophos XGS 2100 (docs.sophos.com: no date, only "at least five years after the EoS date").
+  SonicWall SMA 1000 (table read as flattened text with an ambiguous column order). NUUO NVRmini 3.
+  The script prints this list.
+- **Alternatives:** third-party trackers (endoflife.ai, eol.network); rejected as not primary.
+  Editing `data/lifecycle.csv` directly; rejected, because the published run used it.
+- **Wiring:** `sim/retrieval.load_lifecycle(path, include_extended=None)`, env
+  `DEMING_LIFECYCLE_EXTENDED` (1/true/yes/on), default OFF. Extended ids start at LC-101 and a
+  clash raises. A test compares the flag-off snapshot (retrieval for all 60 truth identities plus
+  mock-pipeline predictions) byte-for-byte with one written on main 4bd5cfb.
+- **Result:** `docs/lifecycle-coverage.md`. Lane accuracy with the extended rows is NOT measured
+  (needs a new Gemini run).

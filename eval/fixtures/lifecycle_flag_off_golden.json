@@ -1,0 +1,4307 @@
+{
+ "devices": {
+  "DEV-001": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "7.4.3",
+      "last_security_support_date": "2028-11-11",
+      "lifecycle_id": "LC-020",
+      "match_score": 100.0,
+      "model_pattern": "7.4.*",
+      "notes": "model_pattern is a version glob (software train). Support end 2028-11-11 from Fortinet staff tip https://community.fortinet.com/fortigate-3/technical-tip-fortios-end-of-support-change-for-fortios-v7-4-and-v7-6-224876 (extended from 2027-11-11).",
+      "patch_available": "true",
+      "product": "FortiOS",
+      "replacement_hint": "Upgrade to 7.4.3 or later (CVE-2024-21762)",
+      "source_url": "https://www.fortiguard.com/psirt/FG-IR-24-015",
+      "vendor": "Fortinet",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Fortinet",
+    "version": "7.4.0"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.4.3",
+     "last_security_support_date": "2028-11-11",
+     "lifecycle_id": "LC-020",
+     "match_score": 100.0,
+     "model_pattern": "7.4.*",
+     "notes": "model_pattern is a version glob (software train). Support end 2028-11-11 from Fortinet staff tip https://community.fortinet.com/fortigate-3/technical-tip-fortios-end-of-support-change-for-fortios-v7-4-and-v7-6-224876 (extended from 2027-11-11).",
+     "patch_available": "true",
+     "product": "FortiOS",
+     "replacement_hint": "Upgrade to 7.4.3 or later (CVE-2024-21762)",
+     "source_url": "https://www.fortiguard.com/psirt/FG-IR-24-015",
+     "vendor": "Fortinet",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-002": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2024-12-31",
+      "lifecycle_id": "LC-011",
+      "match_score": 90.0,
+      "model_pattern": "",
+      "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+      "patch_available": "false",
+      "product": "Pulse Connect Secure",
+      "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+      "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+      "vendor": "Ivanti",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Ivanti",
+    "version": "9.1R18"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2024-12-31",
+     "lifecycle_id": "LC-011",
+     "match_score": 100.0,
+     "model_pattern": "",
+     "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+     "patch_available": "false",
+     "product": "Pulse Connect Secure",
+     "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+     "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+     "vendor": "Ivanti",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-003": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [
+     "CVE-2014-100005"
+    ],
+    "evidence_lifecycle_id": "LC-008",
+    "guard_notes": [],
+    "lane": "retire",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2010-12-01",
+      "lifecycle_id": "LC-008",
+      "match_score": 100.0,
+      "model_pattern": "DIR-600*",
+      "notes": "Date is 'End of Support'. KEV CVE-2014-100005. Same notice covers DIR-605 (2015-02-01) and DIR-605L (2019-09-24), not included as rows.",
+      "patch_available": "",
+      "product": "DIR-600 Router",
+      "replacement_hint": "Retire and replace",
+      "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10393",
+      "vendor": "D-Link",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "dir-600",
+    "product": "DIR-600 Router",
+    "vendor": "D-Link",
+    "version": "2.18"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2010-12-01",
+     "lifecycle_id": "LC-008",
+     "match_score": 100.0,
+     "model_pattern": "DIR-600*",
+     "notes": "Date is 'End of Support'. KEV CVE-2014-100005. Same notice covers DIR-605 (2015-02-01) and DIR-605L (2019-09-24), not included as rows.",
+     "patch_available": "",
+     "product": "DIR-600 Router",
+     "replacement_hint": "Retire and replace",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10393",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2020-12-10",
+     "lifecycle_id": "LC-004",
+     "match_score": 85.7,
+     "model_pattern": "DIR-859*",
+     "notes": "All revisions. Date is the table's 'End of Support'. KEV CVE-2024-0769/CVE-2019-17621. Page says 'Resolved Status: Yes' but names no fixed firmware, so patch status is left unknown.",
+     "patch_available": "",
+     "product": "DIR-859 Router",
+     "replacement_hint": "Retire and replace (no model named)",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10371",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2017-11-01",
+     "lifecycle_id": "LC-005",
+     "match_score": 76.0,
+     "model_pattern": "DIR-820L*",
+     "notes": "All revisions. Date is 'End of Support'. KEV CVE-2022-26258; D-Link says all firmware development ceased.",
+     "patch_available": "",
+     "product": "DIR-820L",
+     "replacement_hint": "Retire (no model named)",
+     "source_url": "https://supportannouncement.us.dlink.com/announcement/publication.aspx?name=SAP10295",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-004": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "22.7R2.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-022",
+      "match_score": 100.0,
+      "model_pattern": "22.*",
+      "notes": "model_pattern is a version glob (software train). Ivanti Connect Secure 22.x. End-of-support date not verified (Ivanti EOL matrix not reachable).",
+      "patch_available": "true",
+      "product": "Connect Secure, Policy Secure, and ZTA Gateways",
+      "replacement_hint": "22.7R2.6 or later (CVE-2025-22457)",
+      "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+      "vendor": "Ivanti",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2024-12-31",
+      "lifecycle_id": "LC-011",
+      "match_score": 90.0,
+      "model_pattern": "",
+      "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+      "patch_available": "false",
+      "product": "Pulse Connect Secure",
+      "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+      "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+      "vendor": "Ivanti",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Ivanti",
+    "version": "22.7R2.3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "22.7R2.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-022",
+     "match_score": 100.0,
+     "model_pattern": "22.*",
+     "notes": "model_pattern is a version glob (software train). Ivanti Connect Secure 22.x. End-of-support date not verified (Ivanti EOL matrix not reachable).",
+     "patch_available": "true",
+     "product": "Connect Secure, Policy Secure, and ZTA Gateways",
+     "replacement_hint": "22.7R2.6 or later (CVE-2025-22457)",
+     "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+     "vendor": "Ivanti",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2024-12-31",
+     "lifecycle_id": "LC-011",
+     "match_score": 85.5,
+     "model_pattern": "",
+     "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+     "patch_available": "false",
+     "product": "Pulse Connect Secure",
+     "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+     "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+     "vendor": "Ivanti",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-005": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "7.24.3;7.23.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-025",
+      "match_score": 100.0,
+      "model_pattern": "7.*",
+      "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+      "patch_available": "true",
+      "product": "RouterOS",
+      "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+      "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+      "vendor": "MikroTik",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "MikroTik",
+    "version": "7.23.6"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.24.3;7.23.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-025",
+     "match_score": 100.0,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+     "patch_available": "true",
+     "product": "RouterOS",
+     "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+     "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+     "vendor": "MikroTik",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 62.1,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 62.1,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 62.1,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-006": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "11.1.16-h3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2027-05-03",
+     "fixed_version": "11.1.2-h18;11.1.4-h13;11.1.6-h1",
+     "last_security_support_date": "2027-08-31",
+     "lifecycle_id": "LC-021",
+     "match_score": 100.0,
+     "model_pattern": "11.1.*",
+     "notes": "model_pattern is a version glob (software train). Dates from https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary (Standard / Extended Support+ end-of-life).",
+     "patch_available": "true",
+     "product": "PAN-OS",
+     "replacement_hint": "11.1.6-h1, 11.1.4-h13 or 11.1.2-h18 (CVE-2025-0108)",
+     "source_url": "https://security.paloaltonetworks.com/CVE-2025-0108",
+     "vendor": "Palo Alto Networks",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-007": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "7.4.2"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.4.3",
+     "last_security_support_date": "2028-11-11",
+     "lifecycle_id": "LC-020",
+     "match_score": 100.0,
+     "model_pattern": "7.4.*",
+     "notes": "model_pattern is a version glob (software train). Support end 2028-11-11 from Fortinet staff tip https://community.fortinet.com/fortigate-3/technical-tip-fortios-end-of-support-change-for-fortios-v7-4-and-v7-6-224876 (extended from 2027-11-11).",
+     "patch_available": "true",
+     "product": "FortiOS",
+     "replacement_hint": "Upgrade to 7.4.3 or later (CVE-2024-21762)",
+     "source_url": "https://www.fortiguard.com/psirt/FG-IR-24-015",
+     "vendor": "Fortinet",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-008": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2025-03-31",
+      "fixed_version": "",
+      "last_security_support_date": "2025-03-31",
+      "lifecycle_id": "LC-013",
+      "match_score": 85.5,
+      "model_pattern": "XG *",
+      "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+      "patch_available": "false",
+      "product": "XG Firewall",
+      "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+      "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+      "vendor": "Sophos",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "11.1.16-h3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2027-05-03",
+     "fixed_version": "11.1.2-h18;11.1.4-h13;11.1.6-h1",
+     "last_security_support_date": "2027-08-31",
+     "lifecycle_id": "LC-021",
+     "match_score": 100.0,
+     "model_pattern": "11.1.*",
+     "notes": "model_pattern is a version glob (software train). Dates from https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary (Standard / Extended Support+ end-of-life).",
+     "patch_available": "true",
+     "product": "PAN-OS",
+     "replacement_hint": "11.1.6-h1, 11.1.4-h13 or 11.1.2-h18 (CVE-2025-0108)",
+     "source_url": "https://security.paloaltonetworks.com/CVE-2025-0108",
+     "vendor": "Palo Alto Networks",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-009": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "22.7R2.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-022",
+      "match_score": 100.0,
+      "model_pattern": "22.*",
+      "notes": "model_pattern is a version glob (software train). Ivanti Connect Secure 22.x. End-of-support date not verified (Ivanti EOL matrix not reachable).",
+      "patch_available": "true",
+      "product": "Connect Secure, Policy Secure, and ZTA Gateways",
+      "replacement_hint": "22.7R2.6 or later (CVE-2025-22457)",
+      "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+      "vendor": "Ivanti",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2024-12-31",
+      "lifecycle_id": "LC-011",
+      "match_score": 90.0,
+      "model_pattern": "",
+      "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+      "patch_available": "false",
+      "product": "Pulse Connect Secure",
+      "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+      "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+      "vendor": "Ivanti",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Ivanti",
+    "version": "22.7R2.4"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "22.7R2.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-022",
+     "match_score": 100.0,
+     "model_pattern": "22.*",
+     "notes": "model_pattern is a version glob (software train). Ivanti Connect Secure 22.x. End-of-support date not verified (Ivanti EOL matrix not reachable).",
+     "patch_available": "true",
+     "product": "Connect Secure, Policy Secure, and ZTA Gateways",
+     "replacement_hint": "22.7R2.6 or later (CVE-2025-22457)",
+     "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+     "vendor": "Ivanti",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2024-12-31",
+     "lifecycle_id": "LC-011",
+     "match_score": 85.5,
+     "model_pattern": "",
+     "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+     "patch_available": "false",
+     "product": "Pulse Connect Secure",
+     "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+     "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+     "vendor": "Ivanti",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-010": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [
+     "version guard: lane patch -> unknown (fixed version not documented; LC-014)"
+    ],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-014",
+      "match_score": 95.0,
+      "model_pattern": "",
+      "notes": "Edimax: discontinued 'over 10 years ago', support 'officially terminated', 'no security patch or firmware update can be provided' for KEV CVE-2025-1316. No exact date given, so dates are blank.",
+      "patch_available": "false",
+      "product": "IC-7100 IP Camera",
+      "replacement_hint": "None. Isolate behind firewall/NAT until replaced",
+      "source_url": "https://www.edimax.com/edimax/post/post/data/edimax/global/press_releases/4801",
+      "vendor": "Edimax",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "ic-7100",
+    "product": "IC-7100 IP Camera",
+    "vendor": "Edimax",
+    "version": ""
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-014",
+     "match_score": 100.0,
+     "model_pattern": "",
+     "notes": "Edimax: discontinued 'over 10 years ago', support 'officially terminated', 'no security patch or firmware update can be provided' for KEV CVE-2025-1316. No exact date given, so dates are blank.",
+     "patch_available": "false",
+     "product": "IC-7100 IP Camera",
+     "replacement_hint": "None. Isolate behind firewall/NAT until replaced",
+     "source_url": "https://www.edimax.com/edimax/post/post/data/edimax/global/press_releases/4801",
+     "vendor": "Edimax",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-011": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2023-07-15",
+      "fixed_version": "",
+      "last_security_support_date": "2024-07-15",
+      "lifecycle_id": "LC-018",
+      "match_score": 100.0,
+      "model_pattern": "13.0*",
+      "notes": "model_pattern is a version glob (software train). eol_date = EOM (end of maintenance); last_security_support_date = EOL. Patch status depends on the CVE (CVE-2023-4966 was fixed in 13.0-92.19 before EOL).",
+      "patch_available": "",
+      "product": "NetScaler ADC and Gateway",
+      "replacement_hint": "Upgrade to 14.1",
+      "source_url": "https://www.citrix.com/support/product-lifecycle/legacy-product-matrix.html",
+      "vendor": "Citrix",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Citrix",
+    "version": "13.0-92.31"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2023-07-15",
+     "fixed_version": "",
+     "last_security_support_date": "2024-07-15",
+     "lifecycle_id": "LC-018",
+     "match_score": 100.0,
+     "model_pattern": "13.0*",
+     "notes": "model_pattern is a version glob (software train). eol_date = EOM (end of maintenance); last_security_support_date = EOL. Patch status depends on the CVE (CVE-2023-4966 was fixed in 13.0-92.19 before EOL).",
+     "patch_available": "",
+     "product": "NetScaler ADC and Gateway",
+     "replacement_hint": "Upgrade to 14.1",
+     "source_url": "https://www.citrix.com/support/product-lifecycle/legacy-product-matrix.html",
+     "vendor": "Citrix",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 85.5,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-012": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2024-12-01",
+      "fixed_version": "",
+      "last_security_support_date": "2026-03-31",
+      "lifecycle_id": "LC-017",
+      "match_score": 100.0,
+      "model_pattern": "10.1.*",
+      "notes": "model_pattern is a version glob (software train). eol_date = Standard Support end-of-life; last_security_support_date = Extended Support+ end-of-life.",
+      "patch_available": "",
+      "product": "PAN-OS",
+      "replacement_hint": "Upgrade to PAN-OS 11.1 or later",
+      "source_url": "https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary",
+      "vendor": "Palo Alto Networks",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "2025-03-31",
+      "fixed_version": "",
+      "last_security_support_date": "2025-03-31",
+      "lifecycle_id": "LC-013",
+      "match_score": 85.5,
+      "model_pattern": "XG *",
+      "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+      "patch_available": "false",
+      "product": "XG Firewall",
+      "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+      "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+      "vendor": "Sophos",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "10.1.14-h9"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2024-12-01",
+     "fixed_version": "",
+     "last_security_support_date": "2026-03-31",
+     "lifecycle_id": "LC-017",
+     "match_score": 100.0,
+     "model_pattern": "10.1.*",
+     "notes": "model_pattern is a version glob (software train). eol_date = Standard Support end-of-life; last_security_support_date = Extended Support+ end-of-life.",
+     "patch_available": "",
+     "product": "PAN-OS",
+     "replacement_hint": "Upgrade to PAN-OS 11.1 or later",
+     "source_url": "https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary",
+     "vendor": "Palo Alto Networks",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-013": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "12.11.4",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-029",
+      "match_score": 100.0,
+      "model_pattern": "12.*",
+      "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+      "patch_available": "true",
+      "product": "Firebox",
+      "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+      "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+      "vendor": "WatchGuard",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "WatchGuard",
+    "version": "12.11.6"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "12.11.4",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-029",
+     "match_score": 100.0,
+     "model_pattern": "12.*",
+     "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+     "patch_available": "true",
+     "product": "Firebox",
+     "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+     "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+     "vendor": "WatchGuard",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-014": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "7.4.3",
+      "last_security_support_date": "2028-11-11",
+      "lifecycle_id": "LC-020",
+      "match_score": 100.0,
+      "model_pattern": "7.4.*",
+      "notes": "model_pattern is a version glob (software train). Support end 2028-11-11 from Fortinet staff tip https://community.fortinet.com/fortigate-3/technical-tip-fortios-end-of-support-change-for-fortios-v7-4-and-v7-6-224876 (extended from 2027-11-11).",
+      "patch_available": "true",
+      "product": "FortiOS",
+      "replacement_hint": "Upgrade to 7.4.3 or later (CVE-2024-21762)",
+      "source_url": "https://www.fortiguard.com/psirt/FG-IR-24-015",
+      "vendor": "Fortinet",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "kl-hq-fw01",
+    "product": "",
+    "vendor": "",
+    "version": "7.4.1"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.4.3",
+     "last_security_support_date": "2028-11-11",
+     "lifecycle_id": "LC-020",
+     "match_score": 100.0,
+     "model_pattern": "7.4.*",
+     "notes": "model_pattern is a version glob (software train). Support end 2028-11-11 from Fortinet staff tip https://community.fortinet.com/fortigate-3/technical-tip-fortios-end-of-support-change-for-fortios-v7-4-and-v7-6-224876 (extended from 2027-11-11).",
+     "patch_available": "true",
+     "product": "FortiOS",
+     "replacement_hint": "Upgrade to 7.4.3 or later (CVE-2024-21762)",
+     "source_url": "https://www.fortiguard.com/psirt/FG-IR-24-015",
+     "vendor": "Fortinet",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-015": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2024-03-30",
+      "fixed_version": "",
+      "last_security_support_date": "2025-09-30",
+      "lifecycle_id": "LC-016",
+      "match_score": 100.0,
+      "model_pattern": "7.0.*",
+      "notes": "model_pattern is a version glob (software train). eol_date = End of Engineering Support; last_security_support_date = End of Support. FIPS-CC builds only extended to at least September 2026. Official life-cycle portal needs login; source is a Fortinet staff technical tip.",
+      "patch_available": "",
+      "product": "FortiOS",
+      "replacement_hint": "Upgrade to a supported FortiOS train (7.4 or later)",
+      "source_url": "https://community.fortinet.com/t5/FortiGate/Technical-Tip-Extended-Support-for-FortiOS-7-0-FIPS-CC-Certified/ta-p/407617",
+      "vendor": "Fortinet",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "2025-03-31",
+      "fixed_version": "",
+      "last_security_support_date": "2025-03-31",
+      "lifecycle_id": "LC-013",
+      "match_score": 85.5,
+      "model_pattern": "XG *",
+      "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+      "patch_available": "false",
+      "product": "XG Firewall",
+      "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+      "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+      "vendor": "Sophos",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "7.0.12"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2024-03-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-09-30",
+     "lifecycle_id": "LC-016",
+     "match_score": 100.0,
+     "model_pattern": "7.0.*",
+     "notes": "model_pattern is a version glob (software train). eol_date = End of Engineering Support; last_security_support_date = End of Support. FIPS-CC builds only extended to at least September 2026. Official life-cycle portal needs login; source is a Fortinet staff technical tip.",
+     "patch_available": "",
+     "product": "FortiOS",
+     "replacement_hint": "Upgrade to a supported FortiOS train (7.4 or later)",
+     "source_url": "https://community.fortinet.com/t5/FortiGate/Technical-Tip-Extended-Support-for-FortiOS-7-0-FIPS-CC-Certified/ta-p/407617",
+     "vendor": "Fortinet",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-016": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [],
+    "model": "300b",
+    "product": "",
+    "vendor": "",
+    "version": "1.5.1.4"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2021-04-22",
+     "fixed_version": "",
+     "last_security_support_date": "2026-04-22",
+     "lifecycle_id": "LC-010",
+     "match_score": 100.0,
+     "model_pattern": "Vigor300B*",
+     "notes": "eol_date = 'EOS Since'; last_security_support_date = 'EOL Since', the last date DrayTek guarantees critical security updates (passed). KEV CVE-2024-12987 fixed in firmware 1.5.1.5. Page returns 403 to curl; read in a browser.",
+     "patch_available": "true",
+     "product": "Vigor Routers",
+     "replacement_hint": "None named",
+     "source_url": "https://www.draytek.com/support/product-lifecycle/",
+     "vendor": "DrayTek",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-12-09",
+     "fixed_version": "",
+     "last_security_support_date": "2026-12-09",
+     "lifecycle_id": "LC-030",
+     "match_score": 100.0,
+     "model_pattern": "Vigor2960*",
+     "notes": "Security support ends 2026-12-09, four weeks after verification; becomes retire after that date. KEV CVE-2024-12987 fixed in 1.5.1.5 per release note https://fw.draytek.com.tw/Vigor2960/Firmware/v1.5.1.5/DrayTek_Vigor2960_V1.5.1.5_01release-note.pdf",
+     "patch_available": "true",
+     "product": "Vigor Routers",
+     "replacement_hint": "Firmware 1.5.1.5 or later (latest 1.5.1.8)",
+     "source_url": "https://www.draytek.com/support/product-lifecycle/",
+     "vendor": "DrayTek",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 85.5,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 85.5,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 85.5,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-017": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "12.11.4",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-029",
+      "match_score": 100.0,
+      "model_pattern": "12.*",
+      "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+      "patch_available": "true",
+      "product": "Firebox",
+      "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+      "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+      "vendor": "WatchGuard",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "WatchGuard",
+    "version": "12.11.6"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "12.11.4",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-029",
+     "match_score": 100.0,
+     "model_pattern": "12.*",
+     "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+     "patch_available": "true",
+     "product": "Firebox",
+     "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+     "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+     "vendor": "WatchGuard",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-018": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "12.11.4",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-029",
+      "match_score": 100.0,
+      "model_pattern": "12.*",
+      "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+      "patch_available": "true",
+      "product": "Firebox",
+      "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+      "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+      "vendor": "WatchGuard",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "WatchGuard",
+    "version": "12.9.2"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "12.11.4",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-029",
+     "match_score": 100.0,
+     "model_pattern": "12.*",
+     "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+     "patch_available": "true",
+     "product": "Firebox",
+     "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+     "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+     "vendor": "WatchGuard",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-019": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [
+     "version guard: lane patch -> unknown (fixed version not documented; LC-001)"
+    ],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2020-01-30",
+      "fixed_version": "",
+      "last_security_support_date": "2025-01-31",
+      "lifecycle_id": "LC-001",
+      "match_score": 100.0,
+      "model_pattern": "RV32*",
+      "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+      "patch_available": "false",
+      "product": "Small Business RV Series Routers",
+      "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+      "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+      "vendor": "Cisco",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "rv320",
+    "product": "Small Business RV320 and RV325 Dual Gigabit WAN VPN Routers",
+    "vendor": "Cisco",
+    "version": "1.4.2.22"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 100.0,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 100.0,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 85.5,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-04-22",
+     "fixed_version": "",
+     "last_security_support_date": "2026-04-22",
+     "lifecycle_id": "LC-010",
+     "match_score": 85.5,
+     "model_pattern": "Vigor300B*",
+     "notes": "eol_date = 'EOS Since'; last_security_support_date = 'EOL Since', the last date DrayTek guarantees critical security updates (passed). KEV CVE-2024-12987 fixed in firmware 1.5.1.5. Page returns 403 to curl; read in a browser.",
+     "patch_available": "true",
+     "product": "Vigor Routers",
+     "replacement_hint": "None named",
+     "source_url": "https://www.draytek.com/support/product-lifecycle/",
+     "vendor": "DrayTek",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-12-09",
+     "fixed_version": "",
+     "last_security_support_date": "2026-12-09",
+     "lifecycle_id": "LC-030",
+     "match_score": 85.5,
+     "model_pattern": "Vigor2960*",
+     "notes": "Security support ends 2026-12-09, four weeks after verification; becomes retire after that date. KEV CVE-2024-12987 fixed in 1.5.1.5 per release note https://fw.draytek.com.tw/Vigor2960/Firmware/v1.5.1.5/DrayTek_Vigor2960_V1.5.1.5_01release-note.pdf",
+     "patch_available": "true",
+     "product": "Vigor Routers",
+     "replacement_hint": "Firmware 1.5.1.5 or later (latest 1.5.1.8)",
+     "source_url": "https://www.draytek.com/support/product-lifecycle/",
+     "vendor": "DrayTek",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-020": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2020-01-30",
+      "fixed_version": "",
+      "last_security_support_date": "2025-01-31",
+      "lifecycle_id": "LC-002",
+      "match_score": 100.0,
+      "model_pattern": "RV042*",
+      "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+      "patch_available": "false",
+      "product": "Small Business RV Series Routers",
+      "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+      "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+      "vendor": "Cisco",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "9.20.4.10;9.22.2.14;9.23.1.19",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-026",
+      "match_score": 85.5,
+      "model_pattern": "9.2[023].*",
+      "notes": "model_pattern is a version glob (software train). ASA software 9.20/9.22/9.23. KEV CVE-2025-20333/CVE-2025-20362. Older trains (9.17, 9.19): 'Migrate to a fixed release.'",
+      "patch_available": "true",
+      "product": "Secure Firewall Adaptive Security Appliance and Secure Firewall Threat Defense",
+      "replacement_hint": "ASA 9.20.4.10, 9.22.2.14 or 9.23.1.19 (fixes all three CVEs)",
+      "source_url": "https://sec.cloudapps.cisco.com/security/center/resources/asa_ftd_continued_attacks",
+      "vendor": "Cisco",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "rv042g",
+    "product": "",
+    "vendor": "Cisco",
+    "version": ""
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 100.0,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 100.0,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 85.5,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-04-22",
+     "fixed_version": "",
+     "last_security_support_date": "2026-04-22",
+     "lifecycle_id": "LC-010",
+     "match_score": 85.5,
+     "model_pattern": "Vigor300B*",
+     "notes": "eol_date = 'EOS Since'; last_security_support_date = 'EOL Since', the last date DrayTek guarantees critical security updates (passed). KEV CVE-2024-12987 fixed in firmware 1.5.1.5. Page returns 403 to curl; read in a browser.",
+     "patch_available": "true",
+     "product": "Vigor Routers",
+     "replacement_hint": "None named",
+     "source_url": "https://www.draytek.com/support/product-lifecycle/",
+     "vendor": "DrayTek",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "9.20.4.10;9.22.2.14;9.23.1.19",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-026",
+     "match_score": 85.5,
+     "model_pattern": "9.2[023].*",
+     "notes": "model_pattern is a version glob (software train). ASA software 9.20/9.22/9.23. KEV CVE-2025-20333/CVE-2025-20362. Older trains (9.17, 9.19): 'Migrate to a fixed release.'",
+     "patch_available": "true",
+     "product": "Secure Firewall Adaptive Security Appliance and Secure Firewall Threat Defense",
+     "replacement_hint": "ASA 9.20.4.10, 9.22.2.14 or 9.23.1.19 (fixes all three CVEs)",
+     "source_url": "https://sec.cloudapps.cisco.com/security/center/resources/asa_ftd_continued_attacks",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-021": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "14.1-47.46",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-023",
+      "match_score": 100.0,
+      "model_pattern": "14.1*",
+      "notes": "model_pattern is a version glob (software train). End-of-support date for 14.1 not verified.",
+      "patch_available": "true",
+      "product": "NetScaler ADC and Gateway",
+      "replacement_hint": "14.1-47.46 or later (CVE-2025-6543)",
+      "source_url": "https://support.citrix.com/external/article/CTX694788/netscaler-adc-and-netscaler-gateway-secu.html",
+      "vendor": "Citrix",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "14.1-43.50"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "14.1-47.46",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-023",
+     "match_score": 100.0,
+     "model_pattern": "14.1*",
+     "notes": "model_pattern is a version glob (software train). End-of-support date for 14.1 not verified.",
+     "patch_available": "true",
+     "product": "NetScaler ADC and Gateway",
+     "replacement_hint": "14.1-47.46 or later (CVE-2025-6543)",
+     "source_url": "https://support.citrix.com/external/article/CTX694788/netscaler-adc-and-netscaler-gateway-secu.html",
+     "vendor": "Citrix",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 85.5,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-022": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "12.11.4",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-029",
+      "match_score": 100.0,
+      "model_pattern": "12.*",
+      "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+      "patch_available": "true",
+      "product": "Firebox",
+      "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+      "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+      "vendor": "WatchGuard",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "WatchGuard",
+    "version": "12.11.6"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "12.11.4",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-029",
+     "match_score": 100.0,
+     "model_pattern": "12.*",
+     "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+     "patch_available": "true",
+     "product": "Firebox",
+     "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+     "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+     "vendor": "WatchGuard",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-023": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2025-03-31",
+      "fixed_version": "",
+      "last_security_support_date": "2025-03-31",
+      "lifecycle_id": "LC-013",
+      "match_score": 90.0,
+      "model_pattern": "XG *",
+      "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+      "patch_available": "false",
+      "product": "XG Firewall",
+      "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+      "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+      "vendor": "Sophos",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Sophos",
+    "version": ""
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2025-03-31",
+     "fixed_version": "",
+     "last_security_support_date": "2025-03-31",
+     "lifecycle_id": "LC-013",
+     "match_score": 60.6,
+     "model_pattern": "XG *",
+     "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+     "patch_available": "false",
+     "product": "XG Firewall",
+     "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+     "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+     "vendor": "Sophos",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-024": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "12.11.4",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-029",
+      "match_score": 100.0,
+      "model_pattern": "12.*",
+      "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+      "patch_available": "true",
+      "product": "Firebox",
+      "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+      "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+      "vendor": "WatchGuard",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "WatchGuard",
+    "version": "12.10.3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "12.11.4",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-029",
+     "match_score": 100.0,
+     "model_pattern": "12.*",
+     "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+     "patch_available": "true",
+     "product": "Firebox",
+     "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+     "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+     "vendor": "WatchGuard",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-025": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "12.11.4",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-029",
+      "match_score": 100.0,
+      "model_pattern": "12.*",
+      "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+      "patch_available": "true",
+      "product": "Firebox",
+      "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+      "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+      "vendor": "WatchGuard",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "t35",
+    "product": "",
+    "vendor": "",
+    "version": "12.5.9"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "12.11.4",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-029",
+     "match_score": 100.0,
+     "model_pattern": "12.*",
+     "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+     "patch_available": "true",
+     "product": "Firebox",
+     "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+     "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+     "vendor": "WatchGuard",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-026": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "7.24.3;7.23.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-025",
+      "match_score": 100.0,
+      "model_pattern": "7.*",
+      "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+      "patch_available": "true",
+      "product": "RouterOS",
+      "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+      "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+      "vendor": "MikroTik",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "MikroTik",
+    "version": "7.23.6"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.24.3;7.23.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-025",
+     "match_score": 100.0,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+     "patch_available": "true",
+     "product": "RouterOS",
+     "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+     "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+     "vendor": "MikroTik",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 62.1,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 62.1,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 62.1,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-027": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "ROS 7.24.1"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.24.3;7.23.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-025",
+     "match_score": 100.0,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+     "patch_available": "true",
+     "product": "RouterOS",
+     "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+     "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+     "vendor": "MikroTik",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 62.1,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 62.1,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 62.1,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-028": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [
+     "version guard: lane patch -> unknown (fixed version not documented; no lifecycle row)"
+    ],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2020-03-15",
+      "fixed_version": "",
+      "last_security_support_date": "2022-01-01",
+      "lifecycle_id": "LC-015",
+      "match_score": 97.6,
+      "model_pattern": "",
+      "notes": "EOL letter dated 2020-03-06: EOL effective 2020-03-15; software technical support through 2022-01-01. Letter predates KEV CVE-2022-23227, so patch status unknown.",
+      "patch_available": "",
+      "product": "NVRmini2 Devices",
+      "replacement_hint": "NVRmini 3 (NE-2023/2043/4083/4163)",
+      "source_url": "https://nuuo.com/wp-content/uploads/2023/03/NUUO-EOL-letter%EF%BC%BFNVRmini-2-and-NVRsolo-series.pdf",
+      "vendor": "NUUO",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "NVRmini Devices",
+    "vendor": "NUUO",
+    "version": ""
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2020-03-15",
+     "fixed_version": "",
+     "last_security_support_date": "2022-01-01",
+     "lifecycle_id": "LC-015",
+     "match_score": 85.5,
+     "model_pattern": "",
+     "notes": "EOL letter dated 2020-03-06: EOL effective 2020-03-15; software technical support through 2022-01-01. Letter predates KEV CVE-2022-23227, so patch status unknown.",
+     "patch_available": "",
+     "product": "NVRmini2 Devices",
+     "replacement_hint": "NVRmini 3 (NE-2023/2043/4083/4163)",
+     "source_url": "https://nuuo.com/wp-content/uploads/2023/03/NUUO-EOL-letter%EF%BC%BFNVRmini-2-and-NVRsolo-series.pdf",
+     "vendor": "NUUO",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-029": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "7.24.3;7.23.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-025",
+      "match_score": 100.0,
+      "model_pattern": "7.*",
+      "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+      "patch_available": "true",
+      "product": "RouterOS",
+      "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+      "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+      "vendor": "MikroTik",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "MikroTik",
+    "version": "7.24.3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.24.3;7.23.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-025",
+     "match_score": 100.0,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+     "patch_available": "true",
+     "product": "RouterOS",
+     "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+     "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+     "vendor": "MikroTik",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 62.1,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 62.1,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 62.1,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-030": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2024-09-30",
+      "fixed_version": "",
+      "last_security_support_date": "2025-11-01",
+      "lifecycle_id": "LC-012",
+      "match_score": 90.0,
+      "model_pattern": "",
+      "notes": "SMA 210/410/500v: Last Order Day 2024-09-30, End of Support 2025-11-01. SMA 200/400 ended earlier (End of Support 2025-06-18). KB kA1VN0000018XKn0AM: no firmware updates after EOS.",
+      "patch_available": "false",
+      "product": "SMA100 Appliances",
+      "replacement_hint": "Migrate to a supported alternative (no model named)",
+      "source_url": "https://www.sonicwall.com/support/product-lifecycle-tables/Secure-Mobile-Access-100-Series/Hardware",
+      "vendor": "SonicWall",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-024",
+      "match_score": 90.0,
+      "model_pattern": "7.*",
+      "notes": "model_pattern is a version glob (software train). Gen 7 firewalls. Per-model support dates not verified. Fixed versions for newer KEV CVE-2026-19868 not verified.",
+      "patch_available": "true",
+      "product": "SonicOS",
+      "replacement_hint": "7.0.1-5161, 7.1.1-7058 or 7.1.2-7019 (CVE-2024-40766)",
+      "source_url": "https://www.sonicwall.com/support/notices/product-notice-improper-access-control-vulnerability-in-sonicos/kA1VN0000000Tq10AE",
+      "vendor": "SonicWall",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "SonicWall",
+    "version": ""
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2024-09-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-11-01",
+     "lifecycle_id": "LC-012",
+     "match_score": 98.2,
+     "model_pattern": "",
+     "notes": "SMA 210/410/500v: Last Order Day 2024-09-30, End of Support 2025-11-01. SMA 200/400 ended earlier (End of Support 2025-06-18). KB kA1VN0000018XKn0AM: no firmware updates after EOS.",
+     "patch_available": "false",
+     "product": "SMA100 Appliances",
+     "replacement_hint": "Migrate to a supported alternative (no model named)",
+     "source_url": "https://www.sonicwall.com/support/product-lifecycle-tables/Secure-Mobile-Access-100-Series/Hardware",
+     "vendor": "SonicWall",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-024",
+     "match_score": 85.5,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). Gen 7 firewalls. Per-model support dates not verified. Fixed versions for newer KEV CVE-2026-19868 not verified.",
+     "patch_available": "true",
+     "product": "SonicOS",
+     "replacement_hint": "7.0.1-5161, 7.1.1-7058 or 7.1.2-7019 (CVE-2024-40766)",
+     "source_url": "https://www.sonicwall.com/support/notices/product-notice-improper-access-control-vulnerability-in-sonicos/kA1VN0000000Tq10AE",
+     "vendor": "SonicWall",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-031": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2024-09-30",
+      "fixed_version": "",
+      "last_security_support_date": "2025-11-01",
+      "lifecycle_id": "LC-012",
+      "match_score": 90.0,
+      "model_pattern": "",
+      "notes": "SMA 210/410/500v: Last Order Day 2024-09-30, End of Support 2025-11-01. SMA 200/400 ended earlier (End of Support 2025-06-18). KB kA1VN0000018XKn0AM: no firmware updates after EOS.",
+      "patch_available": "false",
+      "product": "SMA100 Appliances",
+      "replacement_hint": "Migrate to a supported alternative (no model named)",
+      "source_url": "https://www.sonicwall.com/support/product-lifecycle-tables/Secure-Mobile-Access-100-Series/Hardware",
+      "vendor": "SonicWall",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "SonicWall",
+    "version": "10.2.1.13"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2024-09-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-11-01",
+     "lifecycle_id": "LC-012",
+     "match_score": 100.0,
+     "model_pattern": "",
+     "notes": "SMA 210/410/500v: Last Order Day 2024-09-30, End of Support 2025-11-01. SMA 200/400 ended earlier (End of Support 2025-06-18). KB kA1VN0000018XKn0AM: no firmware updates after EOS.",
+     "patch_available": "false",
+     "product": "SMA100 Appliances",
+     "replacement_hint": "Migrate to a supported alternative (no model named)",
+     "source_url": "https://www.sonicwall.com/support/product-lifecycle-tables/Secure-Mobile-Access-100-Series/Hardware",
+     "vendor": "SonicWall",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-032": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [],
+    "model": "dns320l",
+    "product": "",
+    "vendor": "",
+    "version": ""
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2020-05-31",
+     "lifecycle_id": "LC-006",
+     "match_score": 100.0,
+     "model_pattern": "DNS-320L*",
+     "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272: no updates or patches. DNS-320LW (non-US) has the same date and also matches this pattern.",
+     "patch_available": "false",
+     "product": "Multiple NAS Devices",
+     "replacement_hint": "Retire & Replace Device",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2017-09-01",
+     "lifecycle_id": "LC-007",
+     "match_score": 100.0,
+     "model_pattern": "DNS-325*",
+     "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272.",
+     "patch_available": "false",
+     "product": "Multiple NAS Devices",
+     "replacement_hint": "Retire & Replace Device",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2017-11-01",
+     "lifecycle_id": "LC-005",
+     "match_score": 85.5,
+     "model_pattern": "DIR-820L*",
+     "notes": "All revisions. Date is 'End of Support'. KEV CVE-2022-26258; D-Link says all firmware development ceased.",
+     "patch_available": "",
+     "product": "DIR-820L",
+     "replacement_hint": "Retire (no model named)",
+     "source_url": "https://supportannouncement.us.dlink.com/announcement/publication.aspx?name=SAP10295",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-033": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2025-03-31",
+      "fixed_version": "",
+      "last_security_support_date": "2025-03-31",
+      "lifecycle_id": "LC-013",
+      "match_score": 85.5,
+      "model_pattern": "XG *",
+      "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+      "patch_available": "false",
+      "product": "XG Firewall",
+      "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+      "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+      "vendor": "Sophos",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "11.1.4-h7"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2027-05-03",
+     "fixed_version": "11.1.2-h18;11.1.4-h13;11.1.6-h1",
+     "last_security_support_date": "2027-08-31",
+     "lifecycle_id": "LC-021",
+     "match_score": 100.0,
+     "model_pattern": "11.1.*",
+     "notes": "model_pattern is a version glob (software train). Dates from https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary (Standard / Extended Support+ end-of-life).",
+     "patch_available": "true",
+     "product": "PAN-OS",
+     "replacement_hint": "11.1.6-h1, 11.1.4-h13 or 11.1.2-h18 (CVE-2025-0108)",
+     "source_url": "https://security.paloaltonetworks.com/CVE-2025-0108",
+     "vendor": "Palo Alto Networks",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-034": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "22.7R2.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-022",
+      "match_score": 100.0,
+      "model_pattern": "22.*",
+      "notes": "model_pattern is a version glob (software train). Ivanti Connect Secure 22.x. End-of-support date not verified (Ivanti EOL matrix not reachable).",
+      "patch_available": "true",
+      "product": "Connect Secure, Policy Secure, and ZTA Gateways",
+      "replacement_hint": "22.7R2.6 or later (CVE-2025-22457)",
+      "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+      "vendor": "Ivanti",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2024-12-31",
+      "lifecycle_id": "LC-011",
+      "match_score": 90.0,
+      "model_pattern": "",
+      "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+      "patch_available": "false",
+      "product": "Pulse Connect Secure",
+      "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+      "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+      "vendor": "Ivanti",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Ivanti",
+    "version": "22.7R2.5"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "22.7R2.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-022",
+     "match_score": 100.0,
+     "model_pattern": "22.*",
+     "notes": "model_pattern is a version glob (software train). Ivanti Connect Secure 22.x. End-of-support date not verified (Ivanti EOL matrix not reachable).",
+     "patch_available": "true",
+     "product": "Connect Secure, Policy Secure, and ZTA Gateways",
+     "replacement_hint": "22.7R2.6 or later (CVE-2025-22457)",
+     "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+     "vendor": "Ivanti",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2024-12-31",
+     "lifecycle_id": "LC-011",
+     "match_score": 85.5,
+     "model_pattern": "",
+     "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+     "patch_available": "false",
+     "product": "Pulse Connect Secure",
+     "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+     "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+     "vendor": "Ivanti",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-035": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2025-03-31",
+      "fixed_version": "",
+      "last_security_support_date": "2025-03-31",
+      "lifecycle_id": "LC-013",
+      "match_score": 85.5,
+      "model_pattern": "XG *",
+      "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+      "patch_available": "false",
+      "product": "XG Firewall",
+      "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+      "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+      "vendor": "Sophos",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "11.1.16-h3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2027-05-03",
+     "fixed_version": "11.1.2-h18;11.1.4-h13;11.1.6-h1",
+     "last_security_support_date": "2027-08-31",
+     "lifecycle_id": "LC-021",
+     "match_score": 100.0,
+     "model_pattern": "11.1.*",
+     "notes": "model_pattern is a version glob (software train). Dates from https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary (Standard / Extended Support+ end-of-life).",
+     "patch_available": "true",
+     "product": "PAN-OS",
+     "replacement_hint": "11.1.6-h1, 11.1.4-h13 or 11.1.2-h18 (CVE-2025-0108)",
+     "source_url": "https://security.paloaltonetworks.com/CVE-2025-0108",
+     "vendor": "Palo Alto Networks",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-036": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2024-09-30",
+      "fixed_version": "",
+      "last_security_support_date": "2025-11-01",
+      "lifecycle_id": "LC-012",
+      "match_score": 84.0,
+      "model_pattern": "",
+      "notes": "SMA 210/410/500v: Last Order Day 2024-09-30, End of Support 2025-11-01. SMA 200/400 ended earlier (End of Support 2025-06-18). KB kA1VN0000018XKn0AM: no firmware updates after EOS.",
+      "patch_available": "false",
+      "product": "SMA100 Appliances",
+      "replacement_hint": "Migrate to a supported alternative (no model named)",
+      "source_url": "https://www.sonicwall.com/support/product-lifecycle-tables/Secure-Mobile-Access-100-Series/Hardware",
+      "vendor": "SonicWall",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-024",
+      "match_score": 62.5,
+      "model_pattern": "7.*",
+      "notes": "model_pattern is a version glob (software train). Gen 7 firewalls. Per-model support dates not verified. Fixed versions for newer KEV CVE-2026-19868 not verified.",
+      "patch_available": "true",
+      "product": "SonicOS",
+      "replacement_hint": "7.0.1-5161, 7.1.1-7058 or 7.1.2-7019 (CVE-2024-40766)",
+      "source_url": "https://www.sonicwall.com/support/notices/product-notice-improper-access-control-vulnerability-in-sonicos/kA1VN0000000Tq10AE",
+      "vendor": "SonicWall",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "sma410",
+    "product": "",
+    "vendor": "",
+    "version": ""
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2024-09-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-11-01",
+     "lifecycle_id": "LC-012",
+     "match_score": 100.0,
+     "model_pattern": "",
+     "notes": "SMA 210/410/500v: Last Order Day 2024-09-30, End of Support 2025-11-01. SMA 200/400 ended earlier (End of Support 2025-06-18). KB kA1VN0000018XKn0AM: no firmware updates after EOS.",
+     "patch_available": "false",
+     "product": "SMA100 Appliances",
+     "replacement_hint": "Migrate to a supported alternative (no model named)",
+     "source_url": "https://www.sonicwall.com/support/product-lifecycle-tables/Secure-Mobile-Access-100-Series/Hardware",
+     "vendor": "SonicWall",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-024",
+     "match_score": 85.5,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). Gen 7 firewalls. Per-model support dates not verified. Fixed versions for newer KEV CVE-2026-19868 not verified.",
+     "patch_available": "true",
+     "product": "SonicOS",
+     "replacement_hint": "7.0.1-5161, 7.1.1-7058 or 7.1.2-7019 (CVE-2024-40766)",
+     "source_url": "https://www.sonicwall.com/support/notices/product-notice-improper-access-control-vulnerability-in-sonicos/kA1VN0000000Tq10AE",
+     "vendor": "SonicWall",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-037": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [
+     "CVE-2026-76418"
+    ],
+    "evidence_lifecycle_id": "LC-026",
+    "guard_notes": [
+     "evidence filled from candidates: LC-026"
+    ],
+    "lane": "patch",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "9.20.4.10;9.22.2.14;9.23.1.19",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-026",
+      "match_score": 100.0,
+      "model_pattern": "9.2[023].*",
+      "notes": "model_pattern is a version glob (software train). ASA software 9.20/9.22/9.23. KEV CVE-2025-20333/CVE-2025-20362. Older trains (9.17, 9.19): 'Migrate to a fixed release.'",
+      "patch_available": "true",
+      "product": "Secure Firewall Adaptive Security Appliance and Secure Firewall Threat Defense",
+      "replacement_hint": "ASA 9.20.4.10, 9.22.2.14 or 9.23.1.19 (fixes all three CVEs)",
+      "source_url": "https://sec.cloudapps.cisco.com/security/center/resources/asa_ftd_continued_attacks",
+      "vendor": "Cisco",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "2020-01-30",
+      "fixed_version": "",
+      "last_security_support_date": "2025-01-31",
+      "lifecycle_id": "LC-001",
+      "match_score": 85.5,
+      "model_pattern": "RV32*",
+      "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+      "patch_available": "false",
+      "product": "Small Business RV Series Routers",
+      "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+      "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+      "vendor": "Cisco",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "2020-01-30",
+      "fixed_version": "",
+      "last_security_support_date": "2025-01-31",
+      "lifecycle_id": "LC-002",
+      "match_score": 85.5,
+      "model_pattern": "RV042*",
+      "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+      "patch_available": "false",
+      "product": "Small Business RV Series Routers",
+      "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+      "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+      "vendor": "Cisco",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2024-12-31",
+      "lifecycle_id": "LC-011",
+      "match_score": 85.5,
+      "model_pattern": "",
+      "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+      "patch_available": "false",
+      "product": "Pulse Connect Secure",
+      "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+      "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+      "vendor": "Ivanti",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "2025-03-31",
+      "fixed_version": "",
+      "last_security_support_date": "2025-03-31",
+      "lifecycle_id": "LC-013",
+      "match_score": 85.5,
+      "model_pattern": "XG *",
+      "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+      "patch_available": "false",
+      "product": "XG Firewall",
+      "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+      "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+      "vendor": "Sophos",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "Secure Firewall ASA Software and Cisco Secure FTD Software",
+    "vendor": "Cisco",
+    "version": "9.22.1.1"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "9.20.4.10;9.22.2.14;9.23.1.19",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-026",
+     "match_score": 100.0,
+     "model_pattern": "9.2[023].*",
+     "notes": "model_pattern is a version glob (software train). ASA software 9.20/9.22/9.23. KEV CVE-2025-20333/CVE-2025-20362. Older trains (9.17, 9.19): 'Migrate to a fixed release.'",
+     "patch_available": "true",
+     "product": "Secure Firewall Adaptive Security Appliance and Secure Firewall Threat Defense",
+     "replacement_hint": "ASA 9.20.4.10, 9.22.2.14 or 9.23.1.19 (fixes all three CVEs)",
+     "source_url": "https://sec.cloudapps.cisco.com/security/center/resources/asa_ftd_continued_attacks",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 85.5,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 85.5,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2024-12-31",
+     "lifecycle_id": "LC-011",
+     "match_score": 85.5,
+     "model_pattern": "",
+     "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+     "patch_available": "false",
+     "product": "Pulse Connect Secure",
+     "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+     "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+     "vendor": "Ivanti",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2025-03-31",
+     "fixed_version": "",
+     "last_security_support_date": "2025-03-31",
+     "lifecycle_id": "LC-013",
+     "match_score": 85.5,
+     "model_pattern": "XG *",
+     "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+     "patch_available": "false",
+     "product": "XG Firewall",
+     "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+     "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+     "vendor": "Sophos",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-038": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2027-05-03",
+      "fixed_version": "11.1.2-h18;11.1.4-h13;11.1.6-h1",
+      "last_security_support_date": "2027-08-31",
+      "lifecycle_id": "LC-021",
+      "match_score": 100.0,
+      "model_pattern": "11.1.*",
+      "notes": "model_pattern is a version glob (software train). Dates from https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary (Standard / Extended Support+ end-of-life).",
+      "patch_available": "true",
+      "product": "PAN-OS",
+      "replacement_hint": "11.1.6-h1, 11.1.4-h13 or 11.1.2-h18 (CVE-2025-0108)",
+      "source_url": "https://security.paloaltonetworks.com/CVE-2025-0108",
+      "vendor": "Palo Alto Networks",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Palo Alto Networks",
+    "version": "11.1.16-h3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2027-05-03",
+     "fixed_version": "11.1.2-h18;11.1.4-h13;11.1.6-h1",
+     "last_security_support_date": "2027-08-31",
+     "lifecycle_id": "LC-021",
+     "match_score": 100.0,
+     "model_pattern": "11.1.*",
+     "notes": "model_pattern is a version glob (software train). Dates from https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary (Standard / Extended Support+ end-of-life).",
+     "patch_available": "true",
+     "product": "PAN-OS",
+     "replacement_hint": "11.1.6-h1, 11.1.4-h13 or 11.1.2-h18 (CVE-2025-0108)",
+     "source_url": "https://security.paloaltonetworks.com/CVE-2025-0108",
+     "vendor": "Palo Alto Networks",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-039": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [
+     "version guard: lane patch -> unknown (fixed version not documented; no lifecycle row)"
+    ],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2024-12-31",
+      "lifecycle_id": "LC-011",
+      "match_score": 85.5,
+      "model_pattern": "",
+      "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+      "patch_available": "false",
+      "product": "Pulse Connect Secure",
+      "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+      "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+      "vendor": "Ivanti",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "5506-x",
+    "product": "Secure Firewall ASA Software and Cisco Secure FTD Software",
+    "vendor": "Cisco",
+    "version": "9.16.4.19"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2021-08-02",
+     "fixed_version": "",
+     "last_security_support_date": "2026-08-31",
+     "lifecycle_id": "LC-019",
+     "match_score": 100.0,
+     "model_pattern": "ASA 5506*",
+     "notes": "ASA 5506-X/5506H-X hardware. Date is 'Last Date of Support: HW' (no vulnerability-support row). Not listed in the CVE-2025-20333 advisory, so patch status unknown. ASA 5508-X/5516-X have the same dates (EOL13762) but are not matched.",
+     "patch_available": "",
+     "product": "Adaptive Security Appliance (ASA)",
+     "replacement_hint": "Cisco Firepower 1000 Series",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/security/asa-5500-series-next-generation-firewalls/eos-eol-notice-c51-744797.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 85.5,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-040": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [],
+    "model": "dc1",
+    "product": "",
+    "vendor": "",
+    "version": ""
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 90.0,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 90.0,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-08-02",
+     "fixed_version": "",
+     "last_security_support_date": "2026-08-31",
+     "lifecycle_id": "LC-019",
+     "match_score": 90.0,
+     "model_pattern": "ASA 5506*",
+     "notes": "ASA 5506-X/5506H-X hardware. Date is 'Last Date of Support: HW' (no vulnerability-support row). Not listed in the CVE-2025-20333 advisory, so patch status unknown. ASA 5508-X/5516-X have the same dates (EOL13762) but are not matched.",
+     "patch_available": "",
+     "product": "Adaptive Security Appliance (ASA)",
+     "replacement_hint": "Cisco Firepower 1000 Series",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/security/asa-5500-series-next-generation-firewalls/eos-eol-notice-c51-744797.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-024",
+     "match_score": 60.0,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). Gen 7 firewalls. Per-model support dates not verified. Fixed versions for newer KEV CVE-2026-19868 not verified.",
+     "patch_available": "true",
+     "product": "SonicOS",
+     "replacement_hint": "7.0.1-5161, 7.1.1-7058 or 7.1.2-7019 (CVE-2024-40766)",
+     "source_url": "https://www.sonicwall.com/support/notices/product-notice-improper-access-control-vulnerability-in-sonicos/kA1VN0000000Tq10AE",
+     "vendor": "SonicWall",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 60.0,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-041": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [
+     "CVE-2022-23227"
+    ],
+    "evidence_lifecycle_id": "LC-015",
+    "guard_notes": [],
+    "lane": "retire",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2020-03-15",
+      "fixed_version": "",
+      "last_security_support_date": "2022-01-01",
+      "lifecycle_id": "LC-015",
+      "match_score": 95.0,
+      "model_pattern": "",
+      "notes": "EOL letter dated 2020-03-06: EOL effective 2020-03-15; software technical support through 2022-01-01. Letter predates KEV CVE-2022-23227, so patch status unknown.",
+      "patch_available": "",
+      "product": "NVRmini2 Devices",
+      "replacement_hint": "NVRmini 3 (NE-2023/2043/4083/4163)",
+      "source_url": "https://nuuo.com/wp-content/uploads/2023/03/NUUO-EOL-letter%EF%BC%BFNVRmini-2-and-NVRsolo-series.pdf",
+      "vendor": "NUUO",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "nvrmini2",
+    "product": "NVRmini2 Devices",
+    "vendor": "NUUO",
+    "version": "3.11.0"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2020-03-15",
+     "fixed_version": "",
+     "last_security_support_date": "2022-01-01",
+     "lifecycle_id": "LC-015",
+     "match_score": 100.0,
+     "model_pattern": "",
+     "notes": "EOL letter dated 2020-03-06: EOL effective 2020-03-15; software technical support through 2022-01-01. Letter predates KEV CVE-2022-23227, so patch status unknown.",
+     "patch_available": "",
+     "product": "NVRmini2 Devices",
+     "replacement_hint": "NVRmini 3 (NE-2023/2043/4083/4163)",
+     "source_url": "https://nuuo.com/wp-content/uploads/2023/03/NUUO-EOL-letter%EF%BC%BFNVRmini-2-and-NVRsolo-series.pdf",
+     "vendor": "NUUO",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-042": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [
+     "CVE-2024-3272",
+     "CVE-2024-3273"
+    ],
+    "evidence_lifecycle_id": "LC-007",
+    "guard_notes": [],
+    "lane": "retire",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2017-09-01",
+      "lifecycle_id": "LC-007",
+      "match_score": 100.0,
+      "model_pattern": "DNS-325*",
+      "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272.",
+      "patch_available": "false",
+      "product": "Multiple NAS Devices",
+      "replacement_hint": "Retire & Replace Device",
+      "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+      "vendor": "D-Link",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "2020-03-15",
+      "fixed_version": "",
+      "last_security_support_date": "2022-01-01",
+      "lifecycle_id": "LC-015",
+      "match_score": 85.5,
+      "model_pattern": "",
+      "notes": "EOL letter dated 2020-03-06: EOL effective 2020-03-15; software technical support through 2022-01-01. Letter predates KEV CVE-2022-23227, so patch status unknown.",
+      "patch_available": "",
+      "product": "NVRmini2 Devices",
+      "replacement_hint": "NVRmini 3 (NE-2023/2043/4083/4163)",
+      "source_url": "https://nuuo.com/wp-content/uploads/2023/03/NUUO-EOL-letter%EF%BC%BFNVRmini-2-and-NVRsolo-series.pdf",
+      "vendor": "NUUO",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "dns-325",
+    "product": "Multiple NAS Devices",
+    "vendor": "D-Link",
+    "version": "1.05b03"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2020-05-31",
+     "lifecycle_id": "LC-006",
+     "match_score": 100.0,
+     "model_pattern": "DNS-320L*",
+     "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272: no updates or patches. DNS-320LW (non-US) has the same date and also matches this pattern.",
+     "patch_available": "false",
+     "product": "Multiple NAS Devices",
+     "replacement_hint": "Retire & Replace Device",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2017-09-01",
+     "lifecycle_id": "LC-007",
+     "match_score": 100.0,
+     "model_pattern": "DNS-325*",
+     "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272.",
+     "patch_available": "false",
+     "product": "Multiple NAS Devices",
+     "replacement_hint": "Retire & Replace Device",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2017-11-01",
+     "lifecycle_id": "LC-005",
+     "match_score": 85.5,
+     "model_pattern": "DIR-820L*",
+     "notes": "All revisions. Date is 'End of Support'. KEV CVE-2022-26258; D-Link says all firmware development ceased.",
+     "patch_available": "",
+     "product": "DIR-820L",
+     "replacement_hint": "Retire (no model named)",
+     "source_url": "https://supportannouncement.us.dlink.com/announcement/publication.aspx?name=SAP10295",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-043": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "7.24.3;7.23.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-025",
+      "match_score": 100.0,
+      "model_pattern": "7.*",
+      "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+      "patch_available": "true",
+      "product": "RouterOS",
+      "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+      "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+      "vendor": "MikroTik",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "MikroTik",
+    "version": "7.24.1"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.24.3;7.23.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-025",
+     "match_score": 100.0,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+     "patch_available": "true",
+     "product": "RouterOS",
+     "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+     "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+     "vendor": "MikroTik",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 62.1,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 62.1,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 62.1,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-044": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [
+     "CVE-2022-20699",
+     "CVE-2022-20700",
+     "CVE-2022-20701",
+     "CVE-2022-20703",
+     "CVE-2022-20708"
+    ],
+    "evidence_lifecycle_id": "LC-003",
+    "guard_notes": [],
+    "lane": "retire",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2021-10-28",
+      "fixed_version": "",
+      "last_security_support_date": "2022-10-28",
+      "lifecycle_id": "LC-003",
+      "match_score": 100.0,
+      "model_pattern": "RV34*",
+      "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+      "patch_available": "true",
+      "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+      "replacement_hint": "No replacement available per Cisco",
+      "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+      "vendor": "Cisco",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "rv345",
+    "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+    "vendor": "Cisco",
+    "version": "1.0.03.29"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 100.0,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 85.5,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 85.5,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-04-22",
+     "fixed_version": "",
+     "last_security_support_date": "2026-04-22",
+     "lifecycle_id": "LC-010",
+     "match_score": 85.5,
+     "model_pattern": "Vigor300B*",
+     "notes": "eol_date = 'EOS Since'; last_security_support_date = 'EOL Since', the last date DrayTek guarantees critical security updates (passed). KEV CVE-2024-12987 fixed in firmware 1.5.1.5. Page returns 403 to curl; read in a browser.",
+     "patch_available": "true",
+     "product": "Vigor Routers",
+     "replacement_hint": "None named",
+     "source_url": "https://www.draytek.com/support/product-lifecycle/",
+     "vendor": "DrayTek",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-08-02",
+     "fixed_version": "",
+     "last_security_support_date": "2026-08-31",
+     "lifecycle_id": "LC-019",
+     "match_score": 85.5,
+     "model_pattern": "ASA 5506*",
+     "notes": "ASA 5506-X/5506H-X hardware. Date is 'Last Date of Support: HW' (no vulnerability-support row). Not listed in the CVE-2025-20333 advisory, so patch status unknown. ASA 5508-X/5516-X have the same dates (EOL13762) but are not matched.",
+     "patch_available": "",
+     "product": "Adaptive Security Appliance (ASA)",
+     "replacement_hint": "Cisco Firepower 1000 Series",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/security/asa-5500-series-next-generation-firewalls/eos-eol-notice-c51-744797.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-045": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "NS14.1 38.53"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "14.1-47.46",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-023",
+     "match_score": 100.0,
+     "model_pattern": "14.1*",
+     "notes": "model_pattern is a version glob (software train). End-of-support date for 14.1 not verified.",
+     "patch_available": "true",
+     "product": "NetScaler ADC and Gateway",
+     "replacement_hint": "14.1-47.46 or later (CVE-2025-6543)",
+     "source_url": "https://support.citrix.com/external/article/CTX694788/netscaler-adc-and-netscaler-gateway-secu.html",
+     "vendor": "Citrix",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 85.5,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-046": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "7.24.3;7.23.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-025",
+      "match_score": 100.0,
+      "model_pattern": "7.*",
+      "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+      "patch_available": "true",
+      "product": "RouterOS",
+      "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+      "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+      "vendor": "MikroTik",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "MikroTik",
+    "version": "7.24.3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.24.3;7.23.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-025",
+     "match_score": 100.0,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+     "patch_available": "true",
+     "product": "RouterOS",
+     "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+     "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+     "vendor": "MikroTik",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 62.1,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 62.1,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 62.1,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-047": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2025-03-31",
+      "fixed_version": "",
+      "last_security_support_date": "2025-03-31",
+      "lifecycle_id": "LC-013",
+      "match_score": 85.5,
+      "model_pattern": "XG *",
+      "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+      "patch_available": "false",
+      "product": "XG Firewall",
+      "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+      "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+      "vendor": "Sophos",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "",
+    "version": "11.1.2-h3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2027-05-03",
+     "fixed_version": "11.1.2-h18;11.1.4-h13;11.1.6-h1",
+     "last_security_support_date": "2027-08-31",
+     "lifecycle_id": "LC-021",
+     "match_score": 100.0,
+     "model_pattern": "11.1.*",
+     "notes": "model_pattern is a version glob (software train). Dates from https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary (Standard / Extended Support+ end-of-life).",
+     "patch_available": "true",
+     "product": "PAN-OS",
+     "replacement_hint": "11.1.6-h1, 11.1.4-h13 or 11.1.2-h18 (CVE-2025-0108)",
+     "source_url": "https://security.paloaltonetworks.com/CVE-2025-0108",
+     "vendor": "Palo Alto Networks",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-048": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2027-05-03",
+      "fixed_version": "11.1.2-h18;11.1.4-h13;11.1.6-h1",
+      "last_security_support_date": "2027-08-31",
+      "lifecycle_id": "LC-021",
+      "match_score": 100.0,
+      "model_pattern": "11.1.*",
+      "notes": "model_pattern is a version glob (software train). Dates from https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary (Standard / Extended Support+ end-of-life).",
+      "patch_available": "true",
+      "product": "PAN-OS",
+      "replacement_hint": "11.1.6-h1, 11.1.4-h13 or 11.1.2-h18 (CVE-2025-0108)",
+      "source_url": "https://security.paloaltonetworks.com/CVE-2025-0108",
+      "vendor": "Palo Alto Networks",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Palo Alto Networks",
+    "version": "11.1.1"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2027-05-03",
+     "fixed_version": "11.1.2-h18;11.1.4-h13;11.1.6-h1",
+     "last_security_support_date": "2027-08-31",
+     "lifecycle_id": "LC-021",
+     "match_score": 100.0,
+     "model_pattern": "11.1.*",
+     "notes": "model_pattern is a version glob (software train). Dates from https://www.paloaltonetworks.com/services/support/end-of-life-announcements/end-of-life-summary (Standard / Extended Support+ end-of-life).",
+     "patch_available": "true",
+     "product": "PAN-OS",
+     "replacement_hint": "11.1.6-h1, 11.1.4-h13 or 11.1.2-h18 (CVE-2025-0108)",
+     "source_url": "https://security.paloaltonetworks.com/CVE-2025-0108",
+     "vendor": "Palo Alto Networks",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-049": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [
+     "CVE-2026-76418"
+    ],
+    "evidence_lifecycle_id": "LC-026",
+    "guard_notes": [
+     "evidence filled from candidates: LC-026"
+    ],
+    "lane": "patch",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "9.20.4.10;9.22.2.14;9.23.1.19",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-026",
+      "match_score": 100.0,
+      "model_pattern": "9.2[023].*",
+      "notes": "model_pattern is a version glob (software train). ASA software 9.20/9.22/9.23. KEV CVE-2025-20333/CVE-2025-20362. Older trains (9.17, 9.19): 'Migrate to a fixed release.'",
+      "patch_available": "true",
+      "product": "Secure Firewall Adaptive Security Appliance and Secure Firewall Threat Defense",
+      "replacement_hint": "ASA 9.20.4.10, 9.22.2.14 or 9.23.1.19 (fixes all three CVEs)",
+      "source_url": "https://sec.cloudapps.cisco.com/security/center/resources/asa_ftd_continued_attacks",
+      "vendor": "Cisco",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "2020-01-30",
+      "fixed_version": "",
+      "last_security_support_date": "2025-01-31",
+      "lifecycle_id": "LC-001",
+      "match_score": 85.5,
+      "model_pattern": "RV32*",
+      "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+      "patch_available": "false",
+      "product": "Small Business RV Series Routers",
+      "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+      "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+      "vendor": "Cisco",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "2020-01-30",
+      "fixed_version": "",
+      "last_security_support_date": "2025-01-31",
+      "lifecycle_id": "LC-002",
+      "match_score": 85.5,
+      "model_pattern": "RV042*",
+      "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+      "patch_available": "false",
+      "product": "Small Business RV Series Routers",
+      "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+      "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+      "vendor": "Cisco",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2024-12-31",
+      "lifecycle_id": "LC-011",
+      "match_score": 85.5,
+      "model_pattern": "",
+      "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+      "patch_available": "false",
+      "product": "Pulse Connect Secure",
+      "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+      "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+      "vendor": "Ivanti",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "2025-03-31",
+      "fixed_version": "",
+      "last_security_support_date": "2025-03-31",
+      "lifecycle_id": "LC-013",
+      "match_score": 85.5,
+      "model_pattern": "XG *",
+      "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+      "patch_available": "false",
+      "product": "XG Firewall",
+      "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+      "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+      "vendor": "Sophos",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "Secure Firewall ASA Software and Cisco Secure FTD Software",
+    "vendor": "Cisco",
+    "version": "9.20.2.10"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "9.20.4.10;9.22.2.14;9.23.1.19",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-026",
+     "match_score": 100.0,
+     "model_pattern": "9.2[023].*",
+     "notes": "model_pattern is a version glob (software train). ASA software 9.20/9.22/9.23. KEV CVE-2025-20333/CVE-2025-20362. Older trains (9.17, 9.19): 'Migrate to a fixed release.'",
+     "patch_available": "true",
+     "product": "Secure Firewall Adaptive Security Appliance and Secure Firewall Threat Defense",
+     "replacement_hint": "ASA 9.20.4.10, 9.22.2.14 or 9.23.1.19 (fixes all three CVEs)",
+     "source_url": "https://sec.cloudapps.cisco.com/security/center/resources/asa_ftd_continued_attacks",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 85.5,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 85.5,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2024-12-31",
+     "lifecycle_id": "LC-011",
+     "match_score": 85.5,
+     "model_pattern": "",
+     "notes": "'Pulse Connect Secure 9.1x reached End-of-Support on December 31, 2024'. KEV CVE-2025-22457 affects 9.1x with no fix for that line.",
+     "patch_available": "false",
+     "product": "Pulse Connect Secure",
+     "replacement_hint": "Migrate to Ivanti Connect Secure 22.7R2.6 or later",
+     "source_url": "https://www.ivanti.com/blog/security-update-pulse-connect-secure-ivanti-connect-secure-policy-secure-and-neurons-for-zta-gateways",
+     "vendor": "Ivanti",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2025-03-31",
+     "fixed_version": "",
+     "last_security_support_date": "2025-03-31",
+     "lifecycle_id": "LC-013",
+     "match_score": 85.5,
+     "model_pattern": "XG *",
+     "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+     "patch_available": "false",
+     "product": "XG Firewall",
+     "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+     "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+     "vendor": "Sophos",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-050": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "14.1-47.46",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-023",
+      "match_score": 100.0,
+      "model_pattern": "14.1*",
+      "notes": "model_pattern is a version glob (software train). End-of-support date for 14.1 not verified.",
+      "patch_available": "true",
+      "product": "NetScaler ADC and Gateway",
+      "replacement_hint": "14.1-47.46 or later (CVE-2025-6543)",
+      "source_url": "https://support.citrix.com/external/article/CTX694788/netscaler-adc-and-netscaler-gateway-secu.html",
+      "vendor": "Citrix",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Citrix",
+    "version": "14.1-29.72"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "14.1-47.46",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-023",
+     "match_score": 100.0,
+     "model_pattern": "14.1*",
+     "notes": "model_pattern is a version glob (software train). End-of-support date for 14.1 not verified.",
+     "patch_available": "true",
+     "product": "NetScaler ADC and Gateway",
+     "replacement_hint": "14.1-47.46 or later (CVE-2025-6543)",
+     "source_url": "https://support.citrix.com/external/article/CTX694788/netscaler-adc-and-netscaler-gateway-secu.html",
+     "vendor": "Citrix",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 85.5,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-051": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "12.11.4",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-029",
+      "match_score": 100.0,
+      "model_pattern": "12.*",
+      "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+      "patch_available": "true",
+      "product": "Firebox",
+      "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+      "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+      "vendor": "WatchGuard",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "WatchGuard",
+    "version": "12.11.6"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "12.11.4",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-029",
+     "match_score": 100.0,
+     "model_pattern": "12.*",
+     "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+     "patch_available": "true",
+     "product": "Firebox",
+     "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+     "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+     "vendor": "WatchGuard",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-052": {
+   "mock": {
+    "confidence": "0.55",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [],
+    "model": "t35",
+    "product": "",
+    "vendor": "Plex",
+    "version": "12.5.15"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "12.11.4",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-029",
+     "match_score": 100.0,
+     "model_pattern": "12.*",
+     "notes": "model_pattern is a version glob (software train). Fireware 12.x. Fireware 2025.x is fixed in 2025.1.1. No 11.x fix named. Support end dates not verified.",
+     "patch_available": "true",
+     "product": "Firebox",
+     "replacement_hint": "Fireware OS 12.11.4 (T15/T35: 12.5.13; FIPS: 12.3.1+722811)",
+     "source_url": "https://psirt.watchguard.com/CVE-2025-9242",
+     "vendor": "WatchGuard",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-053": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2020-12-10",
+      "lifecycle_id": "LC-004",
+      "match_score": 90.0,
+      "model_pattern": "DIR-859*",
+      "notes": "All revisions. Date is the table's 'End of Support'. KEV CVE-2024-0769/CVE-2019-17621. Page says 'Resolved Status: Yes' but names no fixed firmware, so patch status is left unknown.",
+      "patch_available": "",
+      "product": "DIR-859 Router",
+      "replacement_hint": "Retire and replace (no model named)",
+      "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10371",
+      "vendor": "D-Link",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2017-11-01",
+      "lifecycle_id": "LC-005",
+      "match_score": 90.0,
+      "model_pattern": "DIR-820L*",
+      "notes": "All revisions. Date is 'End of Support'. KEV CVE-2022-26258; D-Link says all firmware development ceased.",
+      "patch_available": "",
+      "product": "DIR-820L",
+      "replacement_hint": "Retire (no model named)",
+      "source_url": "https://supportannouncement.us.dlink.com/announcement/publication.aspx?name=SAP10295",
+      "vendor": "D-Link",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2020-05-31",
+      "lifecycle_id": "LC-006",
+      "match_score": 90.0,
+      "model_pattern": "DNS-320L*",
+      "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272: no updates or patches. DNS-320LW (non-US) has the same date and also matches this pattern.",
+      "patch_available": "false",
+      "product": "Multiple NAS Devices",
+      "replacement_hint": "Retire & Replace Device",
+      "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+      "vendor": "D-Link",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2017-09-01",
+      "lifecycle_id": "LC-007",
+      "match_score": 90.0,
+      "model_pattern": "DNS-325*",
+      "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272.",
+      "patch_available": "false",
+      "product": "Multiple NAS Devices",
+      "replacement_hint": "Retire & Replace Device",
+      "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+      "vendor": "D-Link",
+      "verified_on": "2026-11-11"
+     },
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2010-12-01",
+      "lifecycle_id": "LC-008",
+      "match_score": 90.0,
+      "model_pattern": "DIR-600*",
+      "notes": "Date is 'End of Support'. KEV CVE-2014-100005. Same notice covers DIR-605 (2015-02-01) and DIR-605L (2019-09-24), not included as rows.",
+      "patch_available": "",
+      "product": "DIR-600 Router",
+      "replacement_hint": "Retire and replace",
+      "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10393",
+      "vendor": "D-Link",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "D-Link",
+    "version": ""
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2020-12-10",
+     "lifecycle_id": "LC-004",
+     "match_score": 90.0,
+     "model_pattern": "DIR-859*",
+     "notes": "All revisions. Date is the table's 'End of Support'. KEV CVE-2024-0769/CVE-2019-17621. Page says 'Resolved Status: Yes' but names no fixed firmware, so patch status is left unknown.",
+     "patch_available": "",
+     "product": "DIR-859 Router",
+     "replacement_hint": "Retire and replace (no model named)",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10371",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2017-11-01",
+     "lifecycle_id": "LC-005",
+     "match_score": 90.0,
+     "model_pattern": "DIR-820L*",
+     "notes": "All revisions. Date is 'End of Support'. KEV CVE-2022-26258; D-Link says all firmware development ceased.",
+     "patch_available": "",
+     "product": "DIR-820L",
+     "replacement_hint": "Retire (no model named)",
+     "source_url": "https://supportannouncement.us.dlink.com/announcement/publication.aspx?name=SAP10295",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2020-05-31",
+     "lifecycle_id": "LC-006",
+     "match_score": 90.0,
+     "model_pattern": "DNS-320L*",
+     "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272: no updates or patches. DNS-320LW (non-US) has the same date and also matches this pattern.",
+     "patch_available": "false",
+     "product": "Multiple NAS Devices",
+     "replacement_hint": "Retire & Replace Device",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2017-09-01",
+     "lifecycle_id": "LC-007",
+     "match_score": 90.0,
+     "model_pattern": "DNS-325*",
+     "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272.",
+     "patch_available": "false",
+     "product": "Multiple NAS Devices",
+     "replacement_hint": "Retire & Replace Device",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2010-12-01",
+     "lifecycle_id": "LC-008",
+     "match_score": 90.0,
+     "model_pattern": "DIR-600*",
+     "notes": "Date is 'End of Support'. KEV CVE-2014-100005. Same notice covers DIR-605 (2015-02-01) and DIR-605L (2019-09-24), not included as rows.",
+     "patch_available": "",
+     "product": "DIR-600 Router",
+     "replacement_hint": "Retire and replace",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10393",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-054": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2024-05-16",
+      "fixed_version": "",
+      "last_security_support_date": "2022-12-31",
+      "lifecycle_id": "LC-009",
+      "match_score": 100.0,
+      "model_pattern": "USG[46]0*",
+      "notes": "USG40/40W/60/60W. End of Vulnerability Support 2022-12-31; End of Life 2024-05-16. Table is rendered by JavaScript. Other USG/ZyWALL models have the same dates but are not matched; USG20-VPN is NOT end of life.",
+      "patch_available": "false",
+      "product": "Multiple Firewalls",
+      "replacement_hint": "USG FLEX 100 (for USG40) / USG FLEX 200 (for USG60)",
+      "source_url": "https://www.zyxel.com/global/en/support/end-of-life",
+      "vendor": "Zyxel",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "usg60",
+    "product": "",
+    "vendor": "Zyxel",
+    "version": "4.73"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2024-05-16",
+     "fixed_version": "",
+     "last_security_support_date": "2022-12-31",
+     "lifecycle_id": "LC-009",
+     "match_score": 100.0,
+     "model_pattern": "USG[46]0*",
+     "notes": "USG40/40W/60/60W. End of Vulnerability Support 2022-12-31; End of Life 2024-05-16. Table is rendered by JavaScript. Other USG/ZyWALL models have the same dates but are not matched; USG20-VPN is NOT end of life.",
+     "patch_available": "false",
+     "product": "Multiple Firewalls",
+     "replacement_hint": "USG FLEX 100 (for USG40) / USG FLEX 200 (for USG60)",
+     "source_url": "https://www.zyxel.com/global/en/support/end-of-life",
+     "vendor": "Zyxel",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2030-06-30",
+     "fixed_version": "",
+     "last_security_support_date": "2030-06-30",
+     "lifecycle_id": "LC-027",
+     "match_score": 100.0,
+     "model_pattern": "USG FLEX*",
+     "notes": "USG FLEX 100/200/...: End of Vulnerability Support and End of Life 2030-06-30. Fix from https://www.zyxel.com/global/en/support/security-advisories/zyxel-security-advisory-for-os-command-injection-vulnerability-of-firewalls . ATP series has the same dates but is not matched.",
+     "patch_available": "true",
+     "product": "Multiple Firewalls",
+     "replacement_hint": "ZLD V5.30 or later (CVE-2022-30525); successor USG FLEX H series",
+     "source_url": "https://www.zyxel.com/global/en/support/end-of-life",
+     "vendor": "Zyxel",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-055": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "7.24.3;7.23.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-025",
+      "match_score": 100.0,
+      "model_pattern": "7.*",
+      "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+      "patch_available": "true",
+      "product": "RouterOS",
+      "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+      "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+      "vendor": "MikroTik",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "MikroTik",
+    "version": "7.24.3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.24.3;7.23.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-025",
+     "match_score": 100.0,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+     "patch_available": "true",
+     "product": "RouterOS",
+     "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+     "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+     "vendor": "MikroTik",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 62.1,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 62.1,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 62.1,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-056": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "7.24.3;7.23.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-025",
+      "match_score": 100.0,
+      "model_pattern": "7.*",
+      "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+      "patch_available": "true",
+      "product": "RouterOS",
+      "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+      "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+      "vendor": "MikroTik",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "MikroTik",
+    "version": "7.23.3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.24.3;7.23.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-025",
+     "match_score": 100.0,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+     "patch_available": "true",
+     "product": "RouterOS",
+     "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+     "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+     "vendor": "MikroTik",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 62.1,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 62.1,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 62.1,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-057": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "2025-03-31",
+      "fixed_version": "",
+      "last_security_support_date": "2025-03-31",
+      "lifecycle_id": "LC-013",
+      "match_score": 90.0,
+      "model_pattern": "XG *",
+      "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+      "patch_available": "false",
+      "product": "XG Firewall",
+      "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+      "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+      "vendor": "Sophos",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "Sophos",
+    "version": "18.5.4"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "2025-03-31",
+     "fixed_version": "",
+     "last_security_support_date": "2025-03-31",
+     "lifecycle_id": "LC-013",
+     "match_score": 100.0,
+     "model_pattern": "XG *",
+     "notes": "XG hardware (XG 86 to XG 750). Sophos staff post on vendor domain: 'Sophos will not provide patches or fixes' after EOL. No separate end-of-sale date. Pattern 'XG *' does not match XGS.",
+     "patch_available": "false",
+     "product": "XG Firewall",
+     "replacement_hint": "Equivalent XGS model (e.g. XG 210 -> XGS 2100)",
+     "source_url": "https://community.sophos.com/sophos-xg-firewall/b/blog/posts/xg-series-hardware-end-of-life-eol-frequently-asked-questions",
+     "vendor": "Sophos",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-058": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [
+     "CVE-2022-26258"
+    ],
+    "evidence_lifecycle_id": "LC-005",
+    "guard_notes": [],
+    "lane": "retire",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2017-11-01",
+      "lifecycle_id": "LC-005",
+      "match_score": 100.0,
+      "model_pattern": "DIR-820L*",
+      "notes": "All revisions. Date is 'End of Support'. KEV CVE-2022-26258; D-Link says all firmware development ceased.",
+      "patch_available": "",
+      "product": "DIR-820L",
+      "replacement_hint": "Retire (no model named)",
+      "source_url": "https://supportannouncement.us.dlink.com/announcement/publication.aspx?name=SAP10295",
+      "vendor": "D-Link",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "dir-820l",
+    "product": "DIR-820L",
+    "vendor": "D-Link",
+    "version": "1.05B03"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2017-11-01",
+     "lifecycle_id": "LC-005",
+     "match_score": 100.0,
+     "model_pattern": "DIR-820L*",
+     "notes": "All revisions. Date is 'End of Support'. KEV CVE-2022-26258; D-Link says all firmware development ceased.",
+     "patch_available": "",
+     "product": "DIR-820L",
+     "replacement_hint": "Retire (no model named)",
+     "source_url": "https://supportannouncement.us.dlink.com/announcement/publication.aspx?name=SAP10295",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2020-05-31",
+     "lifecycle_id": "LC-006",
+     "match_score": 85.5,
+     "model_pattern": "DNS-320L*",
+     "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272: no updates or patches. DNS-320LW (non-US) has the same date and also matches this pattern.",
+     "patch_available": "false",
+     "product": "Multiple NAS Devices",
+     "replacement_hint": "Retire & Replace Device",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2017-09-01",
+     "lifecycle_id": "LC-007",
+     "match_score": 85.5,
+     "model_pattern": "DNS-325*",
+     "notes": "Date is 'End of Service Life'. KEV CVE-2024-3273/CVE-2024-3272.",
+     "patch_available": "false",
+     "product": "Multiple NAS Devices",
+     "replacement_hint": "Retire & Replace Device",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=sap10383",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2020-12-10",
+     "lifecycle_id": "LC-004",
+     "match_score": 76.0,
+     "model_pattern": "DIR-859*",
+     "notes": "All revisions. Date is the table's 'End of Support'. KEV CVE-2024-0769/CVE-2019-17621. Page says 'Resolved Status: Yes' but names no fixed firmware, so patch status is left unknown.",
+     "patch_available": "",
+     "product": "DIR-859 Router",
+     "replacement_hint": "Retire and replace (no model named)",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10371",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2010-12-01",
+     "lifecycle_id": "LC-008",
+     "match_score": 76.0,
+     "model_pattern": "DIR-600*",
+     "notes": "Date is 'End of Support'. KEV CVE-2014-100005. Same notice covers DIR-605 (2015-02-01) and DIR-605L (2019-09-24), not included as rows.",
+     "patch_available": "",
+     "product": "DIR-600 Router",
+     "replacement_hint": "Retire and replace",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10393",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-059": {
+   "mock": {
+    "confidence": "0.92",
+    "evidence_cve": [
+     "CVE-2019-17621",
+     "CVE-2024-0769"
+    ],
+    "evidence_lifecycle_id": "LC-004",
+    "guard_notes": [],
+    "lane": "retire",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "",
+      "last_security_support_date": "2020-12-10",
+      "lifecycle_id": "LC-004",
+      "match_score": 100.0,
+      "model_pattern": "DIR-859*",
+      "notes": "All revisions. Date is the table's 'End of Support'. KEV CVE-2024-0769/CVE-2019-17621. Page says 'Resolved Status: Yes' but names no fixed firmware, so patch status is left unknown.",
+      "patch_available": "",
+      "product": "DIR-859 Router",
+      "replacement_hint": "Retire and replace (no model named)",
+      "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10371",
+      "vendor": "D-Link",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "dir-859",
+    "product": "DIR-859 Router",
+    "vendor": "D-Link",
+    "version": "1.06B01"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2020-12-10",
+     "lifecycle_id": "LC-004",
+     "match_score": 100.0,
+     "model_pattern": "DIR-859*",
+     "notes": "All revisions. Date is the table's 'End of Support'. KEV CVE-2024-0769/CVE-2019-17621. Page says 'Resolved Status: Yes' but names no fixed firmware, so patch status is left unknown.",
+     "patch_available": "",
+     "product": "DIR-859 Router",
+     "replacement_hint": "Retire and replace (no model named)",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10371",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2010-12-01",
+     "lifecycle_id": "LC-008",
+     "match_score": 85.7,
+     "model_pattern": "DIR-600*",
+     "notes": "Date is 'End of Support'. KEV CVE-2014-100005. Same notice covers DIR-605 (2015-02-01) and DIR-605L (2019-09-24), not included as rows.",
+     "patch_available": "",
+     "product": "DIR-600 Router",
+     "replacement_hint": "Retire and replace",
+     "source_url": "https://supportannouncement.us.dlink.com/security/publication.aspx?name=SAP10393",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "",
+     "fixed_version": "",
+     "last_security_support_date": "2017-11-01",
+     "lifecycle_id": "LC-005",
+     "match_score": 76.0,
+     "model_pattern": "DIR-820L*",
+     "notes": "All revisions. Date is 'End of Support'. KEV CVE-2022-26258; D-Link says all firmware development ceased.",
+     "patch_available": "",
+     "product": "DIR-820L",
+     "replacement_hint": "Retire (no model named)",
+     "source_url": "https://supportannouncement.us.dlink.com/announcement/publication.aspx?name=SAP10295",
+     "vendor": "D-Link",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  },
+  "DEV-060": {
+   "mock": {
+    "confidence": "0.40",
+    "evidence_cve": [],
+    "evidence_lifecycle_id": "",
+    "guard_notes": [],
+    "lane": "unknown",
+    "lifecycle_candidates": [
+     {
+      "eol_date": "",
+      "fixed_version": "7.24.3;7.23.6",
+      "last_security_support_date": "",
+      "lifecycle_id": "LC-025",
+      "match_score": 100.0,
+      "model_pattern": "7.*",
+      "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+      "patch_available": "true",
+      "product": "RouterOS",
+      "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+      "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+      "vendor": "MikroTik",
+      "verified_on": "2026-11-11"
+     }
+    ],
+    "model": "",
+    "product": "",
+    "vendor": "MikroTik",
+    "version": "7.24.3"
+   },
+   "truth_lifecycle_candidates": [
+    {
+     "eol_date": "",
+     "fixed_version": "7.24.3;7.23.6",
+     "last_security_support_date": "",
+     "lifecycle_id": "LC-025",
+     "match_score": 100.0,
+     "model_pattern": "7.*",
+     "notes": "model_pattern is a version glob (software train). KEV CVE-2026-67279/CVE-2026-86060/CVE-2026-67277: 'The complete fix is included in 7.24.3 (stable) and 7.23.6 (long-term)'. No end-of-support date published.",
+     "patch_available": "true",
+     "product": "RouterOS",
+     "replacement_hint": "7.24.3 (stable) or 7.23.6 (long-term)",
+     "source_url": "https://mikrotik.com/supportsec/september-2026-vulnerability",
+     "vendor": "MikroTik",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-001",
+     "match_score": 62.1,
+     "model_pattern": "RV32*",
+     "notes": "RV320/RV325. Date is 'Last Date of Support: HW' (bulletin has no vulnerability-support row). KEV CVE-2023-20118: Cisco 'has not released and will not release software updates' (cisco-sa-sbr042-multi-vuln-ej76Pke5).",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "Cisco names RV340/RV345, which are themselves past support (see RV34* row)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743069.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2020-01-30",
+     "fixed_version": "",
+     "last_security_support_date": "2025-01-31",
+     "lifecycle_id": "LC-002",
+     "match_score": 62.1,
+     "model_pattern": "RV042*",
+     "notes": "RV042/RV042G. Date is 'Last Date of Support: HW'. KEV CVE-2023-20118: no fix will be released.",
+     "patch_available": "false",
+     "product": "Small Business RV Series Routers",
+     "replacement_hint": "RV340 per Cisco bulletin (also past support)",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/eos-eol-notice-c51-743070.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    },
+    {
+     "eol_date": "2021-10-28",
+     "fixed_version": "",
+     "last_security_support_date": "2022-10-28",
+     "lifecycle_id": "LC-003",
+     "match_score": 62.1,
+     "model_pattern": "RV34*",
+     "notes": "RV340/RV345 only. End of Vulnerability/Security Support 2022-10-28; Last Date of Support 2026-10-31 (passed). KEV CVE-2022-20699 etc. fixed in 1.0.03.26 before support ended.",
+     "patch_available": "true",
+     "product": "Small Business RV160, RV260, RV340, and RV345 Series Routers",
+     "replacement_hint": "No replacement available per Cisco",
+     "source_url": "https://www.cisco.com/c/en/us/products/collateral/routers/small-business-rv-series-routers/small-business-rv340-rv345-series-eol.html",
+     "vendor": "Cisco",
+     "verified_on": "2026-11-11"
+    }
+   ]
+  }
+ },
+ "lifecycle_ids": [
+  "LC-001",
+  "LC-002",
+  "LC-003",
+  "LC-004",
+  "LC-005",
+  "LC-006",
+  "LC-007",
+  "LC-008",
+  "LC-009",
+  "LC-010",
+  "LC-011",
+  "LC-012",
+  "LC-013",
+  "LC-014",
+  "LC-015",
+  "LC-016",
+  "LC-017",
+  "LC-018",
+  "LC-019",
+  "LC-020",
+  "LC-021",
+  "LC-022",
+  "LC-023",
+  "LC-024",
+  "LC-025",
+  "LC-026",
+  "LC-027",
+  "LC-028",
+  "LC-029",
+  "LC-030"
+ ]
+}
