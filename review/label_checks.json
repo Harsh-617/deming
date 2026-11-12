@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-11T14:32:52Z",
+ "generated_at": "2026-11-12T15:23:19Z",
  "as_of_date": "2026-11-12",
  "devices": [
   {
@@ -107,21 +107,21 @@
    "exposure": 1
   },
   {
-   "device_id": "DEV-052",
+   "device_id": "DEV-025",
    "findings": [
     {
      "kind": "lane_mismatch",
      "severity": 3,
-     "text": "label lane fine, recomputed patch: 12.5.15 is below fixed 12.11.4 (LC-029)"
+     "text": "label lane retire, recomputed patch: 12.5.9 is below fixed 12.11.4 (LC-029)"
     }
    ],
    "recomputed_lane": "patch",
-   "recompute_reason": "12.5.15 is below fixed 12.11.4 (LC-029)",
+   "recompute_reason": "12.5.9 is below fixed 12.11.4 (LC-029)",
    "firmware_lane": "patch",
-   "firmware_reason": "12.5.15 is below fixed 12.11.4 (LC-029)",
+   "firmware_reason": "12.5.9 is below fixed 12.11.4 (LC-029)",
    "governing_lifecycle_id": "LC-029",
    "source": {
-    "result": "ok",
+    "result": "needs_human",
     "urls": [
      {
       "url": "https://psirt.watchguard.com/CVE-2025-9242",
@@ -134,6 +134,73 @@
       "status": 200,
       "result": "text",
       "note": "HTTP 200, text page"
+     },
+     {
+      "url": "https://www.watchguard.com/node/111406",
+      "status": null,
+      "result": "not_fetched",
+      "note": "not fetched (offline run); needs human check in a browser"
+     }
+    ],
+    "needles": [
+     {
+      "kind": "fixed_version",
+      "text": "12.11.4",
+      "status": "found",
+      "where": [
+       "https://psirt.watchguard.com/CVE-2025-9242"
+      ]
+     }
+    ]
+   },
+   "mechanical": "flag",
+   "max_severity": 3,
+   "exposure": 0
+  },
+  {
+   "device_id": "DEV-052",
+   "findings": [
+    {
+     "kind": "evidence",
+     "severity": 3,
+     "text": "lane retire cites no lifecycle row; LC-029 fits"
+    },
+    {
+     "kind": "lane_mismatch",
+     "severity": 3,
+     "text": "label lane retire, recomputed patch: 12.5.15 is below fixed 12.11.4 (LC-029)"
+    },
+    {
+     "kind": "evidence",
+     "severity": 3,
+     "text": "lane retire has no evidence"
+    }
+   ],
+   "recomputed_lane": "patch",
+   "recompute_reason": "12.5.15 is below fixed 12.11.4 (LC-029)",
+   "firmware_lane": "patch",
+   "firmware_reason": "12.5.15 is below fixed 12.11.4 (LC-029)",
+   "governing_lifecycle_id": "LC-029",
+   "source": {
+    "result": "needs_human",
+    "urls": [
+     {
+      "url": "https://psirt.watchguard.com/CVE-2025-9242",
+      "status": 200,
+      "result": "text",
+      "note": "HTTP 200, text page"
+     },
+     {
+      "url": "https://psirt.watchguard.com/CVE-2025-14733",
+      "status": 200,
+      "result": "text",
+      "note": "HTTP 200, text page"
+     },
+     {
+      "url": "https://www.watchguard.com/node/111406",
+      "status": null,
+      "result": "not_fetched",
+      "note": "not fetched (offline run); needs human check in a browser"
      }
     ],
     "needles": [
@@ -2870,45 +2937,6 @@
    "recompute_reason": "12.11.6 is at or above fixed 12.11.4 (LC-029)",
    "firmware_lane": "fine",
    "firmware_reason": "12.11.6 is at or above fixed 12.11.4 (LC-029)",
-   "governing_lifecycle_id": "LC-029",
-   "source": {
-    "result": "ok",
-    "urls": [
-     {
-      "url": "https://psirt.watchguard.com/CVE-2025-9242",
-      "status": 200,
-      "result": "text",
-      "note": "HTTP 200, text page"
-     },
-     {
-      "url": "https://psirt.watchguard.com/CVE-2025-14733",
-      "status": 200,
-      "result": "text",
-      "note": "HTTP 200, text page"
-     }
-    ],
-    "needles": [
-     {
-      "kind": "fixed_version",
-      "text": "12.11.4",
-      "status": "found",
-      "where": [
-       "https://psirt.watchguard.com/CVE-2025-9242"
-      ]
-     }
-    ]
-   },
-   "mechanical": "pass",
-   "max_severity": 0,
-   "exposure": 0
-  },
-  {
-   "device_id": "DEV-025",
-   "findings": [],
-   "recomputed_lane": "patch",
-   "recompute_reason": "12.5.9 is below fixed 12.11.4 (LC-029)",
-   "firmware_lane": "patch",
-   "firmware_reason": "12.5.9 is below fixed 12.11.4 (LC-029)",
    "governing_lifecycle_id": "LC-029",
    "source": {
     "result": "ok",
@@ -19531,6 +19559,13 @@
     "through 6.42": false
    },
    "text_chars": 212
+  },
+  "https://www.watchguard.com/node/111406": {
+   "url": "https://www.watchguard.com/node/111406",
+   "status": null,
+   "result": "not_fetched",
+   "note": "not fetched (offline run); needs human check in a browser",
+   "found": {}
   },
   "https://nuuo.com/wp-content/uploads/2023/03/NUUO-EOL-letter%EF%BC%BFNVRmini-2-and-NVRsolo-series.pdf": {
    "url": "https://nuuo.com/wp-content/uploads/2023/03/NUUO-EOL-letter%EF%BC%BFNVRmini-2-and-NVRsolo-series.pdf",

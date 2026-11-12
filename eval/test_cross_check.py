@@ -194,5 +194,7 @@ def test_real_input_matches_published_numbers():
                      agreement.read_csv(ROOT / "data/ground_truth.csv"),
                      agreement.read_csv(ROOT / "data/lifecycle.csv"))
     lm = cc.lane_metrics([c["ai"]["lane"] for c in cmp], [c["truth"]["lane"] for c in cmp])
-    assert (lm["n"], lm["agree"]) == (15, 12)
-    assert round(lm["kappa"], 2) == 0.68
+    # Against the labels as corrected on 2026-11-12 (DEV-025/DEV-052 → retire). The published
+    # docs/ai-cross-check.md body shows 12/15, kappa 0.68 on the labels before that correction.
+    assert (lm["n"], lm["agree"]) == (15, 14)
+    assert round(lm["kappa"], 2) == 0.88

@@ -136,9 +136,11 @@ def main(argv=None) -> int:
     p.add_argument("--baseline", type=Path, required=True)
     p.add_argument("--deming", type=Path, nargs="+", required=True)
     p.add_argument("--three-repeat-ids", default="DEV-001:DEV-040")
+    p.add_argument("--ground-truth", type=Path, default=ROOT / "data/ground_truth.csv",
+                   help="truth file to score against (default: the current labels)")
     a = p.parse_args(argv)
 
-    truth = read(ROOT / "data/ground_truth.csv")
+    truth = read(a.ground_truth)
     ids = {t["device_id"] for t in truth}
     base = metrics.index_predictions(read(a.baseline), ids)
     dem = [metrics.index_predictions(read(f), ids) for f in a.deming]
