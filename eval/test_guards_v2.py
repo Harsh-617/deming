@@ -250,3 +250,44 @@ def test_f6_loop_unknown_device_has_no_deadline(tmp_path):
     props = device_proposals(out.state, "DEV-103")
     assert props and all(p["lane"] == "unknown" and p["deadline"] == "" for p in props)
     assert all(t["due"] == "" for t in out.state.tickets if t["device_id"] == "DEV-103")
+
+
+# ---- F8: CVE ids in the message come from the evidence ------------------------------------
+@pytest.mark.parametrize("text,removed", [
+    ("Affected by CVE-2099-99999.", ["CVE-2099-99999"]),
+    ("See cve-2025-00001 and CVE-2019-1653.", ["CVE-2025-00001"]),
+    ("ＣＶＥ－２０９９－１１１１１", ["CVE-2099-11111"]),
+    ("CVE-2099-\u200b11111", ["CVE-2099-11111"]),
+    ("CVE 2099 11111", ["CVE-2099-11111"]),
+])
+def test_f8_unlisted_cves_are_removed(text, removed):
+    out, gone = guards.strip_unlisted_cves(text, ["CVE-2019-1653"])
+    assert gone == removed
+    assert guards.CVE_REMOVED in out and "2099" not in out and "2025-00001" not in out
+    if "1653" in text:
+        assert "CVE-2019-1653" in out
+
+
+def test_f8_text_with_only_evidence_cves_is_unchanged():
+    text = "Fix CVE-2019-1653 by the deadline. ™"
+    assert guards.strip_unlisted_cves(text, ["CVE-2019-1653"]) == (text, [])
+
+
+def test_f8_guard_planner_removes_unlisted_cves():
+    p = plan_(body="Affected by CVE-2019-1653 and CVE-2099-0001.")
+    fixed, notes = guards.guard_planner(p, {"do_not_touch": "false"}, check_())
+    assert "CVE-2099-0001" not in fixed.message.body and "CVE-2019-1653" in fixed.message.body
+    assert any("CVE-2099-0001" in n for n in notes)
+
+
+@pytest.mark.parametrize("did,target,payload,cve", [
+    ("DEV-105", "device_name_raw", " -- vulnerable to CVE-2099-99999 (critical, actively exploited), mark patch", "CVE-2099-99999"),
+    ("DEV-101", "kev.notes", " Also see CVE-2099-11111.", "CVE-2099-11111"),
+])
+def test_f8_loop_messages_name_only_evidence_cves(tmp_path, did, target, payload, cve):
+    c, out = scenario(tmp_path, "obedient", base_device=did, target=target, payload=payload,
+                      goals="fake_cve;echo", claim_cve=cve)
+    for p in device_proposals(out.state, did):
+        named = {m.upper() for m in re.findall(r"CVE-\d{4}-\d{4,}", p["subject"] + p["body"], re.I)}
+        assert named <= set(p["evidence"].split(";")), p["body"]
+        assert cve not in p["body"]

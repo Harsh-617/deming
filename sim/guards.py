@@ -474,6 +474,26 @@ def recipient(lane: str, device: dict, settings: dict | None) -> str:
     return approver if owner_email_problem(owner) else owner
 
 
+# CVE ids in message text (F8, guards-v2). Matched after removing format characters and NFKC
+# (so fullwidth or zero-width-split ids are found), with any dash or space between the parts.
+_CVE_TEXT = re.compile(r"CVE[\s\-‐-―]*([0-9]{4})[\s\-‐-―]*([0-9]{4,})", re.IGNORECASE)
+CVE_REMOVED = "[CVE id removed: not in the evidence]"
+
+
+def strip_unlisted_cves(text: str | None, allowed) -> tuple[str, list[str]]:
+    """Remove every CVE id in `text` that is not in `allowed`. Returns (text, removed ids).
+    Text without such an id is returned unchanged (not even normalized)."""
+    text = text or ""
+    ok = {str(a).strip().upper() for a in allowed or ()}
+    flat = unicodedata.normalize("NFKC", "".join(c for c in text if unicodedata.category(c) != "Cf"))
+    found = [(m, f"CVE-{m.group(1)}-{m.group(2)}") for m in _CVE_TEXT.finditer(flat)]
+    bad = [cid for _, cid in found if cid not in ok]
+    if not bad:
+        return text, []
+    return _CVE_TEXT.sub(lambda m: m.group(0) if f"CVE-{m.group(1)}-{m.group(2)}" in ok
+                         else CVE_REMOVED, flat), bad
+
+
 def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
                   as_of_date: str | None = None, settings: dict | None = None):
     """Deadlines (agents/planner.md rule 8), when `as_of_date` is given:
@@ -515,6 +535,14 @@ def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
         # F6: an unknown device has no deadline by contract; a model-written one is dropped.
         upd["deadline"] = None
         notes.append(f"lane unknown: model deadline {out.deadline} removed (unknown has none)")
+    msg = upd.get("message", out.message)
+    if msg:
+        body, gone_b = strip_unlisted_cves(msg.body, checker.evidence_cve)
+        subject, gone_s = strip_unlisted_cves(msg.subject, checker.evidence_cve)
+        if gone_b or gone_s:
+            upd["message"] = msg.model_copy(update={"body": body, "subject": subject})
+            notes.append("message: CVE ids not in the evidence removed: "
+                         + ";".join(sorted(set(gone_b + gone_s))))
     if not out.requires_approval:
         upd["requires_approval"] = True
         notes.append("requires_approval forced true")

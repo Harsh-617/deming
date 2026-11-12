@@ -629,6 +629,13 @@ def _propose_device(state, d, r, evidence, run_id, run_seq, as_of, settings, lif
         guard_note = "; ".join(filter(None, [guard_note, f"{bad_owner}: sent to the approver for review"]))
     if INJECTION.search(subject) or (dnt and guards.consequential_wording(subject)):
         subject = f"[Deming] {lane}: {did}"
+    # F8: CVE ids in the text must be the proposal's own evidence.
+    allowed = [e for e in evidence.split(";") if e.upper().startswith("CVE-")]
+    body, gone_b = guards.strip_unlisted_cves(body, allowed)
+    subject, gone_s = guards.strip_unlisted_cves(subject, allowed)
+    if gone_b or gone_s:
+        guard_note = "; ".join(filter(None, [guard_note, "CVE ids not in the evidence removed: "
+                                             + ";".join(sorted(set(gone_b + gone_s)))]))
     actions = ["email", "ticket"] + (["calendar"] if lane == "patch" and not dnt else [])
     # fixed_version comes from the governing lifecycle row, used later to judge a version change.
     row = guards._governing_row(r.check, {**d, **r.normalized.model_dump()}, r.lifecycle_candidates)
