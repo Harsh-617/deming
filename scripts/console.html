@@ -71,7 +71,7 @@ pre{white-space:pre-wrap;word-break:break-word;font-size:12px;background:var(--b
   <h2>Settings</h2>
   <div class="row">
     <div class="grow"><label for="approver">Approver (recorded on every approval)</label>
-    <input id="approver" type="email"></div>
+    <input autocomplete="off" data-lpignore="true" data-1p-ignore data-op-ignore data-bwignore="true" data-form-type="other" id="approver" type="email"></div>
     <button id="saveApprover" class="secondary" data-static>Save approver</button>
   </div>
 </section>
@@ -106,13 +106,13 @@ pre{white-space:pre-wrap;word-break:break-word;font-size:12px;background:var(--b
   <p class="muted small">Runs the existing Normalizer → Checker → Planner pipeline and guards on one synthetic device. Writes nothing to the outbox, tickets or inventory.</p>
   <div class="grid2">
     <div>
-      <label for="tName">Raw device name</label><input id="tName" type="text" maxlength="200" value="D-Link DIR-600 router">
-      <label for="tFw">Firmware</label><input id="tFw" type="text" maxlength="64" value="2.18">
+      <label for="tName">Raw device name</label><input autocomplete="off" data-lpignore="true" data-1p-ignore data-op-ignore data-bwignore="true" data-form-type="other" id="tName" type="text" maxlength="200" value="D-Link DIR-600 router">
+      <label for="tFw">Firmware</label><input autocomplete="off" data-lpignore="true" data-1p-ignore data-op-ignore data-bwignore="true" data-form-type="other" id="tFw" type="text" maxlength="64" value="2.18">
       <label for="tCrit">Criticality</label>
-      <select id="tCrit"><option>low</option><option selected>medium</option><option>high</option><option>critical</option></select>
+      <select autocomplete="off" data-lpignore="true" data-1p-ignore data-op-ignore data-bwignore="true" data-form-type="other" id="tCrit"><option>low</option><option selected>medium</option><option>high</option><option>critical</option></select>
       <div class="row mt">
-        <label><input id="tInet" type="checkbox"> internet-facing</label>
-        <label><input id="tDnt" type="checkbox"> do-not-touch</label>
+        <label><input autocomplete="off" data-lpignore="true" data-1p-ignore data-op-ignore data-bwignore="true" data-form-type="other" id="tInet" type="checkbox"> internet-facing</label>
+        <label><input autocomplete="off" data-lpignore="true" data-1p-ignore data-op-ignore data-bwignore="true" data-form-type="other" id="tDnt" type="checkbox"> do-not-touch</label>
       </div>
       <button id="tryBtn" class="mt" data-static>Run pipeline</button>
     </div>

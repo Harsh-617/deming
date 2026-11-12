@@ -64,6 +64,12 @@ class Server:
         self.srv.server_close()
 
 
+@pytest.fixture(autouse=True)
+def no_real_env_file(tmp_path, monkeypatch):
+    """Never read the developer's real .env in tests: point the console at a missing file."""
+    monkeypatch.setattr(cs, "ENV_FILE", tmp_path / "no-such-dir" / ".env")
+
+
 @pytest.fixture
 def server(tmp_path, monkeypatch):
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)

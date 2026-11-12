@@ -1,7 +1,8 @@
-"""Deming Console: a local page that walks through the demo loop with human clicks.
+r"""Deming Console: a local page that walks through the demo loop with human clicks.
 
     python scripts/console.py              # then open http://127.0.0.1:8765/
     python scripts/console.py --port 9000
+    .\.venv\Scripts\python.exe scripts\console.py   # Windows, with the repo venv
 
 Python standard library only (http.server) plus one self-contained page, scripts/console.html
 (no CDN, no network at runtime). Binds to 127.0.0.1 only. All devices are synthetic and the
@@ -16,6 +17,10 @@ It reuses the existing code and adds no lane, approval or verification logic of 
 
 It writes only under console_state/ (gitignored): console_state/demo/ is the loop state,
 console_state/gemini_cache/ the response cache for "Try a device". Never data/ or sim/state.
+
+Gemini key: "Try a device" uses GEMINI_API_KEY from the process environment or, if that is
+unset, reads only that one line from the repo-root .env (load_key). The key is never printed,
+logged, returned in a response or written to a file; every response and log line is scrubbed.
 
 Approvals: the only code path that records an approval is POST /api/approve, which takes one
 proposal_id and uses the approver from Settings. Nothing approves automatically.
@@ -47,6 +52,8 @@ HOST = "127.0.0.1"  # loopback only; there is deliberately no option to change i
 DEFAULT_PORT = 8765
 DEFAULT_ROOT = ROOT / "console_state"
 PAGE = Path(__file__).with_name("console.html")
+ENV_FILE = ROOT / ".env"  # read only for the GEMINI_API_KEY line; tests point this elsewhere
+KEY_NAME = "GEMINI_API_KEY"
 STEP_FILE = ".console_owners_updated"  # inside the demo folder, so Reset clears it
 GEMINI_TIMEOUT_S = 20
 MAX_BODY = 16 * 1024
@@ -55,6 +62,44 @@ STEPS = ["Run 1", "Approve", "Owners update inventory", "Run 2 verify"]
 # Same Google key shapes scripts/block_secrets.py blocks (AIza..., AQ....).
 KEY_RE = re.compile(r"(?<![A-Za-z0-9])(?:AIza[0-9A-Za-z_\-]{20,}|AQ\.[0-9A-Za-z_\-]{20,})")
 EMAIL_RE = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
+
+
+# Every key value load_key has returned, so scrub() can redact it even if it came from .env.
+_LOADED_KEYS: set[str] = set()
+_ENV_LINE_RE = re.compile(r"^\s*(?:export\s+)?" + KEY_NAME + r"\s*=\s*(.*?)\s*$")
+
+
+def _parse_env_value(raw: str) -> str:
+    """Value part of KEY=value: quoted ("..." or '...') or bare with an optional # comment."""
+    raw = raw.strip()
+    if raw[:1] in ("'", '"'):
+        end = raw.find(raw[0], 1)
+        return raw[1:end].strip() if end > 0 else ""  # unterminated quote: treat as unset
+    return re.split(r"\s+#", raw, maxsplit=1)[0].strip()
+
+
+def load_key(env_file: str | Path | None = None) -> tuple[str, str]:
+    """(key, source). source is "environment", ".env" or "" (no key).
+
+    The environment wins. Otherwise only the GEMINI_API_KEY line of .env is read; every other
+    line is ignored and nothing is put into os.environ. The key is never printed or logged.
+    """
+    key = os.environ.get(KEY_NAME, "").strip()
+    source = "environment" if key else ""
+    if not key:
+        path = Path(env_file) if env_file is not None else ENV_FILE
+        try:
+            text = path.read_text(encoding="utf-8-sig")
+        except (OSError, UnicodeDecodeError):
+            text = ""
+        for line in text.splitlines():
+            m = _ENV_LINE_RE.match(line)
+            if m:
+                key = _parse_env_value(m.group(1))  # last assignment wins, like python-dotenv
+        source = ".env" if key else ""
+    if key:
+        _LOADED_KEYS.add(key)
+    return key, source
 
 
 class UserError(Exception):
@@ -67,8 +112,10 @@ class UserError(Exception):
 
 # ---- the console's own state (wraps sim.loop.State) ----------------------------------------
 class Console:
-    def __init__(self, root: str | Path = DEFAULT_ROOT, gemini_client_factory=None):
+    def __init__(self, root: str | Path = DEFAULT_ROOT, gemini_client_factory=None,
+                 env_file: str | Path | None = None):
         self.root = Path(root)
+        self.env_file = env_file  # None: ENV_FILE (repo-root .env)
         self.demo = self.root / "demo"
         self.cache = self.root / "gemini_cache"
         self.lock = threading.Lock()
@@ -234,7 +281,7 @@ class Console:
         with self.lock:
             settings = simloop.typed_settings(self.state().settings_raw)
         as_of = config.load_as_of_date()
-        key = os.environ.get("GEMINI_API_KEY", "").strip()
+        key, _source = load_key(self.env_file)
         fallback = ""
         result = None
         if key:
@@ -246,12 +293,14 @@ class Console:
                 model = f"model: {runner.model}"
             except Exception as exc:  # noqa: BLE001 - any failure falls back to the mock
                 # Only the exception type: its text could echo request details.
-                fallback = (f"Gemini call failed ({type(exc).__name__}); used the mock instead"
+                code = getattr(exc, "code", None)  # HTTP status from google-genai errors
+                code = f", HTTP {code}" if isinstance(code, int) else ""
+                fallback = (f"Gemini call failed ({type(exc).__name__}{code}); used the mock instead"
                             if not isinstance(exc, TimeoutError) else
                             f"Gemini did not answer within {GEMINI_TIMEOUT_S} s; used the mock instead")
                 result = None
         else:
-            fallback = "GEMINI_API_KEY is not set in the environment; used the mock"
+            fallback = "GEMINI_API_KEY is not set in the environment or .env; used the mock"
         if result is None:
             runner = simloop.make_runner(True, kev_index, lifecycle)
             result = _run_recorded(runner, device, kev_index, lifecycle, as_of, settings)
@@ -363,8 +412,11 @@ def _gemini_client(key: str):
 # ---- HTTP --------------------------------------------------------------------------------
 def scrub(text: str) -> str:
     """Belt and braces: the key never leaves the process, even if some text echoed it."""
-    key = os.environ.get("GEMINI_API_KEY", "").strip()
-    if key:
+    keys = set(_LOADED_KEYS)
+    env_key = os.environ.get(KEY_NAME, "").strip()
+    if env_key:
+        keys.add(env_key)
+    for key in sorted(keys, key=len, reverse=True):
         text = text.replace(key, "[redacted]")
     return KEY_RE.sub("[redacted]", text)
 
@@ -481,8 +533,10 @@ def main(argv=None) -> int:
     args = p.parse_args(argv)
     console = Console()
     srv = make_server(console, args.port)
-    key = "set (Try a device will call Gemini)" if os.environ.get("GEMINI_API_KEY", "").strip() \
-        else "not set (Try a device uses the mock)"
+    _key, source = load_key(console.env_file)
+    del _key  # only whether a key exists and where it came from is shown, never the value
+    key = (f"found in the {source} (Try a device will call Gemini)" if source
+           else "not found in the environment or .env (Try a device uses the mock)")
     print(f"Deming Console on http://{HOST}:{srv.server_address[1]}/  ({BANNER})")
     print(f"State: {console.root}   GEMINI_API_KEY: {key}   Ctrl+C to stop")
     try:

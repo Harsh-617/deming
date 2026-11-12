@@ -590,3 +590,25 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Result:** mock 33/45, obedient 15/45. Eight findings (F1–F8 in `docs/redteam-results.md`).
   **Guards not patched** in this task, by instruction.
 - **Not verified:** any real model's behaviour (`--live` not run); the Agent Designer port.
+
+## fix/console-live (2026-11-13): Console key loading and password-manager attributes
+
+- **Key loading:** `scripts/console.py` `load_key()` uses `GEMINI_API_KEY` from the process
+  environment; if unset, it reads only the `GEMINI_API_KEY=` line of the repo-root `.env`
+  (optional `export`, single or double quotes, trailing `# comment`, BOM/CRLF), ignores every
+  other line and does not put anything into `os.environ`. Last assignment wins, like
+  python-dotenv. **Alternative:** `python-dotenv` `load_dotenv` (already a dependency, used by
+  `sim/gemini_runner.py`) loads every line into the environment, which the task ruled out;
+  `dotenv_values` parses the whole file into memory, also more than needed. Each loaded key is
+  added to the `scrub()` list, so it is redacted even when it does not match the Google key
+  pattern. On a failed call the page shows the exception type and HTTP status only (for
+  example `ServerError, HTTP 503`), never the error text.
+- **Password managers:** every `<input>` and `<select>` carries `autocomplete="off"`,
+  `data-lpignore="true"` (LastPass), `data-1p-ignore` and `data-op-ignore` (1Password),
+  `data-bwignore="true"` (Bitwarden), `data-form-type="other"` (Dashlane). Source opened:
+  1Password developer docs, https://www.1password.dev/web/compatible-website-design.md
+  ("use the `data-1p-ignore` or `data-op-ignore` attribute to tell 1Password it should ignore
+  the field"). **Not verified from vendor docs:** the LastPass, Bitwarden and Dashlane
+  attributes come from secondary write-ups (e.g. https://www.stefanjudis.com/snippets/turn-off-password-managers/);
+  Dashlane's support page returned HTTP 403. Browsers may still ignore `autocomplete="off"`
+  for their own autofill. Not tested with any real password-manager extension installed.
