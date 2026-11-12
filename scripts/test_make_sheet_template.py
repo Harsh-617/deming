@@ -1,5 +1,7 @@
 """Load the generated workbook back with openpyxl and check tabs, headers, validation,
 conditional formatting, freeze panes, formulas and --fill-from-csv."""
+import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -9,6 +11,10 @@ import pytest
 import make_sheet_template as mst
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+from sim import demo_scenario as demo  # noqa: E402
+from sim import loop  # noqa: E402
 FIXTURE_INV = ROOT / "eval/fixtures/inventory.csv"
 
 CONTRACT_INVENTORY = ["device_id", "device_name_raw", "location", "owner_email", "firmware_version_raw",
@@ -37,11 +43,26 @@ def test_tabs(wb):
 
 def test_headers(wb):
     assert header(wb["Inventory"]) == CONTRACT_INVENTORY + ["vendor", "product", "version", "match_confidence"]
+    # contracts 1.3: the Sheet tabs carry exactly the columns sim/loop.py writes, in its order.
     assert header(wb["Decision Log"]) == ["timestamp", "run_id", "device_id", "lane", "evidence", "confidence",
                                           "proposed_action", "approver", "decision", "action_taken", "outcome",
-                                          "verification_note"]
-    assert header(wb["Tickets"]) == ["ticket_id", "device_id", "issue", "status", "opened", "due", "last_reminder"]
+                                          "verification_note", "proposal_id", "ticket_id", "notes"]
+    assert header(wb["Decision Log"]) == loop.DECISION_LOG_COLUMNS
+    assert header(wb["Tickets"]) == [
+        "ticket_id", "device_id", "issue", "lane", "dedupe_key", "status", "opened", "due", "last_reminder",
+        "owner_email", "evidence", "fixed_version", "firmware_at_open", "device_name_at_open",
+        "last_updated_at_open", "proposal_id", "closed_on", "flags", "last_note"]
+    assert header(wb["Tickets"]) == loop.TICKET_COLUMNS
     assert header(wb["Settings"]) == ["key", "value", "description"]
+
+
+def test_headers_match_contracts_md():
+    """docs/contracts.md is the source of truth; the template's columns and keys must match it."""
+    lines = (ROOT / "docs/contracts.md").read_text(encoding="utf-8").splitlines()
+    assert ",".join(mst.DECISION_LOG) in lines
+    assert ",".join(mst.TICKETS) in lines
+    for key, _, _ in mst.SETTINGS_ROWS:
+        assert any(line.startswith(f"| `{key}` |") for line in lines), key
 
 
 def test_frozen_header_rows(wb):
@@ -59,7 +80,13 @@ def test_column_formats(wb):
     inv = wb["Inventory"]
     assert inv.column_dimensions["E"].number_format == "@"           # firmware_version_raw
     assert inv.column_dimensions["I"].number_format == "yyyy-mm-dd"  # last_updated
-    assert wb["Tickets"].column_dimensions["F"].number_format == "yyyy-mm-dd"
+    t = wb["Tickets"].column_dimensions
+    for c in ("G", "H", "I", "O", "Q"):  # opened, due, last_reminder, last_updated_at_open, closed_on
+        assert t[c].number_format == "yyyy-mm-dd", c
+    for c in ("A", "B", "E", "K", "L", "M", "P", "R"):  # ids, dedupe_key, evidence, versions, flags
+        assert t[c].number_format == "@", c
+    for c in ("M", "N", "O"):  # proposal_id, ticket_id, notes
+        assert wb["Decision Log"].column_dimensions[c].number_format == "@", c
 
 
 def test_inventory_validation(wb):
@@ -71,12 +98,14 @@ def test_inventory_validation(wb):
 
 
 def test_tickets_status_validation(wb):
-    assert validations(wb["Tickets"])["D2:D2000"] == ("list", '"open,closed,escalated"')
+    assert validations(wb["Tickets"])["F2:F2000"] == ("list", '"open,closed,escalated"')
 
 
 def test_decision_log_lane_formatting(wb):
     ws = wb["Decision Log"]
     assert validations(ws)["D2:D20000"] == ("list", '"patch,retire,fine,unknown"')
+    # No fifth value such as "removed": the lane enum stays the contract's four lanes.
+    assert mst.LANES == ["patch", "retire", "fine", "unknown"]
     assert [str(cf.sqref) for cf in ws.conditional_formatting] == ["D1:D1048576"]
     rules = [r for cf in ws.conditional_formatting for r in cf.rules]
     by_value = {r.formula[0].strip('"'): r.dxf.fill.fgColor.rgb for r in rules}
@@ -85,14 +114,35 @@ def test_decision_log_lane_formatting(wb):
     assert all(r.type == "cellIs" and r.operator == "equal" for r in rules)
 
 
+def test_decision_log_lane_allows_blank(wb):
+    """Contracts 1.3: the verify row for a removed device has a blank lane. The dropdown must not
+    reject it (before fix/final-polish it had allow_blank=False)."""
+    dv = next(d for d in wb["Decision Log"].data_validations.dataValidation if str(d.sqref) == "D2:D20000")
+    assert dv.allow_blank is True
+    assert dv.showErrorMessage is True  # any value other than the four lanes is still rejected
+    assert "removed device" in dv.error
+
+
+def test_removed_device_verify_row_fits_the_lane_rule():
+    """End to end on the mock demo: DEV-102 is removed and run 2 writes its verify row with a blank lane."""
+    with tempfile.TemporaryDirectory() as tmp:
+        state = demo.run_demo(Path(tmp) / "s", mock=True, quiet=True)
+        log = list(state.decision_log)
+    removed = [r for r in log if r["proposed_action"] == "verify" and r["outcome"] == "device_removed"]
+    assert removed, "the demo should contain a removed-device verify row"
+    assert all(r["lane"] == "" for r in removed)
+    assert {r["lane"] for r in log} <= set(mst.LANES) | {""}
+
+
 def test_settings_defaults(wb):
     s = {r[0].value: r[1].value for r in wb["Settings"].iter_rows(min_row=2)}
-    assert s["reminder_after_days"] == 3
-    assert s["escalation_after_days"] == 7
-    assert s["tier2_outward"] == "approval_required"
-    assert s["tier3_consequential"] == "draft_only"
-    assert s["approver_email"] is None
-    assert "internet_facing" in s["urgent_rule"] and "high" in s["urgent_rule"]
+    # Same keys, order and values as sim/loop.py SETTINGS_DEFAULTS (contracts settings.csv).
+    assert list(s) == list(loop.SETTINGS_DEFAULTS)
+    assert {k: "" if v is None else str(v) for k, v in s.items()} == loop.SETTINGS_DEFAULTS
+    assert s["days_until_reminder"] == 3 and s["days_until_escalation"] == 7
+    assert s["tier2_mode"] == "approval" and s["tier3_mode"] == "draft_only"
+    assert s["approver_email"].endswith("@example.org")
+    assert all(r[2].value for r in wb["Settings"].iter_rows(min_row=2))  # every key described
 
 
 def test_summary_formulas(wb):

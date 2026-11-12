@@ -51,16 +51,20 @@ def test_three_files_with_template_tabs(built):
             assert wb[name].freeze_panes == "A2", name
 
 
-def test_headers_are_template_plus_extras_at_right(built):
-    wb, _ = built["3_after_rerun"]
-    assert header(wb["Inventory"]) == mst.INVENTORY  # no extras: the template already has them
-    assert header(wb["Decision Log"]) == mst.DECISION_LOG + ["proposal_id", "ticket_id", "notes"]
-    assert header(wb["Tickets"]) == mst.TICKETS + [
-        "lane", "dedupe_key", "owner_email", "evidence", "fixed_version", "firmware_at_open",
-        "device_name_at_open", "last_updated_at_open", "proposal_id", "closed_on", "flags", "last_note"]
-    note = wb["Summary"]["A24"].value
-    assert "Decision Log M:O = proposal_id, ticket_id, notes." in note
-    assert "Tickets H:S = lane, dedupe_key" in note
+def test_headers_are_exactly_the_template(built):
+    """Contracts 1.3 columns are template columns now: no extra (grey) columns in any tab."""
+    for wb, _ in built.values():
+        assert header(wb["Inventory"]) == mst.INVENTORY
+        assert header(wb["Decision Log"]) == mst.DECISION_LOG
+        assert header(wb["Tickets"]) == mst.TICKETS
+        assert "no extra columns" in wb["Summary"]["A24"].value
+
+
+def test_extra_columns_still_go_right_if_the_simulator_adds_one():
+    wb = mst.new_workbook()
+    extras = ex.fill_tab(wb["Tickets"], mst.TICKETS, mst.TICKETS + ["new_col"], [{"new_col": "x"}])
+    assert extras == ["new_col"]
+    assert wb["Tickets"].cell(row=1, column=len(mst.TICKETS) + 1).value == "new_col"
 
 
 def test_cells_round_trip_to_the_state_files(built):
@@ -116,8 +120,11 @@ def test_no_formulas_outside_summary(built):
 def test_values_fit_the_template_validation(built):
     for wb, _ in built.values():
         log = wb["Decision Log"]
+        # blank lane = verify row of a removed device; the template's lane rule allows blank
         assert {r[3] for r in log.iter_rows(min_row=2, values_only=True)} <= set(mst.LANES) | {None}
-        assert {r[3] for r in wb["Tickets"].iter_rows(min_row=2, values_only=True)} <= set(mst.TICKET_STATUS)
+        status = mst.TICKETS.index("status")
+        assert {r[status] for r in wb["Tickets"].iter_rows(min_row=2, values_only=True)} \
+            <= set(mst.TICKET_STATUS)
         inv = wb["Inventory"]
         assert {r[6] for r in inv.iter_rows(min_row=2, values_only=True)} <= set(mst.CRITICALITY)
         assert all(0 <= r[12] <= 1 for r in inv.iter_rows(min_row=2, values_only=True))
@@ -152,16 +159,26 @@ def test_stage_story(built):
     assert "DEV-102" not in [r[0] for r in wb3["Inventory"].iter_rows(min_row=2, values_only=True)]
 
 
-def test_settings_approver_filled(built):
-    wb, _ = built["2_after_approval"]
-    s = {r[0]: r[1] for r in wb["Settings"].iter_rows(min_row=2, values_only=True)}
-    assert s["approver_email"] == "approver@example.org"
+def test_settings_tab_holds_the_simulator_settings(built):
+    for wb, snap in built.values():
+        s = {r[0]: r[1] for r in wb["Settings"].iter_rows(min_row=2, values_only=True)}
+        assert s["approver_email"] == "approver@example.org"
+        assert {k: "" if v is None else str(v) for k, v in s.items()} == \
+               {r["key"]: r["value"] for r in snap["settings"]}
+
+
+def test_removed_device_has_blank_lane_in_stage_3(built):
+    wb, _ = built["3_after_rerun"]
+    rows = [r for r in wb["Decision Log"].iter_rows(min_row=2, values_only=True)
+            if r[2] == "DEV-102" and r[6] == "verify"]
+    assert rows and all(r[3] is None and r[10] == "device_removed" for r in rows)
 
 
 def mirror(wb, name):
     """Python reading of each Summary formula over the read-back cells."""
     log = list(wb["Decision Log"].iter_rows(min_row=2, values_only=True))
     tk = list(wb["Tickets"].iter_rows(min_row=2, values_only=True))
+    st = mst.TICKETS.index("status")
     inv = list(wb["Inventory"].iter_rows(min_row=2, values_only=True))
     latest = log[-1][1] if log else ""
     lanes = {l: sum(r[1] == latest and r[3] == l and r[6] not in ("verify", "remind") for r in log)
@@ -171,9 +188,9 @@ def mirror(wb, name):
             **{f"lane_{k}": v for k, v in lanes.items()},
             "devices_decided_latest_run": decided,
             "unknown_rate": lanes["unknown"] / decided if decided else "",
-            "tickets_open": sum(r[3] == "open" for r in tk),
-            "tickets_escalated": sum(r[3] == "escalated" for r in tk),
-            "tickets_closed": sum(r[3] == "closed" for r in tk)}[name]
+            "tickets_open": sum(r[st] == "open" for r in tk),
+            "tickets_escalated": sum(r[st] == "escalated" for r in tk),
+            "tickets_closed": sum(r[st] == "closed" for r in tk)}[name]
 
 
 def test_summary_loop_column_matches_formula_logic(built):
