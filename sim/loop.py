@@ -173,7 +173,8 @@ def typed_settings(raw: dict | None = None) -> dict:
 
 
 def _truthy(v) -> bool:
-    return str(v).strip().lower() == "true"
+    """do_not_touch reading: yes/true/1/y vs no/false/0/n; anything else is true (F2)."""
+    return guards.parse_do_not_touch(v)[0]
 
 
 def _d(s: str) -> dt.date:

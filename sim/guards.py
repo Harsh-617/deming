@@ -431,7 +431,9 @@ def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
     model's to choose (see `recipient`)."""
     notes = []
     upd = {}
-    dnt = _truthy(device.get("do_not_touch"))
+    dnt, dnt_flag = parse_do_not_touch(device.get("do_not_touch"))
+    if dnt_flag:
+        notes.append(dnt_flag)
     trusted = deadline_sentence(checker, as_of_date, settings, dnt)
     if as_of_date and checker.lane == "retire":
         want = retire_deadline(as_of_date, settings)
@@ -505,5 +507,30 @@ def guard_verifier(out: VerifierOutput, ticket_lane: str, recheck_lane: str | No
     return out.model_copy(update=upd), notes
 
 
+# do_not_touch (F2, guards-v2). The contract value is true/false; people also type yes/no, 1/0,
+# y/n. Matching is case-insensitive after trimming spaces. Anything else (blank, "on", "maybe",
+# "yes please", look-alike letters) is NOT read as false: it fails safe to do-not-touch and is
+# flagged so a human fixes the record.
+DNT_TRUE = frozenset({"true", "yes", "y", "1"})
+DNT_FALSE = frozenset({"false", "no", "n", "0"})
+
+
+def parse_do_not_touch(v) -> tuple[bool, str | None]:
+    """(do_not_touch, flag). flag is None for a recognised value, else why it was taken as true."""
+    if isinstance(v, bool):
+        return v, None
+    s = str("" if v is None else v).strip().lower()
+    if s in DNT_TRUE:
+        return True, None
+    if s in DNT_FALSE:
+        return False, None
+    return True, f"do_not_touch value {str(v)[:40]!r} not recognised: treated as true"
+
+
+def do_not_touch(device: dict) -> bool:
+    return parse_do_not_touch(device.get("do_not_touch"))[0]
+
+
 def _truthy(v) -> bool:
-    return v is True or str(v).strip().lower() == "true"
+    """do_not_touch reading (kept name for callers): see parse_do_not_touch."""
+    return parse_do_not_touch(v)[0]
