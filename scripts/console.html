@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deming Console</title>
+<link rel="icon" href="data:,">
+<style nonce="{{NONCE}}">
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1b1f24;--muted:#5b6470;--line:#d9dde3;--accent:#1f5fbf;
+--patch:#b45309;--patch-bg:#fef3c7;--retire:#b91c1c;--retire-bg:#fee2e2;--fine:#15803d;--fine-bg:#dcfce7;
+--unknown:#4b5563;--unknown-bg:#e5e7eb;--warn-bg:#fff4e5;--warn:#9a3412;--esc-bg:#fde8e8}
+@media (prefers-color-scheme:dark){:root{--bg:#121417;--card:#1b1e23;--fg:#e8eaed;--muted:#9aa3ad;--line:#2f343b;
+--accent:#6ea8ff;--patch:#fbbf24;--patch-bg:#3a2a06;--retire:#f87171;--retire-bg:#3b1212;--fine:#4ade80;
+--fine-bg:#0f2e1a;--unknown:#cbd5e1;--unknown-bg:#2a2f36;--warn-bg:#33240f;--warn:#fdba74;--esc-bg:#3a1515}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{padding:12px 16px;background:var(--warn-bg);color:var(--warn);font-weight:600;border-bottom:1px solid var(--line)}
+main{max-width:1200px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:8px 0 4px}h2{font-size:16px;margin:0 0 8px}
+.sub{color:var(--muted);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:14px;overflow-x:auto}
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.step{border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--muted)}
+.step b{display:block;color:var(--fg)}
+.step.done{opacity:.7}.step.done b::after{content:" \2713"}
+.step.current{border:2px solid var(--accent);color:var(--fg)}
+.step button{margin-top:8px}
+button{font:inherit;padding:6px 12px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+button.secondary{background:transparent;color:var(--accent)}
+button:disabled{opacity:.45;cursor:not-allowed}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+tr.esc td{background:var(--esc-bg)}
+.chip{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;font-weight:600}
+.chip.patch{color:var(--patch);background:var(--patch-bg)}.chip.retire{color:var(--retire);background:var(--retire-bg)}
+.chip.fine{color:var(--fine);background:var(--fine-bg)}.chip.unknown{color:var(--unknown);background:var(--unknown-bg)}
+.chip.escalated{color:var(--retire);background:var(--retire-bg)}.chip.none{color:var(--muted);background:transparent;border:1px dashed var(--line)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.prop{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:10px}
+.prop.esc{border-color:var(--retire)}
+.msg{white-space:pre-wrap;background:var(--bg);border-radius:6px;padding:8px;margin:6px 0;font-size:13px}
+.muted{color:var(--muted)}.small{font-size:12px}
+.alert{background:var(--esc-bg);border-left:4px solid var(--retire);padding:8px 10px;border-radius:4px;margin:6px 0}
+.err{color:var(--retire);min-height:1.2em}
+label{display:block;margin:6px 0 2px;color:var(--muted);font-size:12px}
+input[type=text],input[type=email],select{font:inherit;width:100%;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg)}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+pre{white-space:pre-wrap;word-break:break-word;font-size:12px;background:var(--bg);padding:8px;border-radius:6px;margin:4px 0}
+.between{justify-content:space-between}.grow{flex:1;min-width:220px}.mt{margin-top:8px}
+.model{font-family:ui-monospace,Consolas,monospace;font-weight:600}
+@media (max-width:760px){.timeline{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header id="banner">Synthetic data, simulated outbox</header>
+<main>
+<h1>Deming Console</h1>
+<p class="sub">Local walk-through of the Deming loop on five synthetic devices. Nothing is sent: outward actions are files in a simulated outbox. The Verifier confirms the inventory record changed, not that a device is secure.</p>
+
+<section class="card">
+  <div class="row between">
+    <h2>Timeline</h2>
+    <button id="reset" class="secondary" data-static>Reset</button>
+  </div>
+  <div class="timeline" id="timeline"></div>
+  <div class="err" id="err"></div>
+</section>
+
+<section class="card">
+  <h2>Settings</h2>
+  <div class="row">
+    <div class="grow"><label for="approver">Approver (recorded on every approval)</label>
+    <input id="approver" type="email"></div>
+    <button id="saveApprover" class="secondary" data-static>Save approver</button>
+  </div>
+</section>
+
+<section class="card" id="escCard" hidden>
+  <h2>Escalated</h2>
+  <div id="escalations"></div>
+</section>
+
+<section class="card">
+  <h2>Devices (Inventory)</h2>
+  <table><thead><tr><th>Device</th><th>Raw name</th><th>Firmware</th><th>Normalized</th><th>Conf.</th><th>Lane</th><th>Evidence</th><th>Owner</th><th>Flags</th></tr></thead>
+  <tbody id="devices"></tbody></table>
+</section>
+
+<section class="card">
+  <h2>Proposals (approval inbox)</h2>
+  <p class="muted small">Each Approve is one human click, recorded with the approver from Settings. Nothing is approved automatically.</p>
+  <div id="proposals"></div>
+</section>
+
+<div class="grid2">
+<section class="card"><h2>Outbox (simulated, not sent)</h2><div id="outbox"></div></section>
+<section class="card"><h2>Tickets</h2>
+  <table><thead><tr><th>Ticket</th><th>Device</th><th>Issue</th><th>Status</th><th>Note</th></tr></thead><tbody id="tickets"></tbody></table>
+  <p class="muted small" id="verifierWording"></p>
+</section>
+</div>
+
+<section class="card">
+  <h2>Try a device</h2>
+  <p class="muted small">Runs the existing Normalizer → Checker → Planner pipeline and guards on one synthetic device. Writes nothing to the outbox, tickets or inventory.</p>
+  <div class="grid2">
+    <div>
+      <label for="tName">Raw device name</label><input id="tName" type="text" maxlength="200" value="D-Link DIR-600 router">
+      <label for="tFw">Firmware</label><input id="tFw" type="text" maxlength="64" value="2.18">
+      <label for="tCrit">Criticality</label>
+      <select id="tCrit"><option>low</option><option selected>medium</option><option>high</option><option>critical</option></select>
+      <div class="row mt">
+        <label><input id="tInet" type="checkbox"> internet-facing</label>
+        <label><input id="tDnt" type="checkbox"> do-not-touch</label>
+      </div>
+      <button id="tryBtn" class="mt" data-static>Run pipeline</button>
+    </div>
+    <div id="tryOut" class="muted">No result yet.</div>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Decision Log</h2>
+  <table><thead><tr><th>Run</th><th>Device</th><th>Lane</th><th>Action</th><th>Decision</th><th>Outcome / note</th></tr></thead><tbody id="log"></tbody></table>
+</section>
+</main>
+
+<script nonce="{{NONCE}}">
+"use strict";
+const $ = (id) => document.getElementById(id);
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
+  }
+  for (const c of kids) if (c != null) e.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  return e;
+}
+function chip(lane) { return el("span", {class: "chip " + (lane || "none"), text: lane || "not run"}); }
+function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); return n; }
+let busy = false;
+
+async function post(path, body) {
+  $("err").textContent = "";
+  busy = true; document.querySelectorAll("button").forEach(b => b.disabled = true);
+  try {
+    const r = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body || {})});
+    const j = await r.json();
+    if (!r.ok) { $("err").textContent = j.error || ("HTTP " + r.status); }
+    return {ok: r.ok, data: j};
+  } catch (e) { $("err").textContent = "Request failed: " + e; return {ok: false}; }
+  finally {
+    busy = false;
+    document.querySelectorAll("button[data-static]").forEach(b => b.disabled = false);
+    await refresh();
+  }
+}
+
+async function refresh() {
+  const r = await fetch("/api/state"); render(await r.json());
+}
+
+function render(s) {
+  $("banner").textContent = s.banner;
+  // timeline
+  const actions = [["Run 1 (" + s.days.run1 + ")", "/api/run1"], ["Approve each proposal below", null],
+                   ["Owners update inventory", "/api/owners-update"], ["Run 2 verify (" + s.days.run2 + ")", "/api/run2"]];
+  const tl = clear($("timeline"));
+  s.steps.forEach((name, i) => {
+    const n = i + 1, cls = n < s.step ? "step done" : n === s.step ? "step current" : "step";
+    const box = el("div", {class: cls}, el("b", {text: n + ". " + name}));
+    const [label, path] = actions[i];
+    if (path) {
+      const canRun = (n === s.step) || (n === 3 && s.step === 2);
+      const b = el("button", {text: label, onclick: () => post(path)});
+      b.disabled = busy || !canRun; box.append(b);
+      if (n === 3 && s.step === 2) box.append(el("div", {class: "small", text: "Some proposals are still pending; unapproved ones get no ticket."}));
+    } else box.append(el("div", {class: "small", text: label}));
+    tl.append(box);
+  });
+  if (s.step === 5) tl.append(el("div", {class: "small muted", text: "Loop complete. Reset to replay."}));
+  if (document.activeElement !== $("approver")) $("approver").value = s.settings.approver_email;
+
+  // escalations
+  $("escCard").hidden = !s.escalations.length;
+  const esc = clear($("escalations"));
+  for (const e of s.escalations) esc.append(el("div", {class: "alert"},
+    el("b", {text: e.device_id + " escalated (" + e.ticket_id + "). "}), e.reason,
+    e.flags ? el("div", {class: "small", text: "flags: " + e.flags}) : null));
+
+  // devices
+  const tb = clear($("devices"));
+  for (const d of s.devices) {
+    const norm = [d.vendor, d.product, d.version].filter(Boolean).join(" ");
+    const flags = [d.internet_facing === "true" ? "internet-facing" : "", d.criticality,
+                   d.do_not_touch === "true" ? "DO-NOT-TOUCH" : ""].filter(Boolean).join(", ");
+    const laneCell = el("td", {}, chip(d.lane));
+    if (d.escalated) laneCell.append(" ", el("span", {class: "chip escalated", text: "escalated"}),
+      el("div", {class: "small", text: d.escalation_reason}));
+    tb.append(el("tr", {class: d.escalated ? "esc" : ""},
+      el("td", {text: d.device_id}), el("td", {text: d.device_name_raw}), el("td", {text: d.firmware_version_raw || "(blank)"}),
+      el("td", {text: norm || "-"}), el("td", {text: d.match_confidence || "-"}), laneCell,
+      el("td", {class: "small", text: d.evidence || "-"}), el("td", {class: "small", text: d.owner_email}),
+      el("td", {class: "small", text: flags})));
+  }
+  if (!s.devices.length) tb.append(el("tr", {}, el("td", {colspan: "9", text: "Inventory is empty."})));
+
+  // proposals
+  const pr = clear($("proposals"));
+  if (!s.proposals.length) pr.append(el("p", {class: "muted", text: "No proposals yet. Start with Run 1."}));
+  for (const p of s.proposals) {
+    const head = el("div", {class: "row"}, el("b", {text: p.proposal_id}), chip(p.lane),
+      el("span", {class: "small muted", text: p.kind + " · " + p.device_id + " · priority " + (p.priority || "-") + " · deadline " + (p.deadline || "-") + " · confidence " + (p.confidence || "-")}));
+    const box = el("div", {class: "prop" + (p.escalate_to_human === "true" ? " esc" : "")}, head,
+      el("div", {class: "small", text: "To: " + p.to + (p.cc ? "  Cc: " + p.cc : "") + "   Actions on approval: " + p.actions.split(";").join(", ")}),
+      el("div", {class: "small"}, el("b", {text: "Subject: "}), p.subject),
+      el("div", {class: "msg", text: p.body}));
+    const ev = el("div", {class: "small"}, el("b", {text: "Evidence: "}));
+    if (!p.evidence.length) ev.append("none");
+    p.evidence.forEach((x, i) => ev.append((i ? "; " : ""), x.id + " (" + x.kind + (x.note ? ": " + x.note : "") + ")"));
+    box.append(ev);
+    if (p.guard_notes) box.append(el("div", {class: "small muted", text: "Guard notes: " + p.guard_notes}));
+    if (p.logged_action) box.append(el("div", {class: "small muted", text: "Logged: " + p.logged_action}));
+    if (p.escalate_to_human === "true") box.append(el("div", {class: "small", text: "Escalated to a named human; Deming proposes no tier 3 change."}));
+    if (p.status === "pending") {
+      const b = el("button", {text: "Approve as " + s.settings.approver_email, onclick: () => post("/api/approve", {proposal_id: p.proposal_id})});
+      b.disabled = busy; box.append(b);
+    } else box.append(el("div", {class: "small"}, el("b", {text: p.status}), " by " + p.decided_by + " at " + p.decided_at + (p.ticket_id ? " · ticket " + p.ticket_id : "")));
+    pr.append(box);
+  }
+
+  // outbox
+  const ob = clear($("outbox"));
+  if (!s.outbox.length) ob.append(el("p", {class: "muted", text: "Empty. Records appear only after an approval."}));
+  for (const o of s.outbox) {
+    const what = o.kind === "email" ? "to " + o.to + ": " + o.subject : o.kind === "ticket" ? o.ticket_id + " " + o.issue + " due " + o.due : (o.title + " on " + o.date);
+    ob.append(el("div", {class: "prop"}, el("b", {text: o.kind}), " ", el("span", {class: "small muted", text: o.file}),
+      el("div", {class: "small", text: what}), el("div", {class: "small muted", text: "approved by " + o.approved_by + " · " + o.note})));
+  }
+
+  // tickets
+  const tk = clear($("tickets"));
+  if (!s.tickets.length) tk.append(el("tr", {}, el("td", {colspan: "5", class: "muted", text: "No tickets."})));
+  for (const t of s.tickets) tk.append(el("tr", {class: t.status === "escalated" ? "esc" : ""},
+    el("td", {text: t.ticket_id}), el("td", {text: t.device_id}), el("td", {text: t.issue}),
+    el("td", {}, el("span", {class: "chip " + (t.status === "closed" ? "fine" : t.status === "escalated" ? "escalated" : "unknown"), text: t.status})),
+    el("td", {class: "small", text: (t.last_note || "-") + (t.flags ? " [" + t.flags + "]" : "")})));
+  $("verifierWording").textContent = s.verifier_wording;
+
+  // decision log
+  const lg = clear($("log"));
+  for (const r of s.decision_log) lg.append(el("tr", {},
+    el("td", {class: "small", text: r.run_id}), el("td", {text: r.device_id}), el("td", {}, r.lane ? chip(r.lane) : "-"),
+    el("td", {text: r.proposed_action}), el("td", {text: r.decision}),
+    el("td", {class: "small", text: r.verification_note || r.outcome || "-"})));
+}
+
+function renderTry(j) {
+  const out = clear($("tryOut"));
+  out.className = "";
+  if (j.error) { out.append(el("div", {class: "err", text: j.error})); return; }
+  out.append(el("div", {class: "model", text: j.model}));
+  if (j.fallback) out.append(el("div", {class: "small muted", text: j.fallback}));
+  out.append(el("div", {class: "row"}, el("span", {text: "Final lane:"}), chip(j.lane),
+    el("span", {class: "small muted", text: "as_of " + j.as_of_date})));
+  if (j.proposal_message) out.append(el("div", {class: "small muted", text: "Message as the loop would propose it (to " + j.recipient + "):"}), el("div", {class: "msg", text: j.proposal_message}));
+  if (j.device.do_not_touch === "true")
+    out.append(el("div", {class: "small", text: "do-not-touch: disconnect/isolate wording in the final message: " + (j.disconnect_wording_in_message ? "YES (bug)" : "none")}));
+  if (j.guard_notes.length) {
+    out.append(el("div", {class: "alert"}, el("b", {text: "Guard overrides: "}), j.guard_notes.join(" · ")));
+  } else out.append(el("div", {class: "small muted", text: "No guard override."}));
+  for (const a of j.agents) {
+    const d = el("details", {}, el("summary", {text: a.agent + (a.called ? (a.changed_by_guard ? " (changed by guard)" : "") + (a.cache_hit ? " (cache hit)" : "") : " (not called)")}));
+    if (!a.called) d.append(el("div", {class: "small", text: a.skipped_reason}));
+    else d.append(el("div", {class: "small muted", text: "Model output"}), el("pre", {text: JSON.stringify(a.model_output, null, 1)}));
+    d.append(el("div", {class: "small muted", text: "After guards"}), el("pre", {text: JSON.stringify(a.final_output, null, 1)}));
+    if (a.agent === "planner") d.open = true;
+    out.append(d);
+  }
+  out.append(el("div", {class: "small muted", text: j.note}));
+}
+
+$("reset").addEventListener("click", () => { if (confirm("Reset the console state to the start of the demo?")) post("/api/reset"); });
+$("saveApprover").addEventListener("click", () => post("/api/settings", {approver_email: $("approver").value}));
+$("tryBtn").addEventListener("click", async () => {
+  $("tryBtn").disabled = true; clear($("tryOut")).append("Running…");
+  try {
+    const r = await fetch("/api/try", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({device_name_raw: $("tName").value, firmware_version_raw: $("tFw").value,
+        criticality: $("tCrit").value, internet_facing: $("tInet").checked, do_not_touch: $("tDnt").checked})});
+    renderTry(await r.json());
+  } catch (e) { renderTry({error: "Request failed: " + e}); }
+  finally { $("tryBtn").disabled = false; }
+});
+refresh();
+</script>
+</body>
+</html>
