@@ -51,12 +51,11 @@ session. Each needs a named person.
 
 ## Repo visibility and judge access (decide)
 
-On 2026-11-12 the repo is still **PRIVATE** (`gh repo view`). Judges can't open a private link.
-Choose one:
-- [ ] **Make it public** before submitting. Then re-run the secret checks below first, because
-      the whole history becomes visible, not just the last commit.
-- [ ] **Keep it private** and add the judges as collaborators. Only if the organizers give you
-      their GitHub usernames; nothing in the repo says they will.
+On 2026-11-12 the repo was made **PUBLIC** after a clean full-history secret scan
+(`gh repo view`: visibility PUBLIC, license MIT; an unauthenticated `git ls-remote` works).
+- [x] **Make it public** before submitting. Done 2026-11-12 on `fix/submit-ready`. The whole
+      history is now visible, so keep running the secret checks below before every push.
+- Not chosen: keep it private and add the judges as collaborators (no judge usernames given).
 
 Other access notes:
 - [ ] The briefing said reviewers will be invited into each team's Gemini Enterprise app
