@@ -133,6 +133,10 @@ Don't bypass either one with `--no-verify`.
 **Tests** (no key needed): `python -m pytest -q`. All tests should pass (one is skipped unless the
 optional `formulas` package from `requirements-dev.txt` is installed).
 
+**Extended lifecycle coverage** (no key, no network): `python scripts/build_lifecycle_extended.py`
+rebuilds `data/lifecycle_extended.csv` from the cached sources, and `python eval/lifecycle_coverage.py`
+rewrites `docs/lifecycle-coverage.md` (retrieval coverage before/after; no model call).
+
 **Deming Console** (no key needed): a local page that walks through the demo loop with clicks.
 
 ```powershell
@@ -299,6 +303,11 @@ circular: the correction followed the AI's own finding, after the vendor page wa
   (DEV-011, DEV-012, DEV-016), gaps in the hand-curated lifecycle data (DEV-028, and DEV-025 /
   DEV-052, which have no T35 hardware EOL row).
 - KEV covers only part of what is exploited. Lifecycle data is a hand-curated 30-row file.
+- **The published results used only the original 30 rows of `data/lifecycle.csv`.** An optional
+  `data/lifecycle_extended.csv` (12 sourced rows, incl. the WatchGuard T35 EOL dates) widens
+  retrieval coverage (`docs/lifecycle-coverage.md`), but **its effect on lane accuracy has NOT been
+  measured**, because that needs a new Gemini run. It is off by default (`DEMING_LIFECYCLE_EXTENDED=1`
+  turns it on).
 - The Verifier confirms the inventory record changed, not that a device is secure.
 - In the prototype the rules are enforced by code; in an Agent Designer port they would only be
   requested in prompts.
