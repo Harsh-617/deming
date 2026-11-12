@@ -8,13 +8,69 @@ from __future__ import annotations
 
 import datetime as dt
 import re
+import unicodedata
 
 from . import retrieval
 from .config import CONFIDENCE_THRESHOLD
 from .models import CheckerOutput, NormalizerOutput, PlannerOutput, VerifierOutput
 
-_DISCONNECT = re.compile(r"\b(disconnect|isolat\w*|unplug|shut\s*down|power\s*off|decommission)\b",
-                         re.IGNORECASE)
+# Consequential (tier 3) wording for do-not-touch devices (F3, guards-v2). Text is folded before
+# matching (fold_text): Unicode NFKC (UAX #15), combining marks and format characters (Cf:
+# zero-width space/joiners, bidi controls, soft hyphen) removed, a small map of Cyrillic/Greek
+# look-alike letters (a subset of UTS #39 confusables.txt) and the digits 0/1 mapped to Latin,
+# then casefolded. Two passes: phrases on the folded words, and distinctive stems on the
+# letters-only text ("dis-con nect", "p.o.w.e.r o.f.f"). A false positive only makes the body
+# fall back to the trusted do-not-touch template, so the list errs wide. Not covered: other
+# languages, paraphrases without these words, and look-alikes outside the map.
+_CONFUSABLE = str.maketrans({
+    # Cyrillic
+    "а": "a", "в": "b", "е": "e", "ё": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x",
+    "і": "i", "ї": "i", "ѕ": "s", "ј": "j", "ӏ": "l", "һ": "h", "ԁ": "d", "к": "k", "м": "m",
+    "н": "h", "т": "t", "ԛ": "q", "ԝ": "w", "п": "n",
+    # Greek
+    "α": "a", "β": "b", "ε": "e", "ι": "i", "κ": "k", "ν": "v", "ο": "o", "ρ": "p", "τ": "t",
+    "υ": "u", "χ": "x", "η": "n", "μ": "u",
+    # Latin look-alikes and digits used as letters
+    "ı": "i", "ȷ": "j", "ɡ": "g", "ℓ": "l", "0": "o", "1": "l",
+})
+_CONSEQUENTIAL_WORDS = re.compile(
+    r"\b(disconnect\w*|isolat\w*|unplug\w*|shut\s*(it\s+|them\s+|this\s+)?down|"
+    r"power(ed|ing)?[\s-]*(it\s+|this\s+)?(off|down|cycle)|turn(ed)?\s+(it\s+|this\s+)?off|"
+    r"switch(ed)?\s+(it\s+|this\s+)?off|pull(ing)?\s+(the\s+)?(plug|cable|power)|"
+    r"cut(ting)?\s+(the\s+|its\s+)?(power|network|cable)|factory[\s-]*reset|reset|reboot\w*|"
+    r"restart\w*|wipe\w*|reimag\w*|decommission\w*|offline|quarantin\w*|"
+    r"remove\s+(it\s+)?from\s+(the\s+)?network|block\s+(all\s+)?traffic|replac\w*)\b")
+_CONSEQUENTIAL_STEMS = ("disconnect", "isolat", "unplug", "shutdown", "shutitdown", "poweroff",
+                        "powerdown", "poweritoff", "powercycle", "pulltheplug", "factoryreset",
+                        "decommission", "takeoffline", "takeitoffline", "turnitoff", "switchitoff",
+                        "quarantin")
+
+
+def fold_text(s: str | None) -> str:
+    """Matching form of untrusted text: NFKC, no marks/format characters, look-alikes mapped."""
+    s = unicodedata.normalize("NFKD", unicodedata.normalize("NFKC", s or ""))
+    s = "".join(c for c in s if unicodedata.category(c) not in ("Mn", "Me", "Cf"))
+    return unicodedata.normalize("NFKC", s).casefold().translate(_CONFUSABLE)
+
+
+def consequential_wording(text: str | None) -> str | None:
+    """The first consequential (tier 3) phrase in `text` after folding, or None."""
+    t = fold_text(text)
+    if m := _CONSEQUENTIAL_WORDS.search(t):
+        return m.group(0)
+    compact = "".join(c for c in t if c.isalpha())
+    return next((w for w in _CONSEQUENTIAL_STEMS if w in compact), None)
+
+
+class _Consequential:
+    """Drop-in for the old `_DISCONNECT` regex (scripts/console.py calls `.search`)."""
+
+    @staticmethod
+    def search(text):
+        return consequential_wording(text)
+
+
+_DISCONNECT = _Consequential()
 _SECURE_CLAIM = re.compile(r"\b(is|now|are)\s+(secure|safe|fixed|patched)\b", re.IGNORECASE)
 
 
@@ -470,14 +526,15 @@ def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
             upd["escalate_to_human"] = True
             notes.append("do_not_touch: escalate_to_human forced true")
         msg = upd.get("message", out.message)
-        if msg and _DISCONNECT.search(msg.body):
+        if msg and (consequential_wording(msg.body) or consequential_wording(msg.subject)):
             body = ("This device is flagged do-not-touch. Deming makes no disconnection or "
                     "isolation proposal; a named person must decide the next step. "
                     f"Lane: {checker.lane}. Evidence: "
                     f"{';'.join(checker.evidence_cve + ([checker.evidence_lifecycle_id] if checker.evidence_lifecycle_id else [])) or 'none'}.")
             if trusted:
                 body += " " + trusted
-            upd["message"] = msg.model_copy(update={"body": body})
+            upd["message"] = msg.model_copy(update={
+                "body": body, "subject": f"[Deming] {checker.lane}: do-not-touch device, a named person decides"})
             notes.append("do_not_touch: disconnect/isolate wording removed from message")
     return out.model_copy(update=upd), notes
 

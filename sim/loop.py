@@ -585,7 +585,7 @@ def _expected_to(lane: str, owner: str, settings: dict) -> str:
 def _safe_body(body: str, did: str, lane: str, evidence: str, deadline: str, dnt: bool,
                passed: str = "") -> tuple[str, str]:
     """Rebuild the message body when it carries injected text or (do_not_touch) disconnect words."""
-    if INJECTION.search(body) or (dnt and guards._DISCONNECT.search(body)):
+    if INJECTION.search(body) or (dnt and guards.consequential_wording(body)):
         ask = ("a named person must decide the next step; Deming proposes no change"
                if dnt else "please review and act by the deadline")
         return (f"Device {did}: lane {lane}. Evidence: {evidence or 'none'}. Deadline: "
@@ -627,7 +627,7 @@ def _propose_device(state, d, r, evidence, run_id, run_seq, as_of, settings, lif
         guard_note = "planner drafted no message; loop wrote a minimal one"
     if bad_owner:
         guard_note = "; ".join(filter(None, [guard_note, f"{bad_owner}: sent to the approver for review"]))
-    if INJECTION.search(subject):
+    if INJECTION.search(subject) or (dnt and guards.consequential_wording(subject)):
         subject = f"[Deming] {lane}: {did}"
     actions = ["email", "ticket"] + (["calendar"] if lane == "patch" and not dnt else [])
     # fixed_version comes from the governing lifecycle row, used later to judge a version change.
