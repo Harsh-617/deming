@@ -9,6 +9,10 @@
 - [feat/review](decisions/feat-review.md): label checks, static review and blind pages, review merge
 - [feat/docs](decisions/feat-docs.md): README, limits, AI and teamwork, demo script, submission checklist
 - [feat/cross-check](decisions/feat-cross-check.md): agreement metrics for the blind AI cross-check, adapter, source checks
+- [feat/demo-sheet](decisions/feat-demo-sheet.md): demo workbooks for Sheets import, Summary double-count fix
+- [feat/owner-sim](decisions/feat-owner-sim.md): scripted owner-reply simulator, seeded runs, audit
+
+The entries of these files are also copied in full at the end of this file (see "Branch decision logs, copied into this file").
 
 One short entry per decision: choice, alternatives, source, and what couldn't be verified.
 
@@ -612,3 +616,808 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
   attributes come from secondary write-ups (e.g. https://www.stefanjudis.com/snippets/turn-off-password-managers/);
   Dashlane's support page returned HTTP 403. Browsers may still ignore `autocomplete="off"`
   for their own autofill. Not tested with any real password-manager extension installed.
+
+---
+
+## Branch decision logs, copied into this file (2026-11-13)
+
+Copied from `docs/decisions/*.md` (those files are kept). Entries already in this file were not copied again.
+
+### Decisions: feeds (branch feat/feeds) (from `docs/decisions/feeds.md`)
+
+#### 2026-11-11 · KEV download
+- **Choice:** `requests` GET of the official CISA JSON feed, saved byte-for-byte (contract requires a
+  reproducible sha256). Fallback: the `cisagov/kev-data` GitHub repo raw file (CISA-owned org).
+  Both validated before saving (non-empty `vulnerabilities`, `count == len`, required entry fields).
+  Atomic write (temp file + `os.replace`). If the sha256 matches the saved file, nothing is rewritten.
+- **`--diff`:** lists entries whose `dateAdded` is later than the newest `dateAdded` in the snapshot
+  that was on disk before this run (as the task specifies). Entries added on the same day as the
+  previous newest entry would be missed; acceptable because CISA publishes the catalog in daily batches.
+- **Alternatives:** the KEV CSV feed (same data, but JSON keeps `cwes`/`notes` structured);
+  NVD API `hasKev` filter (rate-limited, needs extra calls, and is a copy of CISA's data, not the source).
+- **Source:** https://www.cisa.gov/known-exploited-vulnerabilities-catalog (links the JSON/CSV feeds);
+  https://github.com/cisagov/kev-data. Both URLs returned HTTP 200 on 2026-11-11.
+- **Not verified:** how quickly the GitHub mirror trails the cisa.gov file.
+
+#### 2026-11-11 · endoflife.date for edge devices: not used
+- **Finding:** queried `https://endoflife.date/api/v1/products` (489 products). Categories: server-app 176,
+  framework 74, os 68, app 62, lang 34, database 27, service 25, device 21. The network-relevant entries
+  are software release lines only: `fortios`, `panos`, `cisco-ios-xe`, `routeros`, `big-ip`, `netapp-ontap`,
+  `openwrt`, `truenas`, Stormshield `sns-*`. The `device` category is phones, tablets, watches, Raspberry Pi,
+  Kindle and similar consumer hardware.
+  No D-Link, TP-Link, Zyxel, Netgear, ASUS, DrayTek, SonicWall, Ivanti, Citrix/NetScaler, Cisco ASA or RV,
+  QNAP, Synology, Hikvision, Dahua, Reolink or other camera/NAS/consumer-router hardware.
+- **Choice:** don't depend on it. `data/lifecycle.csv` is hand-curated from vendor pages instead.
+  endoflife.date could be an optional cross-check for FortiOS/PAN-OS branch dates later.
+- **Source:** https://endoflife.date/api/v1/products (fetched 2026-11-11); https://endoflife.date/docs/api/v1/
+- **Not verified:** how endoflife.date sources its network-OS dates; we cite the vendor pages directly.
+
+#### 2026-11-11 · lifecycle.csv sourcing
+- **Choice:** hand-curated from vendor-owned EOL notices and security advisories. Each row cites the
+  page that states the date or fix. Research subagents gathered verbatim quotes; the main session
+  re-checked the riskiest rows directly (Cisco bulletins, D-Link NAS table, DrayTek and Zyxel lifecycle
+  tables, Cisco ASA fixed releases) and confirmed every cited CVE is in the KEV snapshot. Pages that block
+  scripts were read with WebFetch or a headless browser.
+- **Alternatives:** endoflife.date (doesn't cover these devices; see above); NVD CPE "deprecated" flags
+  (not an EOL signal); third-party EOL aggregators (not primary sources; rejected).
+- **Source:** per-row `source_url`; summary in `docs/feeds.md`.
+- **Not verified:**
+  - Support end dates for Ivanti Connect Secure 22.x, NetScaler 14.1, SonicOS 7, RouterOS 7 and WatchGuard Fireware 12.
+  - Check Point R81.20 has a month only ("May 2027"), so it is left blank.
+  - Fortinet dates come from Fortinet staff technical tips, because the official portal needs a login.
+  - TP-Link was omitted: its pages give no exact date.
+
+#### 2026-11-11 · model_pattern interpretation
+- **Choice:** `model_pattern` globs the device's normalized model (hardware rows) or version
+  (software-train rows, flagged in `notes`), not the canonical product string as contracts v1 says.
+- **Why:** canonical KEV product names are family names ("Small Business RV Series Routers"), so the
+  contract's own example (`RV32*`) can never match them. Proposed contract change is in the branch summary.
+- **Alternatives:** add a separate `version_pattern` column (cleaner, but needs a contract change on main).
+
+### Decisions: feat/eval (evaluation harness, naive baseline, Sheet template) (from `docs/decisions/feat-eval.md`)
+
+One short entry per choice. Research budget: 5 minutes per task.
+
+#### 2026-11-11 · Naive baseline matching
+- **Choice:** lowercase substring of the KEV `product` in `device_name_raw` (score 100), else
+  `rapidfuzz.fuzz.WRatio(name, "vendorProject product", processor=default_process)`; best pair,
+  match at >= 85. Matching on vendor + product together (not either alone), as the guides suggest.
+  Version is ignored (that is what makes it naive). Deterministic: ties go to the first pair alphabetically.
+- **Alternatives:** `token_set_ratio` (scores 100 whenever one token set is a subset of the
+  other, so "Cisco router" would hit every Cisco product); `partial_ratio`; stdlib `difflib`
+  (slower, and not what the guides use); CPE-based matching (more accurate, but then it is no
+  longer the naive baseline the PRD asks for).
+- **Threshold 85:** the "review_match" tier in one public fuzzy-matching example. It is an
+  illustrative value, **not tuned**. Tuning it on the test set would leak labels into the baseline.
+  On the 8-device fixture it misses the Ivanti and "fgt 60e" rows and guesses on "Cisco router
+  2nd floor", which are the failure modes the guides warn about.
+- **Sources:** https://rapidfuzz.github.io/RapidFuzz/Usage/fuzz.html ·
+  https://www.decryptiondigest.com/blog/cross-reference-asset-inventory-cisa-kev-catalog (substring
+  match, expect manual tightening) · https://hashnode.com/posts/kev-due-date-is-the-sort-key/6ab6dc87f1fda2353dd5d21f/comment/6ab75dca42921770c61ddf70
+  (match vendorProject + product together). These are secondary blog sources. No official
+  "reference baseline" exists, so this is our reading of common practice.
+
+#### 2026-11-11 · Fixture
+- **Choice:** 8 hand-made devices in `eval/fixtures/` covering all 6 groups, plus a 6-entry KEV
+  file in the real KEV format and a 4-row lifecycle file. The CVE-to-product pairs are real KEV
+  entries, quoted from memory and **not re-checked against the live catalog**. Lifecycle dates
+  and URLs are placeholders, marked `FIXTURE ONLY`. DEV-006 has one reviewer on purpose, to
+  exercise the verified/unverified split.
+- **Not a test set.** It only checks that the harness computes the right numbers.
+
+#### 2026-11-11 · Metrics implementation
+- **Choice:** hand-written metrics on the stdlib `csv` module (`eval/metrics.py`), with no pandas or
+  sklearn. Every definition is printed in the report. Undefined ratios are `None` and shown as `n/a`,
+  never silently 0 (sklearn's `zero_division` default warns and returns 0, which would flatter a
+  system that never predicts a class).
+- **Alternatives:** `sklearn.metrics` (`confusion_matrix`, `precision_recall_fscore_support`), which
+  is not in requirements.txt and is overkill for 4 classes and about 60 rows; pandas `crosstab`.
+- **Choices that need a team decision:** devices whose TRUE lane is `unknown` are left out of
+  exposure P/R, and a predicted `unknown` on an exposed device counts as a miss. A blank truth field
+  only matches a blank prediction. The `v` prefix counts as wrong (contract: "no v prefix").
+- **Source:** https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_fscore_support.html
+  (`zero_division` behaviour).
+
+#### 2026-11-11 · Stability metric
+- **Choice:** share of devices where all N runs give the same lane, and separately the same
+  vendor/product/version. Unstable devices are listed in failures.csv as `unstable`.
+- **Alternatives:** Fleiss' kappa, which corrects for chance agreement but is hard to explain in a
+  3-minute pitch and unstable at n=60 with skewed lanes; mean pairwise agreement.
+- **Not verified:** no primary source was checked for this. It is the simplest honest measure.
+
+#### 2026-11-11 · Report
+- **Choice:** Markdown `report.md` + `failures.csv` in `eval/results/<UTC stamp>/`. Primary metrics
+  use each system's earliest run; per-run numbers are shown in a table. Slices: all, verified,
+  unverified (contract: report unverified rows separately), and each group. "Baseline ties or
+  beats" is checked on 8 metrics per slice and stated in a sentence starting "Plainly:".
+- **Alternatives:** HTML/Jinja (adds a dependency, nothing to gain for a repo artifact); pandas
+  `to_markdown` (needs `tabulate`).
+
+#### 2026-11-11 · Sheet template format (.xlsx via openpyxl)
+- **Choice:** generate `sheet/deming_template.xlsx` with openpyxl and import it into Google Sheets
+  (File > Import, or open from Drive and Save as Google Sheets). Only features with a direct Sheets
+  equivalent are used:
+  - list data validation with inline items;
+  - `cellIs equal` conditional formatting;
+  - a frozen first row;
+  - COUNTIF / COUNTIFS / INDEX / COUNTA / IF / SUM / MAX / TODAY formulas with plain A1 and
+    whole-column references.
+  It does NOT use Excel tables, named ranges, structured references, dynamic-array functions,
+  macros or linked workbooks.
+- **Alternatives:**
+  - Build the Sheet directly with the Sheets API (gspread or google-api-python-client). This gives
+    exact fidelity, but needs OAuth credentials and a target Drive. Better for the final version.
+  - Apps Script that builds the tabs. Native, but it lives outside the repo's Python tooling.
+  - One CSV per tab. Imports cleanly, but loses all validation, formatting and freezing.
+- **What Google documents:** macros aren't supported (rewrite them in Apps Script), and some Office
+  features "may be lost or altered" when converted. Neither help page lists data validation,
+  conditional formatting, frozen rows or these formulas as unsupported, but neither confirms they
+  are kept either. Blog sources say conditional formatting and data validation *may* change on
+  conversion. **Import fidelity has not been verified in a real Google Sheet.** Do that test before
+  relying on it.
+- **Sources:** https://support.google.com/docs/answer/6055139 ·
+  https://support.google.com/drive/answer/9276408 ·
+  https://gptforwork.com/blog/how-to-convert-excel-to-google-sheets-without-losing-formatting (secondary)
+- **Deviations from the request:**
+  - `criticality` validation is `low/medium/high/critical`, because contracts.md v1 allows `critical`.
+  - The urgent rule counts `critical` as well as `high`.
+  - Booleans are real TRUE/FALSE cells, not the contract's lowercase strings. Sheets' CSV export
+    writes `TRUE`/`FALSE`, so whatever reads the Sheet back must accept either case.
+- **Bug found and fixed:** per-cell number formats on 2,000 empty rows moved openpyxl's `max_row`, so
+  `append()` wrote data at row 2001. Formats are now column-level (`<col style>`). Whether Sheets
+  keeps column-level number formats on import is **not verified**.
+- **Formulas, checked offline:** the Summary formulas were computed with the `formulas` package
+  (installed in the scratchpad only, not in the venv) on sample rows. The ticket, urgent and
+  device counts were correct. The whole-column `INDEX` used for `latest_run_id` returns #VALUE! in
+  that package. A bounded-range copy gave the correct latest run, lane counts and unknown rate, so
+  the logic is right. Whole-column references were kept on purpose, because the Decision Log grows
+  by ~60 rows per hourly run. **Not verified in Google Sheets itself.**
+
+### Decisions: feat/agents branch (from `docs/decisions/feat-agents.md`)
+
+One short entry per decision: choice, alternatives, source, and what couldn't be verified.
+These entries will be merged into `docs/decisions.md` on `main`.
+
+#### 2026-11-11 · Subagent prompt format for Agent Designer
+- **Choice:** one Markdown file per subagent (`agents/<name>.md`) with the sections Role, Inputs,
+  Rules, Output and Examples. The whole file is the "Instructions" text and is pasted unchanged.
+  Prompts are plain text with no templating, no code and no tool syntax. Thresholds are written as
+  literal numbers (0.80) because Agent Designer can't read our config; a test checks the literal
+  matches `sim/config.py`.
+- **Why:** Agent Designer's main agent and subagents are configured in the Flow tab with a free-text
+  Instructions field. The docs say to be "specific and concise".
+- **Alternatives:** a Jinja-templated prompt filled in by code (not pasteable); one big prompt for all
+  four steps (harder to evaluate, and Agent Designer is built around subagents).
+- **Source:** https://docs.cloud.google.com/gemini/enterprise/docs/agent-designer ·
+  https://docs.cloud.google.com/gemini/enterprise/docs/agent-designer/create-agent
+- **Not verified:** the docs I found give **no** limit on instruction length, the number of
+  subagents, or nesting depth, and they don't say whether a subagent can enforce a JSON response
+  schema. The only number I found is the 800,000-token combined limit for files uploaded as Knowledge
+  to the main agent. If Agent Designer can't enforce a schema, each prompt's Output section still
+  describes the JSON, and the schema file is the reference to check it against.
+
+#### 2026-11-11 · Structured output: `response_json_schema` with the schema files
+- **Choice:** the runner passes the dict loaded from `schemas/<agent>.json` as
+  `GenerateContentConfig(response_mime_type="application/json", response_json_schema=..., temperature=0)`.
+  Every response is then validated with the Pydantic models in `sim/models.py`. The schema files
+  are the single source and are portable (plain JSON Schema). The Pydantic models enforce the
+  rules Gemini ignores.
+- **Schema style:** only keywords Google lists as supported: `type`, `properties`, `required`,
+  `additionalProperties`, `enum`, `items`, `minimum`/`maximum`, `description`. Nullable fields use
+  type arrays (`["string","null"]`). There's no `$ref`, `const`, `minLength` or `pattern`, and every
+  field is `required` (Google's advice for keeping the compiled grammar small).
+- **Alternatives:** `response_schema=<Pydantic class>` (what `docs/decisions.md` chose for the smoke
+  test, but it ties the schema to Python); the Interactions API with `response_format` (newer, and
+  what the structured-output guide shows now, but more of a change than we need this week).
+- **Source:** https://aistudio.google.com/docs/structured-output (supported and ignored keywords,
+  `400 INVALID_ARGUMENT` for oversized schemas) · https://googleapis.github.io/python-genai/
+- **Not verified:** that `gemini-3.5-flash-lite` accepts these exact schema files. No live call was
+  made on this branch (no key). The first real run should confirm there's no 400.
+
+#### 2026-11-11 · Checker: deterministic top-k candidate retrieval before the LLM
+- **Choice:** `sim/retrieval.py` scores the device's (normalized, else raw) vendor+product against
+  the unique KEV `vendorProject`+`product` pairs and against every `lifecycle.csv` row with
+  `rapidfuzz.fuzz.WRatio` (after `utils.default_process`). It keeps the top 5 KEV products
+  (score >= 60) and the top 5 lifecycle rows. A lifecycle row whose `model_pattern` glob matches
+  the product always gets 100. Each KEV product contributes at most 8 CVEs, ranked first by whether
+  the version or a model token appears in `shortDescription`/`vulnerabilityName`, then newest
+  `dateAdded`. Only those candidates go to the Checker, so its prompt stays a few KB instead of
+  the whole 1,773-entry catalog.
+- **Guard:** the Checker may cite only candidate ids. Any other CVE or lifecycle id in its output is
+  treated as invented, and the device goes to `unknown` (`sim/guards.py`).
+- **Agent Designer equivalent:** the same step is a Drive-file lookup. Upload two files as
+  Knowledge (or keep them in Drive): `kev_products.csv` (one row per vendorProject/product with its
+  cveIDs, dueDate, requiredAction) and `lifecycle.csv`. The Checker prompt's "Candidate lookup"
+  section tells the agent to search those files for rows whose vendor and product match the device
+  and use only those rows. In Python the runner does that search for it and passes the result as
+  `kev_candidates` / `lifecycle_candidates`, so the prompt text is identical in both places.
+- **Alternatives:** send the whole KEV catalog (about 1.5 MB, slow and costly, and Agent Designer
+  Knowledge counts it against the 800k-token limit every turn); embeddings or vector search (an extra
+  dependency, and less explainable than a fuzzy score you can print); exact join (misses typos,
+  which is the whole point of the messy-name group).
+- **Source:** https://rapidfuzz.github.io/RapidFuzz/Usage/process.html ·
+  https://docs.cloud.google.com/gemini/enterprise/docs/agent-designer/create-agent (Knowledge limit)
+- **Not verified:** that k=5, the 60 cutoff and 8 CVEs per product give full recall on the 60-device
+  set (there's no inventory or KEV copy on this branch yet). Tune these after the data lands, and report
+  retrieval recall separately so a retrieval miss isn't blamed on the LLM. I also haven't checked
+  whether Agent Designer's Knowledge search is keyword- or embedding-based, so in-platform recall may differ.
+
+#### 2026-11-11 · Runner: own retry loop, SDK retry off
+- **Choice:** `sim/gemini_runner.py` retries only on HTTP 429 and 503 with exponential backoff plus
+  jitter (1, 2, 4, 8, 16 s, capped at 30 s; 5 retries), and sets the SDK's own
+  `HttpRetryOptions(attempts=1)` so the two retry loops don't stack. That fits the decisions.md note
+  that 3.8 calls looked like they were retried silently. The sleep function is injected, so tests
+  run instantly.
+- **Alternatives:** the SDK's built-in `HttpOptions(retry_options=HttpRetryOptions(...))` (less code,
+  but harder to test and log); `tenacity` (a new dependency).
+- **Source:** google-genai 3.0.0 `types.HttpRetryOptions` fields (`attempts`, `initial_delay`,
+  `max_delay`, `exp_base`, `jitter`, `http_status_codes`), inspected locally ·
+  https://googleapis.github.io/python-genai/
+- **Not verified:** that `attempts=1` means "one try, no retry" (I read it from the field name and
+  haven't checked the docs).
+
+#### 2026-11-11 · Response cache and repeated runs
+- **Choice:** an on-disk JSON cache in `.cache/gemini/` (gitignored) keyed by the sha256 of
+  model, agent name, prompt text, schema, temperature, canonical input JSON and `repeat_index`. Only
+  responses that pass validation are cached. `run_repeated(agent, payload, n)` makes calls
+  `repeat_index = 0..n-1`, so the 3-run stability metric measures real model calls rather than
+  cache hits, and a rerun of the same evaluation is free.
+- **Alternatives:** key without `repeat_index` (then stability is always 100%, which is meaningless);
+  no cache (every eval rerun costs quota and time).
+- **Source:** none needed (design choice).
+
+#### 2026-11-11 · Deterministic guards around every LLM output
+- **Choice:** `sim/guards.py` enforces the hard rules in code, whatever the model says. Confidence
+  below 0.80 means lane `unknown`. Evidence must come from the candidate list. A `do_not_touch` device
+  gets no disconnect or isolate proposal and is escalated to a human. Every outward action has
+  `requires_approval=true`. The Verifier may `close` only when the record changed and the re-check
+  is not still vulnerable (a change isn't a fix).
+- **Why:** prompt rules alone can be bypassed by injection text in a device name. The guards make
+  the PRD rules testable without a live model.
+- **Alternatives:** rely on the prompt alone (not provable); fail the run on a violation (loses the
+  other devices' results).
+
+#### 2026-11-11 · Agent Designer port: build a chat agent first, workflow as the upgrade
+- **Choice:** the port guide (`docs/agent-designer-port.md`) builds a **chat agent** (main agent
+  + four subagents in the Flow tab, Schedule tab) as path A, and a **workflow** (Schedule trigger →
+  four Gemini Agent steps → Request info → Condition → connector actions) as path B.
+- **Why A first:** it matches the PRD's "main agent + four subagents" design and the prompts paste
+  unchanged, one per subagent. **Why B exists:** only workflow agent steps document structured
+  JSON output with a manual schema, and connector writes there get human review. Chat-agent
+  schedules are documented as "not supported for actions involving other people", so on path A a
+  scheduled run can only draft; sending happens in the approver's follow-up chat.
+- **Alternatives:** workflow only (enforces schemas, but needs a batch-wrapper line above each
+  prompt, because no loop step is documented); a single agent with the four prompts as sections
+  (fallback F9 if subagent hand-off doesn't work).
+- **Verified (official docs, 2026-11-11):**
+  - Agent Designer pages now sit under "Workflow Builder", with two kinds: chat agents and workflows.
+  - Creating an agent: **+ Create agent > Chat agent > Proceed to builder**, then **Add subagent**
+    in the Flow tab. Main-agent fields: Name, Description, Instructions, Model (Flash/Pro),
+    Data and tools, Knowledge (800k-token combined limit, loaded every turn), and Personalization.
+    An agent left without clicking **Create** stays a Draft.
+  - Chat-agent schedules: Hourly/Daily/Weekly/Monthly/Annually; credentials expire every 14 days
+    and need a manual refresh (Agent Gallery or the Schedule tab's **Refresh schedules**); up to
+    5 min of delay; multi-region only; no actions involving other people; a paused run has an
+    **Approve** button; runs show in the Chats history; **Run in preview** button.
+  - Workflows: Manual, Schedule (minutes to months or cron) and Event triggers; Gemini Agent step
+    with plain text or structured JSON output and a manual schema; Condition; Request info (yes/no
+    etc.); connectors include Gmail, Google Calendar, Google Chat, Jira and Jira Data Center, each
+    with "Search For Data" and "Add Or Update Data" groups; "Adding or updating data through
+    connectors requires human review"; Drive knowledge via "Add from Drive" when a Drive data
+    store exists.
+  - Known issues: disabled actions fail the run; "3.1 Pro" is recommended; HITL steps may show raw
+    Markdown; RESOURCE_EXHAUSTED isn't retried for event triggers; the Gmail subject can't take
+    non-English characters.
+- **Not verified:**
+  - The subagent fields (whether a subagent has its own Knowledge or tools), how the main agent
+    passes data to a subagent, and instruction length or subagent count limits.
+  - Whether chat agents can enforce a response schema.
+  - The Inbox and "Needs your input": seen only in a third-party blog and Google's launch blog
+    post, not in the docs.
+  - Google Sheets read and write: Sheets isn't in the listed connectors. A release note saying
+    Drive handles CSV/XLSX, and one about exporting tables to Sheets, came only through search
+    summaries; I didn't open them.
+  - Jira action names for chat agents (the docs show them for workflows), and edition
+    differences (a support page on actions is for the Business edition).
+  - Whether **Add from Drive** Knowledge follows file updates, the data-store re-index delay,
+    which model names the dropdown offers, and whether temperature is exposed.
+- **Sources:** https://docs.cloud.google.com/gemini/enterprise/docs/agent-designer ·
+  https://docs.cloud.google.com/gemini/enterprise/docs/workflow-builder/create-chat-agent ·
+  https://docs.cloud.google.com/gemini/enterprise/docs/agent-designer/schedule-agent ·
+  https://docs.cloud.google.com/gemini/enterprise/docs/workflow-builder/workflows ·
+  https://docs.cloud.google.com/gemini/enterprise/docs/workflow-builder/create-workflows ·
+  https://docs.cloud.google.com/gemini/enterprise/docs/workflow-builder/known-issues ·
+  https://docs.cloud.google.com/gemini/enterprise/docs/connectors/gdrive/set-up-data-store
+
+#### 2026-11-11 · Drive assets: kev_products.csv + kev_entries.csv + lifecycle.csv
+- **Choice:** `scripts/export_agent_assets.py` writes `dist/agent-designer/` (gitignored):
+  - `kev_products.csv`: one row per KEV product, about 200 KB / ~50k tokens on catalog
+    2026.11.09 (747 products);
+  - `kev_entries.csv`: one row per CVE, description trimmed to 400 chars, 806 KB / ~200k tokens;
+  - `lifecycle.csv`: a byte-for-byte copy, header checked against contracts.md;
+  - the prompts as .txt, and a manifest with sha256 values.
+
+  The small files go in Knowledge; `kev_entries.csv` stays in the Drive data store, because
+  Knowledge is loaded into context on every turn.
+- **Why a second KEV file:** the Checker needs each CVE's description and required action to
+  judge the version. `kev_products.csv` alone only lists the ids. I added a line to `checker.md`'s
+  Candidate lookup to point at it.
+- **Guide drift guard:** the guide's pasted prompts are generated blocks. `--sync-guide` rewrites
+  them, and a test fails if they differ from `agents/*.md`.
+- **Alternatives:** upload raw `kev.json` (1.8 MB, JSON is harder for file search); kev_products
+  only (no version detail).
+- **Not verified:** token counts are chars / 4, not a tokenizer. How well Agent Designer's file
+  search finds rows in a CSV this size isn't documented.
+
+#### 2026-11-11 · Normalizer example uses the real KEV product name
+- **Choice:** the example now reads "Small Business RV320 and RV325 Routers", the actual KEV
+  `product` for CVE-2019-1653 in catalog 2026.11.09. Before, it said "Small Business RV Series
+  Routers", which isn't a KEV product name. Found while building the export.
+
+### Decisions: inventory (branch feat/inventory) (from `docs/decisions/feat-inventory.md`)
+
+One short entry per decision: choice, alternatives, source, and what couldn't be verified.
+
+#### 2026-11-11 · Realistic messy names (research rule, ~5 min)
+- **Choice:** mix three naming styles seen in practice: (1) role/site hostnames such as `kl-hq-fw01`
+  (site-role-sequence conventions), (2) free-text descriptions with the location in the name
+  ("MikroTik router - hostel block C"), (3) human typos and run-together models ("sonicwal sma410",
+  "Dlink DNS320L", "Mikrotk", "wtchgrd"). Firmware typed with prefixes (`v7.4.1`, `ROS 7.24.1`,
+  `NS14.1 38.53`) or left blank. One row holds injection text (PRD tricky case).
+- **Sources:** site-role-sequence convention with role codes like FW:
+  https://kb.dtctoday.com/books/dtcs-pillars-of-technology/page/device-naming-convention ;
+  function-site-number names: https://oneuptime.com/blog/post/2026-03-20-document-ipv4-assignments-naming-conventions/markdown ;
+  location kept in CMDB vs hostname debate: https://industrialmonitordirect.com/blogs/knowledgebase/enterprise-laptop-naming-convention-best-practices ;
+  ServiceNow naming/uniqueness: https://www.servicenow.com/community/cmdb-forum/why-not-use-unique-name-values-in-cmdb-ref-to-csa-lab-4-4-1/td-p/3518122
+- **Not verified:** no published dataset of real vendor typos was found in the time box; the typo
+  style is a judgement, not a measured distribution.
+- **Rule kept:** model names appear only when a source names them (lifecycle row, KEV entry, or the
+  advisory). Two model names typed from memory (MikroTik hEX/RB) were removed.
+
+#### 2026-11-11 · KEV has no version ranges, so fixed_version was filled from the cited pages
+- **Finding:** kev.json entry fields are `cveID, vendorProject, product, vulnerabilityName, dateAdded,
+  shortDescription, requiredAction, dueDate, knownRansomwareCampaignUse, forensicTriage, notes, cwes`.
+  No affected-version field.
+- **Choice:** filled `fixed_version` in `data/lifecycle.csv` only where the row's own `source_url` page
+  states the fix (re-opened 2026-11-11). Multi-train fixes use `;` (one value per train, contract's
+  multi-value rule):
+
+  | Row | fixed_version | Quote from source_url |
+  |---|---|---|
+  | LC-020 FortiOS 7.4 | 7.4.3 | "7.4.0 through 7.4.2" / "Upgrade to 7.4.3 or above" |
+  | LC-021 PAN-OS 11.1 | 11.1.2-h18;11.1.4-h13;11.1.6-h1 | "< 11.1.2-h18", "< 11.1.4-h13", "< 11.1.6-h1" |
+  | LC-022 Ivanti 22.x | 22.7R2.6 | "fully patched in Ivanti Connect Secure 22.7R2.6" |
+  | LC-023 NetScaler 14.1 | 14.1-47.46 | "14.1 BEFORE 14.1-47.46" |
+  | LC-025 RouterOS 7 | 7.24.3;7.23.6 | complete fix "7.24.3 (stable) and 7.23.6 (long-term)" (KEV CVEs alone fixed in 7.24.2/7.23.4; the complete fix is used so no device sits between them) |
+  | LC-026 ASA 9.2x | 9.20.4.10;9.22.2.14;9.23.1.19 | "All Vulnerabilities" column |
+  | LC-029 Fireware 12.x | 12.11.4 | default models; T15/T35 12.5.13 and FIPS exceptions stay in replacement_hint |
+
+- **Left blank** (fix not on the source_url page, or not a single value): LC-024 SonicOS (page doesn't
+  name CVE-2024-40766), LC-028 Check Point (several Jumbo Hotfix takes: 26/41/53/54/65), LC-027 and
+  LC-030 (fix only on the second URL in notes), LC-003, LC-010, LC-018 (EOL pages, fix only in notes),
+  all no-fix retire rows.
+
+#### 2026-11-11 · supported_fine uses KEV products at/above every checked fix
+- **Problem:** all 30 lifecycle rows are KEV products, and every supported one has KEV CVEs added
+  after the one its fixed_version covers. "At/above fixed_version" alone would mislabel fine.
+- **Choice:** opened the newer advisories and chose versions above all of them:
+  PAN-OS 11.1.16-h3 (CVE-2025-0111, CVE-2026-0257/0300/0322), Fireware 12.11.6 (CVE-2025-14733),
+  RouterOS 7.24.3/7.23.6 (complete fix for all 2026 MikroTik KEV CVEs). FortiOS, ASA, Ivanti and
+  NetScaler were NOT used for fine: each has 2026 KEV entries (FortiOS also "Multiple Products"
+  entries) that weren't checked.
+- **Sources:** https://security.paloaltonetworks.com/CVE-2026-0322 (and -0257, -0300, CVE-2025-0111);
+  https://psirt.watchguard.com/CVE-2025-14733 ; https://fortiguard.fortinet.com/psirt/FG-IR-25-934 ;
+  https://fortiguard.fortinet.com/psirt/FG-IR-24-535 ; Cisco cisco-sa-asaftd-tunnel-dos-s6mgkb75 and
+  cisco-sa-asaftd-vpn-dos-dzv4mQFF (used for the patch rows' evidence).
+- **Not verified:** older KEV advisories (PAN-OS 2024, WatchGuard 2022, MikroTik CVE-2018-7445).
+  Every fine row is flagged `needs_extra_review` in docs/label-review.csv.
+
+#### 2026-11-11 · name_collision rows
+- Ivanti "Connect Secure" name with firmware 9.1R18 → Pulse Connect Secure 9.1x, retire (LC-011;
+  Ivanti blog: "9.1x reached End-of-Support on December 31, 2024").
+- SonicWall SMA 1000 → not SMA100 (KEV lists "SMA1000 Appliances" as its own product). No fix data,
+  no firmware → unknown. Must not be retire.
+- Sophos XGS 2100 → not XG hardware (LC-013: "Pattern 'XG *' does not match XGS"; XGS 2100 is the
+  named replacement for XG 210). No firmware → unknown.
+- NUUO NVRmini 3 → the replacement named in LC-015's EOL letter; no KEV entry or lifecycle row → fine.
+- **Alternatives rejected:** Zyxel USG20-VPN / USG FLEX (same KEV product "Multiple Firewalls", so not a
+  different product); Cisco Firepower 1000 (runs ASA/FTD software that is in KEV).
+
+#### 2026-11-11 · Owner email domain
+- **Choice:** `@example.org` (contracts.md: "Synthetic address at example.org"; existing tests and
+  fixtures use it). The task brief said example.com; both are reserved (RFC 2606). Flagged in the summary.
+
+#### 2026-11-11 · Build and review files
+- `scripts/build_inventory.py` holds every hand-written row and lays them out deterministically
+  (seed 20261111): device ids are shuffled so ids don't reveal the group; the blind sample of 15 uses
+  the same RNG. Re-running gives identical files.
+- `eval/blind/blind_key.csv` maps blind ids to device ids, kept separate so the worksheet shows only
+  name + firmware. Labellers must not open it (honour system; it's in the repo).
+- `eval/blind/agreement.py`: per-field percent agreement vs ground truth and Cohen's kappa on lane,
+  plus pairwise labeller kappa.
+
+### Decisions: feat/loop branch (from `docs/decisions/feat-loop.md`)
+
+One short entry per decision: choice, alternatives, source, and what couldn't be verified.
+These entries will be merged into `docs/decisions.md` on `main`.
+
+#### 2026-11-11 · Idempotent scheduled-run state: run key + per-action idempotency keys
+- **Choice:** three keys.
+  1. **Run key:** `run_id = deming-<scheduled UTC time>` (`--now`). A run_id already in
+     `runs.csv` is a no-op, so a duplicate scheduler delivery does nothing.
+  2. **Action key:** every outward record is keyed by `proposal_id` and written to
+     `outbox/<proposal_id>.<kind>.json` with exclusive create (`open(..., "x")`). Re-applying an
+     approval can't send twice.
+  3. **Business dedupe key:** `device_id|issue` (issue = `patch` / `retire` / `identify`, set by
+     code from the lane, never the model's free text). We check it at planning time (open ticket
+     or pending proposal means no new proposal) and again at execution time (two approved
+     proposals still open one ticket).
+- **Why:** Google says Cloud Scheduler is at-least-once, so "a job may run more than once" and
+  handlers should be idempotent. Stripe and the AWS Builders' Library both describe the same
+  pattern: one stable key per logical action, sent on every retry, with the server keeping the
+  first result. Gemini Enterprise schedules can start up to 5 min late and run hourly (PRD), so
+  overlapping or repeated runs are possible.
+- **Alternatives:** hash the inventory content to make the run key (rejected: AWS argues a
+  caller-supplied key says what was meant, and an inferred hash can't). A lock file (doesn't
+  survive a crash mid-run, and doesn't protect individual actions). Model-written `ticket.issue`
+  as the dedupe key (rejected: free text varies between runs, so dedupe would silently fail).
+- **Sources:** https://docs.cloud.google.com/scheduler/docs/overview ·
+  https://docs.stripe.com/api/idempotent_requests ·
+  https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/
+- **Not verified:** the names of the Cloud Scheduler dedupe headers (not read). Whether
+  Gemini Enterprise scheduled runs expose a stable scheduled time we could use as the run key.
+  On the platform the Sheet/Drive file has no exclusive-create, so the action key would have to be
+  a "proposal_id already in Tickets/Decision Log" check instead.
+
+#### 2026-11-11 · The closing rule is deterministic; the LLM Verifier is advisory
+- **Choice:** `decide_verification()` in `sim/loop.py` decides. A ticket closes only when the
+  device is gone from the inventory, OR the version changed AND the new version parses AND it is
+  >= the ticket's `fixed_version` (reusing `sim/guards.compare_versions`). Stricter extras: if the
+  re-check lane is still patch/retire the ticket stays open (`recheck_disagrees`); an `identify`
+  ticket closes once the device can be matched (re-check lane not unknown). A changed version
+  below the fix stays open, is flagged `still_vulnerable` and escalated. An unparseable version or
+  a blank `fixed_version` stays open, flagged `low_evidence`. The LLM Verifier still runs (for
+  patch/retire tickets) and its decision is logged, which gives the `verifier_llm_agreement`
+  metric.
+- **Why:** PRD acceptance: "a ticket closes only when the Sheet shows the fixed version or
+  removal". This must not depend on a model.
+- **Difference from `guards.guard_verifier`:** that guard allows `device_removed` to close only
+  retire tickets. The task brief says close on removal for any lane, so the loop closes a removed
+  patch device too. The guard is left unchanged (the loop's rule is the one that acts).
+- **Source:** docs/PRD.md (acceptance criteria, tricky cases).
+
+#### 2026-11-11 · Approval model and tiers
+- **Choice:** one proposal per device and issue, bundling tier 2 actions (email, ticket, and a
+  calendar maintenance window for patch). Approve or reject per proposal via
+  `python -m sim.loop approve|reject <id> --approver <name>`, by editing `approvals.csv` (applied
+  on the next run), or with a `ScriptedApprover` in tests and the demo. Tier 3 (isolate, replace)
+  only goes in the Decision Log as "drafted only". It is never a proposal, and `_write_outbox`
+  refuses any non-tier-2 kind. do_not_touch devices get no tier 3 draft. Their email is cc'd to
+  the approver and marked ESCALATE. Recipients are set by rule (owner, or the approver for unknown
+  devices). The model's recipient is recorded only to measure routing accuracy. Reminders are
+  their own proposals and need approval too. Escalation sets the ticket to `escalated` and is
+  listed in the run digest for the approver.
+- **Why:** PRD hard rules (no outward action without recorded approval; tier 3 is draft-only; do_not_touch is never
+  proposed for disconnection) and `agents/main_agent.md` step 8 ("approve 1, 3").
+- **Alternatives:** approval per action (finer-grained but slower in a 3-minute demo); auto mode
+  for tier 2 (`tier2_mode` other than `approval` is ignored with a warning, since auto is only a PRD "Could").
+
+#### 2026-11-11 · Rule-based mock model for `--mock`
+- **Choice:** `sim/mock_llm.py` applies the written rules from `agents/*.md` deterministically
+  and plugs into the existing `GeminiRunner` as a fake client. So with `--mock` the full code path
+  (runner, Pydantic validation, guards, loop) runs, just without the network.
+- **Why:** this worktree has no API key. The eval mock (`eval/mock_gemini.py`) needs a
+  per-test responder and can't produce realistic outputs for a whole inventory.
+- **Limit:** the mock's name matching is simple. For example it sends the fixture's "fgt 60e
+  fortigate" to unknown, where a real model might resolve it. Mock results say nothing about
+  prompt quality.
+
+#### 2026-11-11 · Metrics definitions (`<state>/metrics.json`, `metrics.csv`)
+- owner_routing_accuracy = model-drafted recipient == rule recipient, over drafted emails
+  (routing_after_guard = what was actually addressed, always 1.0 by construction).
+- duplicate_tickets = tickets opened while another ticket with the same `device_id|issue` was open.
+- approval_compliance = outbox records with an approved decision by a named approver, decided on
+  or before execution, tier 2 only. Violations are listed.
+- verification_correctness = verify decisions matching `expected_verification.csv`
+  (`as_of,device_id,expected_decision`) when the file exists. The demo writes one.
+- run_time_s = mean wall time per run (`runs.csv` has each run).
+
+### Decisions: feat/review (label checks and reviewer tools) (from `docs/decisions/feat-review.md`)
+
+One short entry per choice. Research budget: 5 minutes per task. No LLM calls in this branch.
+
+#### 2026-11-11 · Review tool for two non-technical reviewers
+- **Choice:** two single static HTML files (`review/review.html`, `review/blind.html`) generated
+  by Python, with inline CSS/JS and the data embedded as JSON in `<script type="application/json">`.
+  Export is a Blob + `URL.createObjectURL` + `<a download>` CSV. Progress is saved in
+  `localStorage` (guarded with try/catch), **and** each page can re-import its own export to
+  resume, because `localStorage` on `file://` pages is not defined by the spec and differs per
+  browser (Firefox 92+ gives each file URL its own origin; Chrome also keeps file storage per URL).
+  Re-import works everywhere and is the documented fallback.
+- **Alternatives:** Google Form or Sheet (needs accounts and a server, and data leaves the repo);
+  Label Studio / Argilla (needs a server, too much setup for two people); a plain spreadsheet
+  (no guidance, easy to edit the label by mistake, no required-name rule); a local `http.server`
+  (the reviewers would need a terminal).
+- **Sources:** MDN localStorage notes on `file:` URLs (summarized via search; behaviour
+  "undefined and may vary between browsers"); Mozilla bug 1730419 and the
+  `privacy.file_unique_origin` change in Firefox 92:
+  https://bugzilla.mozilla.org/show_bug.cgi?id=1730419 ; Chromium "Treat file:// URLs as having
+  unique origin": https://groups.google.com/a/chromium.org/g/blink-dev/c/--KjSROtcMQ . The
+  Blob/`download` pattern came from secondary tutorials, because the search returned no MDN page.
+  **Not verified:** Safari behaviour (not tested). Tested in Chromium via Playwright over a
+  throwaway local HTTP server (Playwright blocks `file:`), at desktop and 380 px widths.
+
+#### 2026-11-11 · Reviewer field = initials
+- **Choice:** the required reviewer field asks for initials (letters, spaces, dots, hyphens; no
+  commas), because `verified_by_a/b` hold initials (contracts.md). `merge_reviews.py` writes the
+  value as typed. Two exports from the same reviewer (case-insensitive) are rejected.
+
+#### 2026-11-11 · Mechanical lane recompute
+- **Choice:** `scripts/check_labels.py` recomputes the lane from the label's own fields with the
+  contract tie-break, using the **cited** lifecycle row when there is one (the label's identity
+  claim), else the most specific row for the label's vendor/product whose pattern fits. Retire
+  when past `last_security_support_date` (or `eol_date`), **strictly before** `as_of_date`, or when
+  in KEV with `patch_available=false`. A KEV `requiredAction` counts as "stop using" only if it says
+  end-of-life / end-of-service / legacy; plain "discontinue use if mitigations are unavailable" is
+  in nearly every KEV entry, so it can't count. KEV products match on exact `vendorProject` +
+  `product`. Versions use `sim.guards` (`parse_version`, `compare_versions`, `select_train_fixes`)
+  and `sim.retrieval` (`pattern_matches`, `pattern_specificity`). There is no second parser.
+- A second pass uses the raw `firmware_version_raw` (what the Checker's version guard reads).
+  "Doesn't parse" is severity 1 unless it changes the lane (severity 2).
+- Hardware globs (e.g. `RV32*`, `XG *`) are tested against every word-start suffix of the raw name.
+  That's how a model number inside free text is found. A cited row whose pattern doesn't fit the
+  raw name is a `pattern` note (a messy name read by a human), not an error.
+
+#### 2026-11-11 · Source URL checks
+- **Choice:** `requests`, one GET per unique URL, 2 s apart, 25 s timeout, a generic
+  User-Agent (no personal details), with the body capped at 4 MB. The page text is not stored:
+  only status, content type and which expected strings were found are cached in
+  `review/label_checks.json` (`--offline` reuses it). Expected strings: the fixed_version on the
+  device's train, support and EOL dates in common written forms, and phrases quoted with `'...'`
+  in the notes (a quote also counts as found if it is in the device's KEV text or the inventory
+  row itself). 401/403/429, errors, non-2xx and PDFs → "needs human check in a browser", never ok.
+- **Alternatives:** headless browser fetch (would get through JS-rendered tables, but it looks
+  like scraping, sites like Cisco block it on purpose, and it's slow); PDF text extraction
+  (`pypdf` is not in requirements.txt, and requirements can't be edited on a branch).
+- **Limit:** a string "found" on a page doesn't prove it applies to this model and train. The
+  reviewer still reads it.
+
+#### 2026-11-11 · Blind page isolation
+- **Choice:** `build_blind_page.py` opens only `eval/blind/blind_worksheet.csv` and keeps only
+  `blind_id`, `device_name_raw` and `firmware_version_raw`. `blind_id` is the row key that
+  `eval/blind/agreement.py` joins on, and it is a worksheet column. The export is the worksheet
+  header plus a trailing `source_url_used` (agreement.py ignores unknown columns). The as-of date
+  shown is a builder argument (default 2026-11-12), not read from data/. A test checks every
+  ground_truth.csv / blind_key.csv cell against the generated page (exempt: the lane enum, and
+  values that already appear in the worksheet inputs), plus `DEV-`, `LC-` and `CVE-` id patterns.
+  A mutation check confirmed it catches a planted product name, group or device id.
+
+#### 2026-11-11 · Merge
+- **Choice:** `merge_reviews.py A.csv B.csv`: the first file fills `verified_by_a`, the second
+  `verified_by_b`, only on rows marked `verified`. Other columns are copied byte-for-byte as values. It
+  refuses to write to `ground_truth.csv`. Every row not verified by both goes to
+  `docs/label-disagreements.md` with both reviewers' notes.
+- **Known gap:** the export has exactly the four requested columns, so it carries no label
+  fingerprint. If a label changes after a reviewer exported, the merge can't tell. Mitigation:
+  the review page's saved state is keyed on a hash of the labels (a label change starts a fresh
+  review), and the guide says to re-review changed rows.
+
+### Decisions: feat/docs branch (from `docs/decisions/feat-docs.md`)
+
+One short entry per decision: choice, alternatives, source, and what couldn't be verified.
+These entries will be merged into `docs/decisions.md` on `main`.
+
+#### 2026-11-11 · README structure for judges
+- **Choice:** problem with sourced numbers and caveats → what Deming does → what runs where →
+  how to reproduce (copy-paste commands, each run on this branch) → evaluation summary → limits
+  → related tools. Long material lives in linked docs (`docs/limits.md`,
+  `docs/results-analysis.md`, `docs/demo-script.md`), not in the README.
+- **Why:** GitHub's README page says a README should tell people why the project is useful, what
+  they can do with it and how to use it, and should hold only what is needed to get started;
+  longer docs belong elsewhere. Google's style guide asks the README to link to fuller docs.
+  Hackathon submission guides ask for an overview, setup steps and a demo link. The briefing's
+  five topics (problem, solution, research, teamwork, impact; `docs/reference/full-report.md`)
+  are each covered by a README section or a linked doc.
+- **Alternatives:** one long README with everything (harder to scan); a README with only setup
+  (doesn't answer the judging topics).
+- **Sources:**
+  https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes ·
+  https://google.github.io/styleguide/docguide/READMEs ·
+  https://hackncstate2025.notion.site/Submission-Judging-143963046a38810d998acb9b9290863d ·
+  https://hackutd-tech-guide-git-springbranchupdated-acmutd.vercel.app/dayof/devpost-markdown
+- **Not verified:** the search returned an archived Enterprise Server copy of GitHub's page; the
+  current page wasn't opened. The hackathon guides are other events' guides, not APU's rules.
+  APU's rubric weights are still unpublished (PRD).
+
+#### 2026-11-11 · Every README command is run before it is written
+- **Choice:** only commands that were run on this branch go in the README, with the venv at
+  Python 3.11.7. Results on 2026-11-11:
+  - `python -m pytest -q`: 396 passed.
+  - `python eval/baseline.py`: wrote 60 rows; first 7 columns identical to the published
+    `eval/runs/baseline-20261111T075945Z/baseline.csv` (run with `--out-root` in a temp folder).
+  - `python eval/run_eval.py --pred <published baseline, rep 0, rep 1> --inventory data/inventory.csv`:
+    deming lane_acc 0.88, norm_all3 0.47; baseline 0.32 / 0.18, matching `docs/results-analysis.md`.
+  - `python eval/offline_analysis.py ...`: fails from a clean clone with
+    `RuntimeError: cache miss` because the response cache (`.cache/`, gitignored) isn't in the
+    repo. With the original machine's cache (`DEMING_CACHE_DIR`) it reproduced the published
+    `offline_analysis.md` exactly (0 replay mismatches, 0 API calls). The README says so.
+  - `python -m sim.demo_scenario`: ran on the mock; DEV-101/102 closed, DEV-104 escalated
+    (still vulnerable), DEV-103 open; duplicate_tickets 0, approval_compliance 1.0.
+  - `python -m sim.loop ... --mock`, `pending`, `approve`, `metrics`: ran on the fixture.
+- **Not run (needs the key / quota, and this task forbids API calls):** `python eval/full_run.py`,
+  `python -m sim.pipeline`, `python -m sim.demo_scenario --gemini`.
+- **Finding:** `sim.demo_scenario` has no `--mock` flag; the mock is its default and `--gemini`
+  opts into the API. `--mock` belongs to `python -m sim.loop`. The README uses the real flags.
+
+#### 2026-11-11 · Related tools: Eolix and Xeol
+- **Choice:** name both and say only what `docs/PRD.md` states: they cover end-of-life checks,
+  so Deming is not unique (PRD "Never claim"). Deming's stated edge is the PRD's: closed loop,
+  measured evaluation, portable no-code design.
+- **Source:** `docs/PRD.md`.
+- **Not verified:** we did not test either tool, so the docs make no other claim about what
+  they do or don't do.
+
+#### 2026-11-11 · Submission summary draft
+- **Choice:** a 2-sentence summary (319 characters) in `docs/submission-checklist.md`,
+  naming the loop, the four lanes, approval and the synthetic data. It avoids every PRD
+  "Never claim" item (no uniqueness, no real-world accuracy, no "runs in Gemini Enterprise").
+- **Alternatives:** a one-line tagline only ("Patch or Retire"); it meets 50 characters only
+  with padding and says less.
+
+### Decisions: feat/cross-check branch (from `docs/decisions/feat-cross-check.md`)
+
+One short entry per decision: choice, alternatives, source, and what couldn't be verified.
+
+#### 2026-11-11 · How to report agreement on 15 blind AI labels
+- **Choice:** report raw percent agreement (12/15) and Cohen's kappa on lane together, with an
+  approximate 95% CI from SE = sqrt(p_o(1-p_o) / (n(1-p_e)^2)), and say plainly that n=15 is
+  below the suggested minimum of 30, so the CI is only a rough guide. Kappa is computed by the
+  existing `cohen_kappa` in `eval/blind/agreement.py` (reused, not edited).
+- **Why:** McHugh (2012) advises calculating both percent agreement and kappa, gives the SE and
+  CI formula, and suggests at least 30 comparisons. Percent agreement alone ignores chance;
+  kappa alone hides the raw counts on a tiny sample.
+- **Alternatives:** bootstrap CI (unstable at n=15 and adds code); Fleiss kappa (for 3+ raters,
+  not needed); percent agreement only (ignores chance agreement).
+- **Source:** McHugh ML. Interrater reliability: the kappa statistic. Biochem Med
+  2012;22(3):276-82. https://pmc.ncbi.nlm.nih.gov/articles/PMC3900052
+- **Not verified:** the formula was read from the PMC copy, whose equation text renders
+  garbled; it was reconstructed as above. Kappa's known sensitivity to skewed lane counts was
+  not researched further in the time box.
+
+#### 2026-11-11 · Adapter instead of editing agreement.py
+- **Choice:** `eval/blind/agreement.py` already reads the AI file (same worksheet columns), so it
+  is reused as is. `eval/blind/cross_check.py` adds only what it lacks: the column mapping for
+  `comment` (reason), `source_url_used` and `notes`, the POST-HOC alias view (imported from
+  `eval/offline_analysis.py`, unchanged), source checks and the report.
+- **Alternatives:** extend agreement.py (the task forbids it); copy its kappa code (duplication).
+
+#### 2026-11-11 · Automatic source check
+- **Choice:** fetch each distinct source URL once, 3 s apart, with a generic user agent; mark
+  401/403/429/5xx or near-empty pages "needs human check in a browser"; look for the dates,
+  versions, CVE ids and quoted phrases from the AI's reason literally (with common date
+  spellings). The device's own firmware is not a claim unless nothing else is named. A claim
+  counts as supported only if the page opened and every string was found.
+- **Alternatives:** a headless browser (heavier, renders JS, but still can't say whether the
+  page applies to the model); reading every page by hand (that is the human's job, and the
+  triage lines say which pages).
+- **Not verified:** a found string is not proof that the page says it about this model; the
+  report says so.
+
+### Decisions: feat/demo-sheet branch (from `docs/decisions/feat-demo-sheet.md`)
+
+One short entry per decision: choice, alternatives, source, and what couldn't be verified.
+These entries will be merged into `docs/decisions.md` on `main`.
+
+#### 2026-11-11 · Import path: .xlsx via File > Import, one workbook per stage
+- **Choice:** `scripts/export_demo_to_sheet.py` writes three .xlsx files built from the template
+  (`sheet/deming_demo_1_after_run1.xlsx`, `_2_after_approval`, `_3_after_rerun`). In Sheets: File >
+  Import > Upload, then **Create new spreadsheet** for each stage (or **Replace spreadsheet** to swap
+  the stage in one Sheet while recording). Avoid **Insert new sheet(s)**: the tabs would collide
+  with the existing ones, and the Summary formulas point at the tab names `Inventory`,
+  `Decision Log` and `Tickets`.
+- **What to avoid (from Google's pages and the earlier template work):** macros, linked
+  spreadsheets and protected sheets/cells, which Google lists as unsupported or not preserved;
+  Excel tables, named ranges, structured references and dynamic arrays (not used, see
+  `feat-eval.md`); password-protected files, which can't be imported; text that looks like a
+  formula (every data cell is written as a typed text cell, never a formula).
+- **Values:** real dates (`yyyy-mm-dd`), UTC timestamps as real date-times, booleans as TRUE/FALSE,
+  confidences as numbers, and versions/ids as text cells with the `@` format. The `@` format is the
+  guard against `7.0` or `22.3` becoming numbers. Sheets' "Convert text to numbers, dates, and
+  formulas" checkbox appears for CSV/TSV imports. That's another reason to use .xlsx, where each
+  cell already has a type.
+- **Alternatives:** one CSV per tab (loses validation, formatting and formulas, and the checkbox
+  can turn versions into numbers); writing the Sheet directly with the Sheets API (exact, but needs
+  OAuth and a Drive; better for the final product); a single workbook with stage tabs (the
+  Summary formulas would need per-stage copies).
+- **Sources:** https://support.google.com/docs/answer/40608 (import options: create new,
+  insert new sheets, replace spreadsheet, replace current sheet, append, replace at cell; "not
+  all file types have all six options"; no password-protected files) ·
+  https://support.google.com/docs/answer/6055139 (unsupported: macros, linked spreadsheets;
+  protected cells become editable) ·
+  https://sourcetable.com/how-to-google-sheets/how-to-convert-csv-in-google-sheets (secondary:
+  the convert-text checkbox on CSV import)
+- **Not verified:** neither Google page says whether data validation, conditional formatting,
+  column-level number formats or these formulas survive an .xlsx import. Which of the six options
+  the dialog offers for .xlsx wasn't checked either. **No file was imported into a real Google
+  Sheet on this branch.**
+
+#### 2026-11-11 · Stages replay the demo, checked against `run_demo()`
+- **Choice:** `run_demo()` approves inside run 1, so it has no "pending" moment to show. The
+  exporter replays the demo's own steps (`fresh_state`, `run_loop`, `human_edits_inventory`). It
+  runs run 1 with no approver, records the same approval (same approver, same timestamp) as its
+  own step, then makes the owners' edits and runs run 2. Each time it runs, it also calls
+  `sim.demo_scenario.run_demo()` in a temp folder and stops if the final state differs (tabs,
+  proposals, approvals, outbox, metrics; run durations excepted). Both ran on the mock model, with
+  no API calls.
+- **Alternatives:** add a stage hook to `sim/demo_scenario.py` (changes the loop branch's file);
+  copy `sim/demo_state/` after `python -m sim.demo_scenario` (only the final stage exists there).
+
+#### 2026-11-11 · Simulator columns the template lacks go to the right
+- **Choice:** template columns first, in template order, mapped by name. The simulator's other
+  columns come after them, with grey headers: Decision Log M:O (`proposal_id`, `ticket_id`,
+  `notes`), Tickets H:S (`lane` … `last_note`). Inventory needs none. The Summary tab says so in
+  A24. The Settings tab keeps the template's keys and fills in `approver_email`; the simulator's
+  `settings.csv` keys differ (`days_until_reminder` vs `reminder_after_days`, etc.) and are listed
+  on the Summary tab instead.
+- **Proposed for main:** bring the template's Decision Log / Tickets / Settings up to contracts 1.3
+  so the extras become template columns.
+
+#### 2026-11-11 · Bug fixed: Summary lane counts double-counted devices on run 2
+- **Found by:** evaluating the Summary formulas (the `formulas` package, installed in the scratchpad
+  only, on a bounded-range copy) and comparing them with the loop's own values. After run 2 the
+  template gave patch 2 / fine 3 / unknown 2 / 7 devices decided; the loop has 1 / 2 / 1 / 4.
+  Cause: contracts 1.3 `verify` rows (and `remind` rows) carry a `lane`, so a device with an open
+  ticket was counted twice.
+- **Fix:** `scripts/make_sheet_template.py` lane formulas add
+  `'Decision Log'!G:G,"<>verify",'Decision Log'!G:G,"<>remind"` to the COUNTIFS. After the fix
+  all three stages match: latest run, devices, four lane counts, devices decided, unknown rate, and
+  open/escalated/closed tickets (= `metrics.json` `tickets`). `sheet/deming_template.xlsx`
+  regenerated. `tickets_overdue` (uses TODAY()) and `urgent_devices` have no loop counterpart and
+  were checked only by hand (0 and 2).
+- **Not verified:** that Google Sheets evaluates the same values (the `formulas` package is a
+  stand-in for a spreadsheet engine).
+
+### Decisions: feat/owner-sim branch (from `docs/decisions/feat-owner-sim.md`)
+
+One short entry per decision: choice, alternatives, source, and what couldn't be verified.
+These entries will be merged into `docs/decisions.md` on `main`. Synthetic data, simulated.
+
+#### 2026-11-12 · Owner simulator as scripted rules around the unchanged loop
+- **Choice:** `sim/owner_sim.py` drives `sim.loop.run_loop` one daily tick at a time. Scripted
+  owners read the loop's own outbox records and edit the inventory CSV between ticks; a scripted
+  human approver (`PolicyApprover`) records decisions through the loop's existing approver hook.
+  No existing file changed except `.gitignore` (adds `sim/owner_sim_state/`), so no default-OFF
+  wiring was needed.
+- **Why:** the task says reuse the loop, not reimplement it. Driving the real `run_loop` means
+  the approval gate, dedupe and Verifier closing rule under test are the shipped ones.
+- **Alternatives:** a discrete-event framework such as SimPy (https://simpy.readthedocs.io/) or an
+  agent-based one such as Mesa (https://mesa.readthedocs.io/). Rejected: the loop is already a
+  fixed daily schedule, so a plain `for` loop over dates is the whole event model; a framework
+  adds a dependency (we may not edit `requirements.txt` on a branch) and nothing we measure.
+- **Not verified:** SimPy/Mesa pages were not re-opened this session; the rejection rests on
+  the dependency rule, not on their docs.
+
+#### 2026-11-12 · Seeded determinism with `random.Random(seed)` instances
+- **Choice:** one `random.Random(seed)` for the owner->behaviour draw and one
+  `random.Random(f"{seed}|{ticket_id}")` per maintenance-window draw; no global random state, no
+  wall-clock values in the results doc.
+- **Source:** https://docs.python.org/3/library/random.html: "By reusing a seed value, the same
+  sequence should be reproducible from run to run"; str seeds (version 2) use all bits of the
+  string. The same page says most algorithms and seeding functions "are subject to change
+  across Python versions", so reproducibility is claimed **only on Python 3.11** (the repo venv,
+  3.11.7), checked by `eval/test_owner_sim.py::test_runs_are_deterministic`.
+
+#### 2026-11-12 · Audit independent of the loop's bookkeeping
+- **Choice:** `owner_sim.audit` recomputes every metric from the state files plus the simulator's
+  own `owner_events.csv`. A close counts as right only if it passes the contract rule against
+  that run's inventory snapshot AND the simulator recorded a real fix/replacement/identification/
+  removal. A test plants a wrong close and an unapproved outbox record to prove the audit
+  catches them.
+- **Why:** a metric computed by the code under test can share its bug.
+
+#### 2026-11-12 · Reroute is a human Sheet edit, not a loop feature
+- **Choice:** on a "wrong person" reply a scripted steward edits both the Inventory and the
+  Tickets tab `owner_email`. Deming does not parse replies.
+- **Why:** reminders use the Tickets tab `owner_email` captured at open (`sim/loop.py
+  _propose_reminder`), so an Inventory-only edit would keep reminding the wrong person. Reported
+  as a finding in `docs/owner-sim-results.md`; proposing a loop change is left to `main`.
