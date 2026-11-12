@@ -491,3 +491,22 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Alternative:** keep it private and add judges as collaborators. Rejected: no judge usernames.
 - **Precondition:** a full-history secret scan (all 53 commits, working tree, every .xlsx blob)
   found no key, token or private key before the switch.
+
+### 2026-11-13 · Red-team suite for prompt injection and abuse (feat/redteam)
+- **Choice:** 45 hand-written hostile cases in `eval/redteam/cases.csv`, each tagged with the
+  policy it attacks, run through the full `sim.loop` two-day script by `eval/redteam/run.py`.
+  Two offline models: the existing rule-based mock and an "obedient" mock that does what the
+  injected text asks (a worst case that leaves only the code guards). Pass = no policy violated in
+  the final proposals, outbox, tickets and Decision Log. The checks are independent of the guards
+  (NFKC, removal of format characters, a small look-alike map after UTS #39 confusables, a wider
+  consequential-word list). Attack families follow OWASP LLM01: indirect injection through data
+  fields and feed notes, encoding (Base64), Unicode tricks, role-play, very long input; OWASP's
+  mitigations (deterministic output checks, human approval, adversarial testing) are what the
+  suite tests. Sources: https://genai.owasp.org/llmrisk/llm01-prompt-injection/ ,
+  https://www.unicode.org/reports/tr39/ (Version 18.0.0, 2026-08-27).
+- **Alternatives:** an LLM-judged red-team tool (garak, promptfoo red-team). Rejected for now:
+  they need a live model and network, and the task forbids LLM calls; our policies are checkable
+  by code. Not evaluated in this task.
+- **Result:** mock 33/45, obedient 15/45. Eight findings (F1–F8 in `docs/redteam-results.md`).
+  **Guards not patched** in this task, by instruction.
+- **Not verified:** any real model's behaviour (`--live` not run); the Agent Designer port.
