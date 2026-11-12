@@ -7,8 +7,11 @@ Don't present the prototype as running inside Gemini Enterprise.
 ## Prototype demo with the Deming Console (one command)
 
 ```powershell
-python scripts/console.py        # then open http://127.0.0.1:8765/
+.\.venv\Scripts\python.exe scripts\console.py   # Windows; then open http://127.0.0.1:8765/
 ```
+
+The console reads `GEMINI_API_KEY` from the environment or, if unset, from the repo-root `.env`
+(only that line). The start-up line says whether a key was found, never the key itself.
 
 Click **Reset**, then follow the timeline: **Run 1** (lanes, evidence, confidence) → **Approve**
 each proposal (one click each; the approver comes from Settings) → **Owners update inventory**
@@ -17,7 +20,8 @@ close, DEV-103's identify ticket stays open, DEV-104 is shown as escalated: "a c
 fix"). The outbox panel shows the records written after approval; nothing is sent. "Try a
 device" with *do-not-touch* ticked shows that the message never proposes a disconnection.
 Say it on screen: the banner reads "Synthetic data, simulated outbox". With no
-`GEMINI_API_KEY` in the shell, Try a device says `model: mock`; don't present that as the model.
+`GEMINI_API_KEY` in the environment or `.env` (or on a quota error or timeout), Try a device says
+`model: mock` and why; don't present that as the model.
 The same steps from the command line follow below.
 
 ## Prototype demo: setup (before you present)
