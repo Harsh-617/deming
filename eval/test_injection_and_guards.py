@@ -194,6 +194,8 @@ def test_guard_verifier_matches_loop_on_removal():
         assert guards.guard_verifier(out, lane, None, record_present=False)[0].decision == "close"
 
 
+TOUCHABLE = {"do_not_touch": "false"}  # a device that may be changed (F2: a missing value is do-not-touch)
+
 # --- Overdue KEV due date: deadline = as_of_date + kev_overdue_grace_days (agents/planner.md 8) --
 
 def _plan(lane, deadline, body="Please apply the vendor fix by 2022-05-03."):
@@ -215,7 +217,7 @@ def _check(lane, due):
     (21, {"kev_overdue_grace_days": "21"}, "2026-12-03"),     # Settings tab values are text
 ])
 def test_overdue_kev_due_date_moves_patch_deadline(grace, settings, expected):
-    fixed, notes = guards.guard_planner(_plan("patch", "2022-05-03"), {}, _check("patch", "2022-05-03"),
+    fixed, notes = guards.guard_planner(_plan("patch", "2022-05-03"), TOUCHABLE, _check("patch", "2022-05-03"),
                                         as_of_date="2026-11-12", settings=settings)
     assert fixed.deadline.isoformat() == expected
     body = fixed.message.body
@@ -228,7 +230,7 @@ def test_due_date_not_yet_passed_is_kept():
     plan = _plan("patch", "2026-12-01", body="Please apply the vendor fix by 2026-12-01.")
     for due in ("2026-12-01", "2026-11-12"):  # on as_of_date is not "before"
         p = plan.model_copy(update={"deadline": due})
-        fixed, notes = guards.guard_planner(p, {}, _check("patch", due), as_of_date="2026-11-12")
+        fixed, notes = guards.guard_planner(p, TOUCHABLE, _check("patch", due), as_of_date="2026-11-12")
         assert fixed == p and notes == []
 
 
@@ -242,7 +244,7 @@ def test_retire_deadline_is_as_of_plus_retire_days_and_support_end_is_evidence()
     # past: it stays in the message as evidence, the deadline is as_of + retire_days (default 30),
     # with interim isolation advice within 7 days. No CISA wording.
     plan = _retire_plan("2021-12-31", "Please plan replacement by 2021-12-31.")
-    fixed, notes = guards.guard_planner(plan, {}, _check("retire", "2021-12-31"),
+    fixed, notes = guards.guard_planner(plan, TOUCHABLE, _check("retire", "2021-12-31"),
                                         as_of_date="2026-11-12", settings=SETTINGS)
     assert fixed.deadline.isoformat() == "2026-12-12"
     body = fixed.message.body
@@ -258,7 +260,7 @@ def test_retire_deadline_is_as_of_plus_retire_days_and_support_end_is_evidence()
     ({"retire_days": 10}, "2026-11-22", "2026-11-19"),
 ])
 def test_retire_days_come_from_settings(settings, deadline, iso_by):
-    fixed, _ = guards.guard_planner(_retire_plan(None, "Replace it."), {}, _check("retire", "2021-12-31"),
+    fixed, _ = guards.guard_planner(_retire_plan(None, "Replace it."), TOUCHABLE, _check("retire", "2021-12-31"),
                                     as_of_date="2026-11-12", settings=settings)
     assert fixed.deadline.isoformat() == deadline and f"(by {iso_by})" in fixed.message.body
 
@@ -267,7 +269,7 @@ def test_retire_message_with_all_facts_is_left_alone():
     body = ("Vendor support ended on 2021-12-31. Please replace it by 2026-12-12 and isolate it "
             "within 7 days.")
     plan = _retire_plan("2026-12-12", body)
-    fixed, notes = guards.guard_planner(plan, {}, _check("retire", "2021-12-31"),
+    fixed, notes = guards.guard_planner(plan, TOUCHABLE, _check("retire", "2021-12-31"),
                                         as_of_date="2026-11-12", settings=SETTINGS)
     assert fixed == plan and notes == []
 
@@ -290,7 +292,7 @@ def test_ticket_issue_is_an_enum_set_from_the_lane():
     for lane, issue in (("retire", "retire"), ("unknown", "identify"), ("patch", "patch")):
         check = _check(lane, None) if lane != "unknown" else CheckerOutput.model_validate(
             {**GOOD["checker"], "lane": "unknown", "evidence_cve": [], "evidence_lifecycle_id": None})
-        fixed, _ = guards.guard_planner(plan, {}, check)
+        fixed, _ = guards.guard_planner(plan, TOUCHABLE, check)
         assert fixed.ticket.issue == issue
 
 

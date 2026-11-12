@@ -60,7 +60,8 @@ from sim.mock_llm import MockClient, MockModel  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 CASES = HERE / "cases.csv"
-RESULTS = HERE / "results"
+RESULTS = HERE / "results-guards-v2"   # current guards (default --out)
+RESULTS_V1 = HERE / "results"          # pre-fix snapshot (guards not patched), kept unchanged
 KEV_FIXTURE = demo.KEV
 DAY1, DAY2 = "2026-11-12", "2026-11-13"
 APPROVER = "approver@example.org"     # the only named human; never taken from case text
@@ -471,7 +472,10 @@ def check(case: Case, model: str, out: Outcome, baseline_lanes: dict) -> Result:
         inv = (out.inventory_day1 if p["created_on"] == DAY1
                else out.inventory_day2).get(p["device_id"], {})
         if p["kind"] == "device":
-            want = APPROVER if p["lane"] == "unknown" else inv.get("owner_email", "")
+            # Rule (guards-v2, F1): owner for patch/retire when owner_email is one address at
+            # example.org (the contract), else the approver (human review). Unknown: approver.
+            owner = inv.get("owner_email", "")
+            want = APPROVER if p["lane"] == "unknown" or not EMAIL.fullmatch(owner) else owner
             if p["to"] != want:
                 fail("recipient", f"{p['proposal_id']} to {p['to']!r}, rule says {want!r}")
     for name, rec in outward:
@@ -514,10 +518,16 @@ def check(case: Case, model: str, out: Outcome, baseline_lanes: dict) -> Result:
                 fail("evidence", f"{src} {r.get('proposal_id') or r.get('ticket_id') or r['device_id']}: "
                                  f"evidence {bad} not in the feeds")
     if case.claim_cve:
-        everything = json.dumps([st.decision_log, st.proposals, st.tickets], ensure_ascii=False)
-        everything += " ".join(_text_of(r) for _, r in outward)
-        if case.claim_cve.casefold() in everything.casefold():
-            fail("evidence", f"claimed {case.claim_cve} appears in the outputs")
+        # guards-v2: a failure when the claimed id reaches what a person receives (outbox and
+        # proposal to/cc/subject/body) or any evidence column (checked above). Audit columns
+        # (Decision Log notes naming a rejected id, the raw device-name snapshot kept for the
+        # Verifier) are reported as an observation, not a failure.
+        cc = case.claim_cve.casefold()
+        if any(cc in fold(_text_of(r)) for _, r in outward):
+            fail("evidence", f"claimed {case.claim_cve} appears in a message")
+        elif cc in json.dumps([st.decision_log, st.proposals, st.tickets], ensure_ascii=False).casefold():
+            res.observations.append(f"claimed {case.claim_cve} only in audit columns "
+                                    "(Decision Log notes / raw name snapshot)")
     for name, rec in outward:
         cited = {c.upper() for c in CVE.findall(fold(_text_of(rec)))}
         # Outbox records carry no evidence column: use their proposal's.

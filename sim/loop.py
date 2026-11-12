@@ -173,7 +173,8 @@ def typed_settings(raw: dict | None = None) -> dict:
 
 
 def _truthy(v) -> bool:
-    return str(v).strip().lower() == "true"
+    """do_not_touch reading: yes/true/1/y vs no/false/0/n; anything else is true (F2)."""
+    return guards.parse_do_not_touch(v)[0]
 
 
 def _d(s: str) -> dt.date:
@@ -528,6 +529,8 @@ def run_loop(state: State | str | Path = DEFAULT_STATE, *, as_of: str | None = N
                        outcome=why)
             if pid:
                 report.proposals.append(pid)
+                if r.check.lane != "unknown" and (bad := guards.owner_email_problem(d["owner_email"])):
+                    row["notes"] = ";".join(filter(None, [row["notes"], f"{bad}: sent to the approver"]))
             if _truthy(d["do_not_touch"]):
                 row["action_taken"] = "escalated to a named human (do_not_touch)"
             elif r.check.lane == "retire":
@@ -580,15 +583,13 @@ def _expected_to(lane: str, owner: str, settings: dict) -> str:
 
 
 def _safe_body(body: str, did: str, lane: str, evidence: str, deadline: str, dnt: bool,
-               passed: str = "") -> tuple[str, str]:
-    """Rebuild the message body when it carries injected text or (do_not_touch) disconnect words."""
-    if INJECTION.search(body) or (dnt and guards._DISCONNECT.search(body)):
-        ask = ("a named person must decide the next step; Deming proposes no change"
-               if dnt else "please review and act by the deadline")
-        return (f"Device {did}: lane {lane}. Evidence: {evidence or 'none'}. Deadline: "
-                f"{deadline or 'none'}. {ask[0].upper() + ask[1:]}." + (f" {passed}" if passed else "")
-                ), "message body rebuilt by loop guard"
-    return body, ""
+               passed: str = "", fixed_version: str = "") -> tuple[str, str]:
+    """The body that goes into a proposal (F4, guards-v2): always built from trusted fields
+    (guards.trusted_body); the model's draft `body` is never copied. Returns (body, note)."""
+    trusted = guards.trusted_body(did, lane, evidence, deadline, dnt, passed, fixed_version)
+    note = "" if (body or "").strip() in ("", "-", trusted) else \
+        "message body built from trusted fields; model draft not sent"
+    return trusted, note
 
 
 def _propose_device(state, d, r, evidence, run_id, run_seq, as_of, settings, lifecycle_rows):
@@ -609,22 +610,34 @@ def _propose_device(state, d, r, evidence, run_id, run_seq, as_of, settings, lif
     dnt = _truthy(d["do_not_touch"])
     plan = r.plan
     expected = _expected_to(lane, d["owner_email"], settings)
+    # F1: an owner_email that is not one well-formed address is never a recipient; the approver
+    # gets the message and reviews the record (guards.owner_email_problem).
+    bad_owner = guards.owner_email_problem(d["owner_email"]) if lane != "unknown" else None
     drafted_to = ""  # the Planner no longer drafts a recipient (contracts v1.4); code routes by rule
     deadline = plan.deadline.isoformat() if plan.deadline else ""
-    body = plan.message.body if plan.message else ""
-    subject = plan.message.subject if plan.message else f"[Deming] {lane}: {did}"
-    # The deadline sentence (CISA date passed; retire support end + isolation) is rebuilt from
-    # trusted fields if the body is rebuilt.
-    passed = guards.deadline_sentence(r.check, as_of, settings, dnt)
-    body, guard_note = _safe_body(body or "-", did, lane, evidence, deadline, dnt, passed)
-    if not plan.message:
-        guard_note = "planner drafted no message; loop wrote a minimal one"
-    if INJECTION.search(subject):
-        subject = f"[Deming] {lane}: {did}"
-    actions = ["email", "ticket"] + (["calendar"] if lane == "patch" and not dnt else [])
     # fixed_version comes from the governing lifecycle row, used later to judge a version change.
     row = guards._governing_row(r.check, {**d, **r.normalized.model_dump()}, r.lifecycle_candidates)
     fixed = (row or {}).get("fixed_version", "") if lane == "patch" else ""
+    # F4: subject and body are built from trusted fields only (guards.trusted_body), including
+    # the deadline sentence (CISA date passed; retire support end + isolation). The model's
+    # draft, and any inventory or feed free text, is not copied into the message.
+    passed = guards.deadline_sentence(r.check, as_of, settings, dnt)
+    body, guard_note = _safe_body(plan.message.body if plan.message else "", did, lane, evidence,
+                                  deadline, dnt, passed, fixed)
+    subject = guards.trusted_subject(lane, did)
+    if not plan.message:
+        guard_note = "planner drafted no message; loop wrote a minimal one"
+    # F8: CVE ids in the text must be the proposal's own evidence (a second check: the trusted
+    # body only names evidence ids).
+    allowed = [e for e in evidence.split(";") if e.upper().startswith("CVE-")]
+    body, gone_b = guards.strip_unlisted_cves(body, allowed)
+    subject, gone_s = guards.strip_unlisted_cves(subject, allowed)
+    if gone_b or gone_s:
+        guard_note = "; ".join(filter(None, [guard_note, "CVE ids not in the evidence removed: "
+                                             + ";".join(sorted(set(gone_b + gone_s)))]))
+    if bad_owner:
+        guard_note = "; ".join(filter(None, [guard_note, f"{bad_owner}: sent to the approver for review"]))
+    actions = ["email", "ticket"] + (["calendar"] if lane == "patch" and not dnt else [])
     pid = f"P-{run_seq:03d}-{did}"
     state.proposals.append(dict(
         proposal_id=pid, run_id=run_id, created_on=as_of, kind="device", device_id=did,
@@ -632,13 +645,18 @@ def _propose_device(state, d, r, evidence, run_id, run_seq, as_of, settings, lif
         actions=";".join(actions), to=expected,
         cc=settings["approver_email"] if (plan.escalate_to_human or dnt) and expected != settings["approver_email"] else "",
         subject=subject, body=body, drafted_to=drafted_to, expected_to=expected,
-        escalate_to_human=str(plan.escalate_to_human or dnt).lower(), ticket_id="",
+        escalate_to_human=str(plan.escalate_to_human or dnt or bool(bad_owner)).lower(), ticket_id="",
         evidence=evidence, fixed_version=fixed, firmware_at_open=d["firmware_version_raw"],
         device_name_at_open=d["device_name_raw"], last_updated_at_open=d["last_updated"],
         owner_email=d["owner_email"], status="pending", decided_by="", decided_at="",
         executed_at=""))
     why = "proposal drafted; needs a recorded approval"
     return pid, "; ".join(filter(None, [why, guard_note]))
+
+
+def _reminder_to(t: dict, settings: dict) -> str:
+    """Reminders go to the ticket's owner_email, or to the approver if it is not one valid address (F1)."""
+    return settings["approver_email"] if guards.owner_email_problem(t["owner_email"]) else t["owner_email"]
 
 
 def _propose_reminder(state, t, run_id, run_seq, as_of, settings, report, stamp):
@@ -649,12 +667,12 @@ def _propose_reminder(state, t, run_id, run_seq, as_of, settings, report, stamp)
     state.proposals.append(dict(
         proposal_id=pid, run_id=run_id, created_on=as_of, kind="reminder",
         device_id=t["device_id"], issue=t["issue"], dedupe_key=key, lane=t["lane"],
-        priority="", deadline=t["due"], actions="email", to=t["owner_email"], cc="",
+        priority="", deadline=t["due"], actions="email", to=_reminder_to(t, settings), cc="",
         subject=f"[Deming] reminder: {t['ticket_id']} ({t['device_id']})",
         body=(f"Reminder: ticket {t['ticket_id']} for device {t['device_id']} ({t['issue']}) is "
               f"still open. The inventory record does not yet show the requested change. "
               f"Due: {t['due'] or 'none'}."),
-        drafted_to="", expected_to=t["owner_email"], escalate_to_human="false",
+        drafted_to="", expected_to=_reminder_to(t, settings), escalate_to_human="false",
         ticket_id=t["ticket_id"], evidence=t["evidence"], fixed_version=t["fixed_version"],
         firmware_at_open=t["firmware_at_open"], device_name_at_open=t["device_name_at_open"],
         last_updated_at_open=t["last_updated_at_open"], owner_email=t["owner_email"],

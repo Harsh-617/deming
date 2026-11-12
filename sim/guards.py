@@ -8,13 +8,69 @@ from __future__ import annotations
 
 import datetime as dt
 import re
+import unicodedata
 
 from . import retrieval
 from .config import CONFIDENCE_THRESHOLD
 from .models import CheckerOutput, NormalizerOutput, PlannerOutput, VerifierOutput
 
-_DISCONNECT = re.compile(r"\b(disconnect|isolat\w*|unplug|shut\s*down|power\s*off|decommission)\b",
-                         re.IGNORECASE)
+# Consequential (tier 3) wording for do-not-touch devices (F3, guards-v2). Text is folded before
+# matching (fold_text): Unicode NFKC (UAX #15), combining marks and format characters (Cf:
+# zero-width space/joiners, bidi controls, soft hyphen) removed, a small map of Cyrillic/Greek
+# look-alike letters (a subset of UTS #39 confusables.txt) and the digits 0/1 mapped to Latin,
+# then casefolded. Two passes: phrases on the folded words, and distinctive stems on the
+# letters-only text ("dis-con nect", "p.o.w.e.r o.f.f"). A false positive only makes the body
+# fall back to the trusted do-not-touch template, so the list errs wide. Not covered: other
+# languages, paraphrases without these words, and look-alikes outside the map.
+_CONFUSABLE = str.maketrans({
+    # Cyrillic
+    "а": "a", "в": "b", "е": "e", "ё": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x",
+    "і": "i", "ї": "i", "ѕ": "s", "ј": "j", "ӏ": "l", "һ": "h", "ԁ": "d", "к": "k", "м": "m",
+    "н": "h", "т": "t", "ԛ": "q", "ԝ": "w", "п": "n",
+    # Greek
+    "α": "a", "β": "b", "ε": "e", "ι": "i", "κ": "k", "ν": "v", "ο": "o", "ρ": "p", "τ": "t",
+    "υ": "u", "χ": "x", "η": "n", "μ": "u",
+    # Latin look-alikes and digits used as letters
+    "ı": "i", "ȷ": "j", "ɡ": "g", "ℓ": "l", "0": "o", "1": "l",
+})
+_CONSEQUENTIAL_WORDS = re.compile(
+    r"\b(disconnect\w*|isolat\w*|unplug\w*|shut\s*(it\s+|them\s+|this\s+)?down|"
+    r"power(ed|ing)?[\s-]*(it\s+|this\s+)?(off|down|cycle)|turn(ed)?\s+(it\s+|this\s+)?off|"
+    r"switch(ed)?\s+(it\s+|this\s+)?off|pull(ing)?\s+(the\s+)?(plug|cable|power)|"
+    r"cut(ting)?\s+(the\s+|its\s+)?(power|network|cable)|factory[\s-]*reset|reset|reboot\w*|"
+    r"restart\w*|wipe\w*|reimag\w*|decommission\w*|offline|quarantin\w*|"
+    r"remove\s+(it\s+)?from\s+(the\s+)?network|block\s+(all\s+)?traffic|replac\w*)\b")
+_CONSEQUENTIAL_STEMS = ("disconnect", "isolat", "unplug", "shutdown", "shutitdown", "poweroff",
+                        "powerdown", "poweritoff", "powercycle", "pulltheplug", "factoryreset",
+                        "decommission", "takeoffline", "takeitoffline", "turnitoff", "switchitoff",
+                        "quarantin")
+
+
+def fold_text(s: str | None) -> str:
+    """Matching form of untrusted text: NFKC, no marks/format characters, look-alikes mapped."""
+    s = unicodedata.normalize("NFKD", unicodedata.normalize("NFKC", s or ""))
+    s = "".join(c for c in s if unicodedata.category(c) not in ("Mn", "Me", "Cf"))
+    return unicodedata.normalize("NFKC", s).casefold().translate(_CONFUSABLE)
+
+
+def consequential_wording(text: str | None) -> str | None:
+    """The first consequential (tier 3) phrase in `text` after folding, or None."""
+    t = fold_text(text)
+    if m := _CONSEQUENTIAL_WORDS.search(t):
+        return m.group(0)
+    compact = "".join(c for c in t if c.isalpha())
+    return next((w for w in _CONSEQUENTIAL_STEMS if w in compact), None)
+
+
+class _Consequential:
+    """Drop-in for the old `_DISCONNECT` regex (scripts/console.py calls `.search`)."""
+
+    @staticmethod
+    def search(text):
+        return consequential_wording(text)
+
+
+_DISCONNECT = _Consequential()
 _SECURE_CLAIM = re.compile(r"\b(is|now|are)\s+(secure|safe|fixed|patched)\b", re.IGNORECASE)
 
 
@@ -373,12 +429,115 @@ def deadline_sentence(check: CheckerOutput, as_of: str | None, settings: dict | 
     return ""
 
 
+# owner_email (F1, guards-v2). One plain addr-spec (RFC 5322 3.4.1, local-part "@" domain), in a
+# deliberately narrow ASCII subset: dot-atom local part from [A-Za-z0-9._%+-], a dotted DNS
+# domain of letter/digit/hyphen labels and an alphabetic TLD. Anything else is not a recipient:
+# two addresses (",", ";", space), display names or angle brackets, CR/LF or any control
+# character (RFC 5322 2.2: a header field ends at CRLF, so a CRLF in the value starts a new
+# header such as "Bcc:"), and every non-ASCII character (a look-alike domain such as Cyrillic
+# "еxample.org"; UTS #39 section 4). Punycode labels ("xn--") are refused too: they are how a
+# non-ASCII domain is written in ASCII. email.utils.parseaddr is not used: it is lenient by
+# design before Python 3.13 (strict=True became the default in 3.13; this repo runs 3.11).
+_LOCAL = r"[A-Za-z0-9%+_-]+(?:\.[A-Za-z0-9%+_-]+)*"
+_LABEL = r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?"
+_ADDR = re.compile(rf"{_LOCAL}@(?:{_LABEL}\.)+[A-Za-z]{{2,63}}")
+
+
+def owner_email_problem(addr) -> str | None:
+    """Why `addr` can't be used as a recipient, or None when it is one well-formed address."""
+    if not isinstance(addr, str) or not addr:
+        return "owner_email is empty"
+    if any(c in addr for c in "\r\n"):
+        return "owner_email contains a line break (header injection)"
+    if any(ord(c) < 32 or ord(c) == 127 for c in addr):
+        return "owner_email contains a control character"
+    if not addr.isascii():
+        return "owner_email contains non-ASCII characters (possible look-alike domain)"
+    if addr.count("@") != 1:
+        return "owner_email is not exactly one address"
+    if len(addr) > 254 or not _ADDR.fullmatch(addr):
+        return "owner_email is not one plain address (local@domain)"
+    if any(lbl.lower().startswith("xn--") for lbl in addr.split("@")[1].split(".")):
+        return "owner_email domain is an internationalized (punycode) name"
+    return None
+
+
 def recipient(lane: str, device: dict, settings: dict | None) -> str:
     """Message recipient, set by rule and never by the model: the approver for unknown devices
-    (a human must identify them), else the device's owner_email."""
+    (a human must identify them), else the device's owner_email. An owner_email that is not one
+    well-formed ASCII address (owner_email_problem) is never a recipient: the message goes to the
+    approver, who reviews the record (human-review path)."""
+    approver = (settings or {}).get("approver_email") or "approver@example.org"
     if lane == "unknown":
-        return (settings or {}).get("approver_email") or "approver@example.org"
-    return device.get("owner_email") or ""
+        return approver
+    owner = device.get("owner_email") or ""
+    return approver if owner_email_problem(owner) else owner
+
+
+# CVE ids in message text (F8, guards-v2). Matched after removing format characters and NFKC
+# (so fullwidth or zero-width-split ids are found), with any dash or space between the parts.
+_CVE_TEXT = re.compile(r"CVE[\s\-‐-―]*([0-9]{4})[\s\-‐-―]*([0-9]{4,})", re.IGNORECASE)
+CVE_REMOVED = "[CVE id removed: not in the evidence]"
+
+
+def strip_unlisted_cves(text: str | None, allowed) -> tuple[str, list[str]]:
+    """Remove every CVE id in `text` that is not in `allowed`. Returns (text, removed ids).
+    Text without such an id is returned unchanged (not even normalized)."""
+    text = text or ""
+    ok = {str(a).strip().upper() for a in allowed or ()}
+    flat = unicodedata.normalize("NFKC", "".join(c for c in text if unicodedata.category(c) != "Cf"))
+    found = [(m, f"CVE-{m.group(1)}-{m.group(2)}") for m in _CVE_TEXT.finditer(flat)]
+    bad = [cid for _, cid in found if cid not in ok]
+    if not bad:
+        return text, []
+    return _CVE_TEXT.sub(lambda m: m.group(0) if f"CVE-{m.group(1)}-{m.group(2)}" in ok
+                         else CVE_REMOVED, flat), bad
+
+
+# Message text (F4, guards-v2). What a person receives is built here from trusted fields only:
+# device_id, lane, evidence ids (validated against the feed candidates), the deadline, the
+# fixed version from the lifecycle row and the deadline sentences above. Inventory and feed
+# free text (device_name_raw, location, notes, firmware text) and the model's draft are never
+# copied in, so no link, image, HTML, encoded payload or CVE id from those fields can reach it.
+TRUSTED_FOOTER = ("Inventory text for this device is not repeated here. Deming sends this only "
+                  "after a named person approves it.")
+_SAFE_TOKEN = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,63}")
+_SAFE_DATE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
+
+
+def trusted_subject(lane: str, device_id: str) -> str:
+    did = device_id if _SAFE_TOKEN.fullmatch(device_id or "") else "device"
+    return f"[Deming] {lane}: {did}"
+
+
+def trusted_body(device_id: str, lane: str, evidence: str, deadline: str, dnt: bool,
+                 trusted_sentence: str = "", fixed_version: str = "") -> str:
+    """The message body, from trusted fields only (see above). Values that don't look like an
+    id, a date or a version are left out rather than copied."""
+    did = device_id if _SAFE_TOKEN.fullmatch(device_id or "") else "(see device id in the ticket)"
+    ids = [e for e in (evidence or "").split(";") if _SAFE_TOKEN.fullmatch(e)]
+    due = deadline if _SAFE_DATE.fullmatch(deadline or "") else ""
+    fixed = ";".join(f for f in (fixed_version or "").split(";") if parse_version(f.strip())
+                     or version_family(f.strip()))
+    if dnt:
+        ask = ("This device is flagged do-not-touch. A named person must decide the next step; "
+               "Deming proposes no change to the device.")
+    elif lane == "patch":
+        ask = ("A vendor fix exists for this device. Please apply it"
+               + (f" (fixed version {fixed})" if fixed else "") + (f" by {due}." if due else "."))
+    elif lane == "retire":
+        ask = "Vendor support for this device has ended. Please plan its replacement."
+    elif lane == "unknown":
+        ask = ("Deming could not identify this device with enough confidence. Please identify it "
+               "(vendor, product, firmware version) in the inventory record.")
+    else:
+        ask = "No action is requested."
+    parts = [f"Device {did}: lane {lane}.", ask,
+             f"Evidence: {';'.join(ids) or 'none'}.", f"Deadline: {due or 'none'}."]
+    if trusted_sentence:
+        parts.append(trusted_sentence)
+    parts.append(TRUSTED_FOOTER)
+    return " ".join(parts)
 
 
 def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
@@ -394,7 +553,9 @@ def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
     model's to choose (see `recipient`)."""
     notes = []
     upd = {}
-    dnt = _truthy(device.get("do_not_touch"))
+    dnt, dnt_flag = parse_do_not_touch(device.get("do_not_touch"))
+    if dnt_flag:
+        notes.append(dnt_flag)
     trusted = deadline_sentence(checker, as_of_date, settings, dnt)
     if as_of_date and checker.lane == "retire":
         want = retire_deadline(as_of_date, settings)
@@ -416,6 +577,18 @@ def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
             upd["message"] = out.message.model_copy(
                 update={"body": f"{out.message.body.rstrip()} {trusted}"})
             notes.append("message: added that the CISA due date has passed")
+    if checker.lane == "unknown" and out.deadline is not None:
+        # F6: an unknown device has no deadline by contract; a model-written one is dropped.
+        upd["deadline"] = None
+        notes.append(f"lane unknown: model deadline {out.deadline} removed (unknown has none)")
+    msg = upd.get("message", out.message)
+    if msg:
+        body, gone_b = strip_unlisted_cves(msg.body, checker.evidence_cve)
+        subject, gone_s = strip_unlisted_cves(msg.subject, checker.evidence_cve)
+        if gone_b or gone_s:
+            upd["message"] = msg.model_copy(update={"body": body, "subject": subject})
+            notes.append("message: CVE ids not in the evidence removed: "
+                         + ";".join(sorted(set(gone_b + gone_s))))
     if not out.requires_approval:
         upd["requires_approval"] = True
         notes.append("requires_approval forced true")
@@ -431,14 +604,15 @@ def guard_planner(out: PlannerOutput, device: dict, checker: CheckerOutput,
             upd["escalate_to_human"] = True
             notes.append("do_not_touch: escalate_to_human forced true")
         msg = upd.get("message", out.message)
-        if msg and _DISCONNECT.search(msg.body):
+        if msg and (consequential_wording(msg.body) or consequential_wording(msg.subject)):
             body = ("This device is flagged do-not-touch. Deming makes no disconnection or "
                     "isolation proposal; a named person must decide the next step. "
                     f"Lane: {checker.lane}. Evidence: "
                     f"{';'.join(checker.evidence_cve + ([checker.evidence_lifecycle_id] if checker.evidence_lifecycle_id else [])) or 'none'}.")
             if trusted:
                 body += " " + trusted
-            upd["message"] = msg.model_copy(update={"body": body})
+            upd["message"] = msg.model_copy(update={
+                "body": body, "subject": f"[Deming] {checker.lane}: do-not-touch device, a named person decides"})
             notes.append("do_not_touch: disconnect/isolate wording removed from message")
     return out.model_copy(update=upd), notes
 
@@ -468,5 +642,30 @@ def guard_verifier(out: VerifierOutput, ticket_lane: str, recheck_lane: str | No
     return out.model_copy(update=upd), notes
 
 
+# do_not_touch (F2, guards-v2). The contract value is true/false; people also type yes/no, 1/0,
+# y/n. Matching is case-insensitive after trimming spaces. Anything else (blank, "on", "maybe",
+# "yes please", look-alike letters) is NOT read as false: it fails safe to do-not-touch and is
+# flagged so a human fixes the record.
+DNT_TRUE = frozenset({"true", "yes", "y", "1"})
+DNT_FALSE = frozenset({"false", "no", "n", "0"})
+
+
+def parse_do_not_touch(v) -> tuple[bool, str | None]:
+    """(do_not_touch, flag). flag is None for a recognised value, else why it was taken as true."""
+    if isinstance(v, bool):
+        return v, None
+    s = str("" if v is None else v).strip().lower()
+    if s in DNT_TRUE:
+        return True, None
+    if s in DNT_FALSE:
+        return False, None
+    return True, f"do_not_touch value {str(v)[:40]!r} not recognised: treated as true"
+
+
+def do_not_touch(device: dict) -> bool:
+    return parse_do_not_touch(device.get("do_not_touch"))[0]
+
+
 def _truthy(v) -> bool:
-    return v is True or str(v).strip().lower() == "true"
+    """do_not_touch reading (kept name for callers): see parse_do_not_touch."""
+    return parse_do_not_touch(v)[0]
