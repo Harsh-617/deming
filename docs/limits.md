@@ -61,8 +61,9 @@ firmware field and won't compare what it can't parse)
   `fixed_version` also holds only `12.11.4`, with no T35 train. Before the correction, DEV-052
   rep 1 counted as a false alarm; now there is none.
 - DEV-012 and DEV-016 above also trace partly to blank `fixed_version` cells.
-- `endoflife.date` was not used: its API covers network software trains only, not consumer
-  routers, cameras, NAS or most VPN appliances (`docs/feeds.md`).
+- `endoflife.date` was not used in the published run: its API covers network software trains
+  only, not consumer routers, cameras, NAS or most VPN appliances (`docs/feeds.md`). The optional
+  extended file (section 9) takes FortiOS trains from it.
 
 **Normalization leading to a retrieval miss**
 - **DEV-036** "sonicwal sma410": rep 1 normalized it to "SMA400", the right lifecycle row (LC-012)
@@ -120,3 +121,23 @@ Read from Google's docs on 11 Nov 2026, **not confirmed on a live license** (`do
 
 The loop writes outward actions as JSON records in `outbox/` (`sim/loop.py`). No email, calendar
 invite or ticket is actually sent. The demo approver is scripted (`sim/demo_scenario.py`).
+
+## 9. Extended lifecycle file: optional, and its effect on lanes is not measured
+
+- **The published Deming results used only the original 30 rows of `data/lifecycle.csv`.** That
+  file is unchanged.
+- `data/lifecycle_extended.csv` (12 rows, built by `scripts/build_lifecycle_extended.py`) adds
+  rows only where a source states the date: WatchGuard Firebox T35 / T35-W / T35-R / T35-DW
+  (https://www.watchguard.com/node/111406), Cisco ASA 9.16 software, Citrix NetScaler 13.1, and
+  six FortiOS trains from endoflife.date. It is **off by default**; turn it on with
+  `DEMING_LIFECYCLE_EXTENDED=1` or `retrieval.load_lifecycle(..., include_extended=True)`.
+- It widens **retrieval coverage** (`docs/lifecycle-coverage.md`): dated coverage goes from
+  21/60 to 22/60 devices (DEV-039), and the T35 rows are returned for all 8 Firebox devices but
+  only on the vendor/product name, because ground truth has no model field.
+- **Its effect on lane accuracy has NOT been measured.** That needs a new Gemini run, which was
+  not done. It may change what the Checker reads first: for DEV-039 the ASA 9.16 software row
+  (support to 2026-11-18) now ranks above the ASA 5506-X hardware row LC-019 (support ended
+  2026-08-31).
+- Still no explicit, sourced date for Ivanti Connect Secure 22.x, NetScaler 14.1 (quarter only),
+  MikroTik RouterOS, WatchGuard Fireware 12.x, Sophos XGS 2100, SonicWall SMA 1000 or NUUO
+  NVRmini 3; these were skipped, not guessed (`docs/decisions.md`).

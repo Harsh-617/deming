@@ -13,6 +13,7 @@ from __future__ import annotations
 import csv
 import fnmatch
 import json
+import os
 import re
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -35,9 +36,36 @@ def load_kev(path: str | Path) -> list[dict]:
         return json.load(f)["vulnerabilities"]
 
 
-def load_lifecycle(path: str | Path) -> list[dict]:
+# Optional extra lifecycle rows (scripts/build_lifecycle_extended.py). OFF by default: the published
+# Deming results used data/lifecycle.csv alone. Turn on per call (include_extended=True) or with
+# DEMING_LIFECYCLE_EXTENDED=1. Its effect on lane accuracy has not been measured.
+EXTENDED_LIFECYCLE_ENV = "DEMING_LIFECYCLE_EXTENDED"
+EXTENDED_LIFECYCLE_PATH = Path(__file__).resolve().parents[1] / "data" / "lifecycle_extended.csv"
+
+
+def extended_lifecycle_enabled(include_extended: bool | None = None) -> bool:
+    """An explicit argument wins; otherwise the environment variable (1/true/yes/on)."""
+    if include_extended is not None:
+        return include_extended
+    return os.environ.get(EXTENDED_LIFECYCLE_ENV, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _read_lifecycle(path: str | Path) -> list[dict]:
     with open(path, encoding="utf-8", newline="") as f:
         return list(csv.DictReader(f))
+
+
+def load_lifecycle(path: str | Path, include_extended: bool | None = None,
+                   extended_path: str | Path = EXTENDED_LIFECYCLE_PATH) -> list[dict]:
+    """Rows of `path`; with the extended file switched on, its rows are appended after them."""
+    rows = _read_lifecycle(path)
+    if not extended_lifecycle_enabled(include_extended):
+        return rows
+    extra = _read_lifecycle(extended_path)
+    clash = {r["lifecycle_id"] for r in rows} & {r["lifecycle_id"] for r in extra}
+    if clash:
+        raise ValueError(f"lifecycle_id in both {path} and {extended_path}: {sorted(clash)}")
+    return rows + extra
 
 
 @dataclass

@@ -9,3 +9,4 @@ eval/results/
 sim/state/
 sim/demo_state/
 sim/owner_sim_state/
+console_state/

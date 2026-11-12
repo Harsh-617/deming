@@ -4,6 +4,22 @@ The timeline is the PRD's (`docs/PRD.md`, "Demo"). There are two versions: the *
 (Python, runs today, no key needed) and the **Agent Designer demo** (only once the license works).
 Don't present the prototype as running inside Gemini Enterprise.
 
+## Prototype demo with the Deming Console (one command)
+
+```powershell
+python scripts/console.py        # then open http://127.0.0.1:8765/
+```
+
+Click **Reset**, then follow the timeline: **Run 1** (lanes, evidence, confidence) → **Approve**
+each proposal (one click each; the approver comes from Settings) → **Owners update inventory**
+(DEV-101 → 7.0.14, DEV-102 removed, DEV-104 → 7.0.12) → **Run 2 verify** (T-0001 and T-0002
+close, DEV-103's identify ticket stays open, DEV-104 is shown as escalated: "a change is not a
+fix"). The outbox panel shows the records written after approval; nothing is sent. "Try a
+device" with *do-not-touch* ticked shows that the message never proposes a disconnection.
+Say it on screen: the banner reads "Synthetic data, simulated outbox". With no
+`GEMINI_API_KEY` in the shell, Try a device says `model: mock`; don't present that as the model.
+The same steps from the command line follow below.
+
 ## Prototype demo: setup (before you present)
 
 ```powershell

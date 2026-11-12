@@ -1,1 +1,2 @@
 data/feeds/*.json -text
+data/feeds/endoflife/*.json -text
