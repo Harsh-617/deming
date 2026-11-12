@@ -8,7 +8,7 @@ Don't present the prototype as running inside Gemini Enterprise.
 
 ```powershell
 .venv\Scripts\Activate.ps1
-python -m pytest -q                 # expect 396 passed
+python -m pytest -q                 # all tests should pass
 python -m sim.demo_scenario         # dry run; state in sim/demo_state/
 ```
 

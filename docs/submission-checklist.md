@@ -62,15 +62,14 @@ Other access notes:
 - [ ] The briefing said reviewers will be invited into each team's Gemini Enterprise app
       (`docs/reference/full-report.md`). That applies to the 17 Nov final, once the Agent Designer
       build exists.
-- [ ] No LICENSE file exists (still true on 2026-11-12). Decide whether to add one before making
-      the repo public.
+- [x] **License:** MIT, in `LICENSE` at the repo root (added 2026-11-12 on `fix/submit-ready`).
 
 ## Last-minute checks (run on the commit you submit)
 
 - [ ] `main` has every branch merged and is pushed (`git branch --no-merged main` prints nothing;
       true on 2026-11-12 after `fix/final-polish`, re-check on the day).
-- [ ] **Tests pass:** `python -m pytest -q` (464 passed, 1 skipped on `fix/t35-labels`,
-      2026-11-12; the skip is the optional `formulas` check, which passes when `formulas` is installed).
+- [ ] **Tests pass:** `python -m pytest -q`. All tests should pass; one is skipped
+      unless the optional `formulas` package is installed.
 - [ ] **README commands tested** on a fresh clone with a fresh venv: install, tests,
       `python eval/baseline.py`, the `run_eval` command, `python -m sim.demo_scenario`.
 - [ ] **No secrets:**

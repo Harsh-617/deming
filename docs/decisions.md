@@ -472,3 +472,22 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
   re-scored. Old labels reproduce the published `offline_analysis.md` byte-for-byte.
 - **Not verified:** that the synthetic names mean a plain T35 and not a T35-R / T35-DW recorded
   without a suffix. A human reviewer must confirm.
+
+### 2026-11-12 · MIT license and going public (fix/submit-ready)
+- **Choice:** MIT `LICENSE` at the repo root, copyright "2026 Gitgud (Harsh Mahendra Kudu,
+  Vaishya Surya Kumar Kamalapati)". GitHub's licensing page says to put the license file in the
+  root, points to choosealicense.com, and notes that without a license default copyright applies
+  and nobody may reuse the code. GitHub detects the license with Licensee, so the standard MIT
+  text is kept unchanged. Source:
+  https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository
+- **Alternatives:** Apache-2.0 (adds a patent grant and NOTICE handling, more than a hackathon
+  prototype needs); no license (judges could read it but not reuse it). Chosen by the team.
+- **Visibility:** `gh repo edit Harsh-617/deming --visibility public --accept-visibility-change-consequences`.
+  The gh manual says the accept flag is required with `--visibility` and lists consequences
+  (stars/watchers lost, forks detached, push rulesets disabled, Actions logs visible). GitHub's
+  visibility page adds that the whole code and history become readable by anyone. Sources:
+  https://cli.github.com/manual/gh_repo_edit ,
+  https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/setting-repository-visibility
+- **Alternative:** keep it private and add judges as collaborators. Rejected: no judge usernames.
+- **Precondition:** a full-history secret scan (all 53 commits, working tree, every .xlsx blob)
+  found no key, token or private key before the switch.

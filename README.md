@@ -91,7 +91,8 @@ Every command below was run on this branch on 2026-11-11 unless marked otherwise
 
 **Requirements**
 
-- **Python 3.11.** Tested on 3.11.7 only (Windows 11). Other versions weren't tried.
+- **Python 3.11 (recommended).** Developed and tested on 3.11.7 (Windows 11). The tests also
+  pass on Python 3.14, but 3.11 is the tested version; use it if you can.
 - **git**, to clone the repo and for the commit hooks below. **gh** (GitHub CLI) only if you
   want to open pull requests from the command line.
 - No API key for anything except the full run at the end of this section.
@@ -99,12 +100,16 @@ Every command below was run on this branch on 2026-11-11 unless marked otherwise
 **Install**
 
 ```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+py -3.11 -m venv .venv          # Windows (Python launcher); elsewhere: python3.11 -m venv .venv
+.venv\Scripts\Activate.ps1      # elsewhere: source .venv/bin/activate
+python --version                # must print Python 3.11.x before you install
 python -m pip install -r requirements-lock.txt
 git config core.hooksPath "$(git rev-parse --show-toplevel)/scripts/githooks"   # blocks committing .env or Google keys
 ```
 
+- If `py -3.11` says no such runtime (`py -0` lists what the launcher knows; a conda Python is
+  not registered with it), run venv with the full path to a 3.11 interpreter instead, e.g.
+  `& "<path to python 3.11>\python.exe" -m venv .venv`.
 - If `Activate.ps1` fails with "running scripts is disabled on this system", allow local scripts
   for your user once: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, or for this window
   only: `Set-ExecutionPolicy -Scope Process Bypass`. Then activate again.
@@ -151,7 +156,20 @@ runs and the earlier (published) one is the primary.
 
 **What a fresh clone cannot reproduce.** The model's responses for the published run are in a
 local response cache (`.cache/`, gitignored), which is not in the repo. Without it:
-- `eval/offline_analysis.py` stops with `cache miss` (it never calls the API). So the
+- `eval/offline_analysis.py` stops with `cache miss` (it never calls the API). This is
+  expected on a fresh clone. The command that produced the published tables on the
+  maintainers' machine (where `.cache/` exists) is:
+
+  ```powershell
+  python eval/offline_analysis.py --results eval/results/20261112T152247Z `
+    --baseline eval/runs/baseline-20261111T075945Z/baseline.csv `
+    --deming eval/runs/deming-20261111T075938Z/deming.csv eval/runs/deming-20261111T081026Z/deming.csv
+  ```
+
+  It writes `offline_analysis.md` and `.json` into the `--results` folder (overwriting the
+  published copies there). Defaults: `--three-repeat-ids DEV-001:DEV-040` and
+  `--ground-truth data/ground_truth.csv` (the corrected labels); pass `--ground-truth` with the
+  old file (`git show f1791ae:data/ground_truth.csv`) to re-score the original labels. So the
   **repeat 1 column** of the evaluation table below (strict product match, exposure precision
   and recall), the per-group tables per repeat, the three-repeat stability footnote and the
   **post-hoc alias numbers** (0.30 / 0.90 / 0.95) can't be regenerated from a clone.
@@ -279,3 +297,8 @@ listed, and prompts written to be portable to a no-code platform. Source: `docs/
 Layout: `data/` inventory and feeds · `agents/` prompts · `schemas/` JSON schemas · `sim/`
 pipeline and loop · `eval/` baseline, metrics, tests, published runs · `scripts/` tools ·
 `docs/` documentation.
+
+## License
+
+MIT, see `LICENSE`. Copyright 2026 Gitgud (Harsh Mahendra Kudu, Vaishya Surya Kumar
+Kamalapati).
