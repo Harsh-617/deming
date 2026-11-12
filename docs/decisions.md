@@ -491,3 +491,34 @@ One short entry per decision: choice, alternatives, source, and what couldn't be
 - **Alternative:** keep it private and add judges as collaborators. Rejected: no judge usernames.
 - **Precondition:** a full-history secret scan (all 53 commits, working tree, every .xlsx blob)
   found no key, token or private key before the switch.
+
+### 2026-11-12 · Deming Console: local interactive page with zero new dependencies (feat/console)
+- **Choice:** Python standard library `http.server.ThreadingHTTPServer` in `scripts/console.py`
+  plus one self-contained page, `scripts/console.html` (inline CSS/JS, no CDN, no network at
+  runtime). It binds to `127.0.0.1` only and has no option to change that; the docs say the
+  default binds to all interfaces and show `--bind 127.0.0.1` for localhost only, and warn that
+  `http.server` "is not recommended for production. It only implements basic security checks".
+  `ThreadingHTTPServer` (3.7+) is used because the docs note browsers pre-open sockets, which
+  the single-threaded server waits on. `log_message` is overridden to log method, path and
+  status only. Source: https://docs.python.org/3/library/http.server.html
+- **Browser hardening:** a per-response nonce Content-Security-Policy (`default-src 'none'`,
+  `script-src`/`style-src` nonce only, `connect-src 'self'`) so the page can't load or call
+  anything off-machine; MDN says `'unsafe-inline'` "defeats much of the purpose of having a
+  CSP", so it is not used. Source:
+  https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy . All data
+  is rendered with `textContent` (device names may hold injection text). POSTs need
+  `Content-Type: application/json`, a loopback `Host` and, when present, a same-origin `Origin`,
+  so another web page can't drive the approve endpoint (my own reasoning, not from a cited page).
+- **Gemini timeout:** `google-genai` `HttpOptions.timeout` is in milliseconds (checked in the
+  installed google-genai 3.0.0 field description), so 20 000; SDK retry off, runner retries 0,
+  plus a 20 s wall-clock limit on the whole pipeline. Any failure falls back to the mock.
+- **Alternatives:** Flask / FastAPI + uvicorn (new dependencies, more to audit for a one-day
+  page); a static HTML file reading the CSV state (can't run the pipeline or record approvals);
+  Streamlit (a large new dependency for one page).
+- **Reuse, no new logic:** lanes, approvals and verification come from `sim/loop.py` and
+  `sim/demo_scenario.py`; `run_loop` is always called with `approver=None`; the one call to
+  `record_approval` is the Approve click. The "Try a device" message uses the loop's own
+  `_safe_body` check (a private helper) so it shows what a proposal would contain.
+- **Not verified:** real Gemini calls from the console (none were made; tests use the mock and
+  a fake client); behaviour in browsers other than the Playwright Chromium used for the check.
+
