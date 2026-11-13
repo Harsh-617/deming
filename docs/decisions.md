@@ -1465,3 +1465,11 @@ These entries will be merged into `docs/decisions.md` on `main`. Synthetic data,
   `offline_analysis.py`, baseline, owner-sim).
 - **Not verified:** any real model; real mail systems (header injection is shown only as a value in
   a JSON outbox record); renderers of the Sheet or console showing the audit columns.
+
+### 2026-11-13 · Public demo page on GitHub Pages (main)
+- **Choice:** one self-contained static HTML page (`docs/demo/index.html`, inline CSS/JS/JSON, CSP `default-src 'none'`), served by GitHub Pages from `main` `/docs`, with `docs/.nojekyll` so files are served as-is.
+- **Alternatives:** a GitHub Actions Pages workflow (more moving parts); a hosted live demo (would need a key and a server; rejected: the page must not be a live system).
+- **Source:** https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site , https://docs.github.com/en/rest/pages/pages#create-a-github-pages-site (checked from memory of the docs within the time limit; not re-read in full).
+- **Data:** demo stages from `scripts/export_demo_to_sheet.run_stages` (mock model, temp folder); numbers from `eval/results/20261112T152247Z/offline_analysis.json` and the two red-team `summary.md` files. `python scripts/build_demo_page.py --check` and `eval/test_demo_page.py` fail if the page drifts.
+- **Not verified:** rendering in a real browser (the script was executed in Node with a stub DOM); screen-reader behaviour.
+

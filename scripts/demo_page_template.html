@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:">
+<title>Deming demo replay</title>
+<style>
+:root{--bg:#fafaf7;--fg:#1d1d1b;--mut:#62625c;--card:#fff;--line:#deded6;--acc:#1f5f8b;
+--patch:#b45309;--retire:#b91c1c;--fine:#15803d;--unknown:#6b7280;--warn:#fff4d6;}
+@media (prefers-color-scheme:dark){:root{--bg:#161614;--fg:#ecece6;--mut:#a3a39b;--card:#20201d;
+--line:#3a3a35;--acc:#7cb6e0;--warn:#3b3218;}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:16px}
+h1{font-size:1.6rem;margin:.4rem 0}h2{font-size:1.25rem;margin:2rem 0 .5rem}h3{font-size:1.05rem;margin:1.2rem 0 .4rem}
+a{color:var(--acc)}
+.banner{background:var(--warn);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-weight:600}
+.mut{color:var(--mut)}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin:1rem 0}
+.steps button{flex:1 1 180px;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;cursor:pointer;font:inherit;text-align:left}
+.steps button[aria-current="step"]{border-color:var(--acc);box-shadow:inset 0 -3px 0 var(--acc)}
+.steps button:disabled{opacity:.45;cursor:not-allowed}
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:10px 0}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--mut)}
+.chip{display:inline-block;padding:1px 8px;border-radius:99px;color:#fff;font-size:.8rem;font-weight:600}
+.patch{background:var(--patch)}.retire{background:var(--retire)}.fine{background:var(--fine)}.unknown{background:var(--unknown)}
+.st{font-weight:600}.st-escalated{color:var(--retire)}.st-closed{color:var(--fine)}
+pre{white-space:pre-wrap;word-break:break-word;margin:.3rem 0;font:13px/1.45 ui-monospace,Consolas,monospace}
+.btn{padding:8px 14px;border-radius:6px;border:1px solid var(--acc);background:var(--acc);color:#fff;font:inherit;cursor:pointer}
+.big{font-size:1.4rem;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.esc{border-left:4px solid var(--retire)}
+</style>
+</head>
+<body>
+<main>
+<p class="banner" role="note">Recorded replay on synthetic data, simulated outbox, not a live system.
+Nothing on this page sends email, opens tickets or touches any device.</p>
+<h1>Deming: demo replay</h1>
+<p class="mut">Deming reads a synthetic device inventory, normalizes device names, checks them against
+CISA KEV and end-of-life data, assigns a lane (patch / retire / fine / unknown), drafts owner messages,
+waits for a human to approve, and on the next run checks whether the inventory record changed.
+This page replays one recorded run of the demo scenario (<code>sim/demo_scenario.py</code>, mock model,
+no API calls). The Verifier confirms the <em>inventory record</em> changed, not that a device is secure.</p>
+
+<h2>Demo: four steps</h2>
+<nav class="steps" id="steps" aria-label="Demo steps"></nav>
+<div id="stage"></div>
+
+<h2>Results</h2>
+<div id="results"></div>
+
+<h2>Red team</h2>
+<div id="redteam"></div>
+
+<h2>Links</h2>
+<p><a id="repo" href="#">Repository</a> · <a id="readme" href="#">README</a></p>
+<p class="mut">Built by <code>scripts/build_demo_page.py</code> from the recorded demo and the published
+result files. All data synthetic, simulated.</p>
+</main>
+<script>
+const DATA = /*__DATA__*/null;
+const S = DATA.demo.stages; // 0: after run 1, 1: after approval, 2: after owners' edit + run 2
+const STEPS = [
+  {t:"1. Run 1", d:"Deming decides lanes and drafts proposals. Nothing is sent: proposals wait for a human."},
+  {t:"2. Approve", d:"A human approver approves the proposals. On this page the button is a client-side replay of the recorded approval only."},
+  {t:"3. Owners update inventory", d:"Between runs, owners edit the inventory: DEV-101 to 7.0.14, DEV-102 removed (replaced), DEV-104 to 7.0.12 (changed, still below the fixed version)."},
+  {t:"4. Run 2 verify", d:"The Verifier compares the inventory record against the open tickets. It confirms the record changed, not that the device is secure."},
+];
+let step = 0, approved = false;
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const chip = l => l ? `<span class="chip ${esc(l)}">${esc(l)}</span>` : "";
+const pct = x => x == null ? "n/a" : (100 * x).toFixed(1) + "%";
+function table(rows, cols, fmt = {}) {
+  if (!rows.length) return '<p class="mut">None.</p>';
+  return `<div class="tw"><table><thead><tr>${cols.map(c => `<th>${esc(c[1])}</th>`).join("")}</tr></thead><tbody>${
+    rows.map(r => `<tr>${cols.map(c => `<td>${fmt[c[0]] ? fmt[c[0]](r[c[0]], r) : esc(r[c[0]])}</td>`).join("")}</tr>`).join("")
+  }</tbody></table></div>`;
+}
+function lastDecision(st, id) {
+  const rows = st.decisions.filter(r => r.device_id === id && r.lane);
+  return rows[rows.length - 1] || {};
+}
+function devicesView(st, prev) {
+  const ids = [...new Set([...(prev ? prev.devices : []), ...st.devices].map(d => d.device_id))].sort();
+  const rows = ids.map(id => {
+    const d = st.devices.find(x => x.device_id === id);
+    const dec = lastDecision(st, id);
+    return d ? {...d, lane: dec.lane, evidence: dec.evidence}
+             : {device_id: id, device_name_raw: "(removed from inventory)", lane: dec.lane, evidence: dec.evidence};
+  });
+  return table(rows, [["device_id","Device"],["device_name_raw","Name (raw)"],["firmware_version_raw","Version (raw)"],
+    ["vendor","Vendor"],["product","Product"],["match_confidence","Confidence"],["lane","Lane"],["evidence","Evidence"],["owner_email","Owner"]],
+    {lane: chip});
+}
+function proposalsView(st) {
+  return st.proposals.map(p => `<div class="card"><b>${esc(p.proposal_id)}</b> ${chip(p.lane)}
+    <span class="mut">status: <span class="st">${esc(p.status)}</span>${p.decided_by ? " by " + esc(p.decided_by) : ""} · actions: ${esc(p.actions)} · deadline: ${esc(p.deadline || "none")}</span>
+    <pre>To: ${esc(p.to)}\nSubject: ${esc(p.subject)}\n\n${esc(p.body)}</pre></div>`).join("");
+}
+function outboxView(st) {
+  if (!st.outbox.length) return '<p class="mut">Empty: nothing is written before a human approves.</p>';
+  return table(st.outbox, [["kind","Kind"],["proposal_id","Proposal"],["to","To"],["subject","Subject"],["approved_by","Approved by"],["note","Note"]]);
+}
+function ticketsView(st) {
+  const t = table(st.tickets, [["ticket_id","Ticket"],["device_id","Device"],["issue","Issue"],["status","Status"],["due","Due"],["closed_on","Closed"],["flags","Flags"],["last_note","Verifier note"]],
+    {status: v => `<span class="st st-${esc(v)}">${esc(v)}</span>`});
+  const escd = st.tickets.filter(x => x.status === "escalated").map(x =>
+    `<div class="card esc"><b>${esc(x.device_id)} escalated</b> (ticket ${esc(x.ticket_id)}, flags: ${esc(x.flags)})<br>Reason: ${esc(x.last_note)}</div>`).join("");
+  return escd + t;
+}
+function render() {
+  document.getElementById("steps").innerHTML = STEPS.map((s, i) =>
+    `<button ${i === step ? 'aria-current="step"' : ""} ${i >= 2 && !approved ? "disabled" : ""} data-i="${i}">${esc(s.t)}</button>`).join("");
+  document.querySelectorAll("#steps button").forEach(b => b.onclick = () => { step = +b.dataset.i; render(); });
+  let html = `<div class="card"><b>${esc(STEPS[step].t)}</b><br>${esc(STEPS[step].d)}</div>`;
+  if (step === 0) {
+    const st = S[0];
+    html += `<h3>Devices and lanes</h3>${devicesView(st)}<h3>Proposals (drafted, waiting for a human)</h3>${proposalsView(st)}
+      <h3>Outbox (simulated)</h3>${outboxView(st)}<h3>Tickets</h3>${ticketsView(st)}`;
+  } else if (step === 1) {
+    const st = approved ? S[1] : S[0];
+    html += approved
+      ? `<p class="mut">Replayed: the recorded approval by the scripted approver. Client-side replay only; nothing was sent.</p>`
+      : `<p><button class="btn" id="approve">Approve all (client-side replay)</button> <span class="mut">Replays the recorded approval. No request leaves this page.</span></p>`;
+    html += `<h3>Proposals</h3>${proposalsView(st)}<h3>Outbox (simulated: written to files, not sent)</h3>${outboxView(st)}<h3>Tickets</h3>${ticketsView(st)}`;
+  } else if (step === 2) {
+    const before = S[1].devices, after = S[2].devices;
+    const ids = [...new Set([...before, ...after].map(d => d.device_id))].sort();
+    const rows = ids.map(id => {
+      const a = before.find(d => d.device_id === id), b = after.find(d => d.device_id === id);
+      const change = !b ? "removed (replaced)" : (a.firmware_version_raw !== b.firmware_version_raw ? "version changed" : "no change");
+      return {device_id: id, name: (a || b).device_name_raw, v1: a ? a.firmware_version_raw : "", v2: b ? b.firmware_version_raw : "(removed)", change};
+    });
+    html += `<h3>Inventory record, before and after the owners' edits</h3>${table(rows, [["device_id","Device"],["name","Name"],["v1","Version before"],["v2","Version after"],["change","Change"]])}`;
+  } else {
+    const st = S[2];
+    html += `<h3>Tickets after run 2</h3>${ticketsView(st)}
+      <h3>Verifier decisions (run 2)</h3>${table(st.decisions.filter(r => r.verification_note), [["device_id","Device"],["decision","Decision"],["outcome","Outcome"],["verification_note","Note"]])}
+      <h3>Devices and lanes after run 2</h3>${devicesView(st, S[1])}
+      <h3>Outbox (simulated)</h3>${outboxView(st)}`;
+  }
+  document.getElementById("stage").innerHTML = html;
+  const ab = document.getElementById("approve");
+  if (ab) ab.onclick = () => { approved = true; render(); };
+}
+function results() {
+  const R = DATA.results;
+  const lane = R.rows.find(r => r.key === "lane_accuracy"), ven = R.rows.find(r => r.key === "norm_vendor");
+  let h = `<p class="banner">Synthetic inventory of ${R.n} devices, built on purpose with hard cases. The ground-truth labels
+    were drafted by an AI from cited sources and are not yet verified by two humans (${R.unverified_n} of ${R.n} unverified).
+    These numbers describe this test set only. No claim about real-world accuracy.</p>
+    <div class="grid">
+      <div class="card">Lane accuracy<div class="big">${pct(lane.baseline)} → ${pct(lane.deming)}</div><span class="mut">baseline → Deming</span></div>
+      <div class="card">Vendor match<div class="big">${pct(ven.baseline)} → ${pct(ven.deming)}</div><span class="mut">baseline → Deming</span></div>
+    </div>
+    <h3>All metrics (n = ${R.n})</h3>
+    ${table(R.rows, [["label","Metric"],["baseline","Baseline (rules)"],["deming","Deming"]], {baseline: pct, deming: pct})}
+    <h3>Where the baseline wins</h3>
+    ${R.baseline_wins.length ? table(R.baseline_wins, [["group","Group"],["n","n"],["metric","Metric"],["baseline","Baseline"],["deming","Deming"]], {baseline: pct, deming: pct})
+      : '<p class="mut">No group where the baseline scores higher.</p>'}
+    <p class="mut">Deming sends ${pct(R.deming_unknown_rate)} of devices to the unknown lane (ask a human) instead of guessing; that costs points where a guess would have been right.
+    Source: <code>${esc(R.source)}</code>.</p>`;
+  document.getElementById("results").innerHTML = h;
+  const T = R.redteam, b = T.before, a = T.after;
+  const total = (b.mock || a.mock)[1];
+  document.getElementById("redteam").innerHTML = `
+    <p>${total} adversarial cases (instruction text in inventory fields, fake approvers, fake recipients, fake CVEs, version spoofs and more), run offline.</p>
+    <div class="grid">
+      <div class="card">Mock model<div class="big">${b.mock[0]} → ${a.mock[0]} / ${total}</div><span class="mut">before → after guards-v2</span></div>
+      <div class="card">Worst-case model (obeys every injected instruction)<div class="big">${b.obedient[0]} → ${a.obedient[0]} / ${total}</div><span class="mut">before → after guards-v2</span></div>
+    </div>
+    <h3>${T.open_findings.length} open findings</h3>
+    ${table(T.open_findings, [["id","Finding"],["case","Case"],["text","What still gets through"]])}
+    <p class="mut">Not measured: a real Gemini model on the red-team set. Sources: ${T.sources.map(s => `<code>${esc(s)}</code>`).join(", ")}.</p>`;
+  document.getElementById("repo").href = DATA.repo;
+  document.getElementById("readme").href = DATA.readme;
+}
+render(); results();
+</script>
+</body>
+</html>

@@ -141,6 +141,9 @@ optional `formulas` package from `requirements-dev.txt` is installed).
 rebuilds `data/lifecycle_extended.csv` from the cached sources, and `python eval/lifecycle_coverage.py`
 rewrites `docs/lifecycle-coverage.md` (retrieval coverage before/after; no model call).
 
+**Demo replay page** (static, recorded, synthetic data, simulated outbox, not a live system):
+https://harsh-617.github.io/deming/demo/ , rebuilt with `python scripts/build_demo_page.py`.
+
 **Deming Console** (no key needed): a local page that walks through the demo loop with clicks.
 
 ```powershell
